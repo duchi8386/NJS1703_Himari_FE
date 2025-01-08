@@ -20,10 +20,9 @@ const Header = () => {
                 <h1 className="text-4xl font-bold text-[#666666]">CharmAura</h1>
                 <nav className='py-8'>
                     <ul className="flex space-x-8 text-gray-700">
-                        <li><a href="#account" className="text-[#666666]" onClick={toggleModal}>Account</a></li>
-                        <li><a href="#products" className="text-[#666666]">Products</a></li>
-                        <li><a href="#about" className="text-[#666666]">About</a></li>
-                        <li><a href="#shoplist" className="text-[#666666]">Shop List</a></li>
+                        <li><a href="#account" className="text-[#666666]" onClick={toggleModal}>Tài Khoản</a></li>
+                        <li><a href="#products" className="text-[#666666]">Sản Phẩm</a></li>
+                        <li><a href="#about" className="text-[#666666]">Về Chúng Tôi</a></li>
                         <div className="text-xl"><img src={ShoppingCart} alt="" /></div>
                     </ul>
                 </nav>

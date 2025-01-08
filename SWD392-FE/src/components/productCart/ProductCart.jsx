@@ -8,7 +8,7 @@ const ProductCard = ({ image, title, description }) => {
             <h3 className="text-xl font-bold text-gray-800">{title}</h3>
             <p className="text-gray-600 mt-2">{description}</p>
             <button className="mt-4 px-6 py-2 bg-white shadow-md  text-[#93B0CA] rounded-full text-sm cursor-pointer">
-                View More
+                Xem thêm
             </button>
         </div>
     );
