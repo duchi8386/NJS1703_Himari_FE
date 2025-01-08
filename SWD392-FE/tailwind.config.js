@@ -6,6 +6,7 @@ export default {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
         EBGaramond: ["EB Garamond", "serif"],
+        poppins: ["Poppins", "sans-serif"], // Thêm font Poppins
       },
     },
   },
