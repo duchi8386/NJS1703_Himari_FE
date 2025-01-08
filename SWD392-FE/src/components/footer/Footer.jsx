@@ -9,15 +9,15 @@ const Footer = () => {
             <div className="border-t border-[#85B2DA] "></div>
             <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 pt-10">
                 <div>
-                    <h3 className="text-gray-400 text-xl font-bold">Adéna</h3>
-                    <p className="text-gray-400 mt-40">©Adéna. All Rights Reserved.</p>
+                    <h3 className="text-gray-400 text-xl font-bold">CharmAura</h3>
+                    <p className="text-gray-400 mt-40">©CharmAura. All Rights Reserved.</p>
                 </div>
                 <ul className="text-gray-400">
                     <li>Products</li>
                     <li>Moisturizing Serum</li>
                     <li>Aging Care Serum</li>
                 </ul>
-                <ul className="text-gray-400">
+                <ul className="text-gray-400 pl-40">
                     <li>About</li>
                     <li>Shop List</li>
                     <li>Login</li>
