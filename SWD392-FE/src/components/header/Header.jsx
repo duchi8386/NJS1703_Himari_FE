@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import ShoppingCart from '../../assets/img/shopping-cart.png'
 import LoginModal from '../modal/LoginModal'
+import { Link } from 'react-router-dom'
 
 const Header = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -17,13 +18,13 @@ const Header = () => {
             </div>
             {/* Navbar */}
             <div className="flex justify-between items-center px-[5%] py-4">
-                <h1 className="text-4xl font-bold text-[#666666]">CharmAura</h1>
+                <h1 className="text-4xl font-bold text-[#666666]"><Link to=''>CharmAura</Link></h1>
                 <nav className='py-8'>
                     <ul className="flex space-x-8 text-gray-700">
-                        <li><a href="#account" className="text-[#666666]" onClick={toggleModal}>Tài Khoản</a></li>
-                        <li><a href="#products" className="text-[#666666]">Sản Phẩm</a></li>
-                        <li><a href="#about" className="text-[#666666]">Về Chúng Tôi</a></li>
-                        <div className="text-xl"><img src={ShoppingCart} alt="" /></div>
+                        <li><div className="text-[#666666] cursor-pointer" onClick={toggleModal}>Tài Khoản</div></li>
+                        <li><div className="text-[#666666]">Sản Phẩm</div></li>
+                        <li><div className="text-[#666666]">Về Chúng Tôi</div></li>
+                        <Link to="/cart" className="text-xl cursor-pointer"><img src={ShoppingCart} alt="" /></Link>
                     </ul>
                 </nav>
             </div>

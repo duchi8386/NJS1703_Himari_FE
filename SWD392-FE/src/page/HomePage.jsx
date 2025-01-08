@@ -3,9 +3,12 @@ import ProductCard from '../components/productCart/ProductCart'
 import ConceptImage from '../assets/img/concept-image.png'
 import Productone from '../assets/img/product-1.png'
 import TrialImage from '../assets/img/trial-image.png'
+import HeroSection from '../components/hero/heroSection'
 const HomePage = () => {
+    document.title = 'Trang Chủ'
     return (
         <div>
+            <HeroSection />
             {/* concept */}
             <section className="bg-[#f4fafd] py-16 px-8">
                 <h2 className="text-4xl  pl-[10%] text-[#6E95B8] font-EBGaramond mb-8">Ý Tưởng</h2>
