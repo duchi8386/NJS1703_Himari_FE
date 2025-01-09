@@ -7,6 +7,7 @@ export default {
         sans: ["Inter", "sans-serif"],
         EBGaramond: ["EB Garamond", "serif"],
         Prompt: ["Prompt", "serif"],
+        poppins: ["Poppins", "sans-serif"], // Thêm font Poppins
       },
     },
   },

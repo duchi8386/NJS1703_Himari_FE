@@ -4,11 +4,11 @@ import LoginModal from '../modal/LoginModal'
 import { Link } from 'react-router-dom'
 
 const Header = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const toggleModal = () => {
-        setIsModalOpen(!isModalOpen)
-    }
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
     return (
         <header className='font-sans'>
@@ -33,4 +33,4 @@ const Header = () => {
     );
 }
 
-export default Header
+export default Header;
