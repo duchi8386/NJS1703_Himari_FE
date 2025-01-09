@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ShoppingCart from "../../assets/img/shopping-cart.png";
 import LoginModal from "../modal/LoginModal";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,13 +35,12 @@ const Header = () => {
               </a>
             </li>
             <li>
-              <a
-                href="/product"
-                onClick={() => navigate("/product")}
+              <Link
+                to="/product"
                 className="text-orange-600 cursor-pointer underline sm:no-underline sm:text-gray-600"
               >
                 Products
-              </a>
+              </Link>
             </li>
             <li>
               <a href="#about" className="text-[#666666]">
