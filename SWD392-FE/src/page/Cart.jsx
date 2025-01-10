@@ -1,7 +1,8 @@
 import React from "react";
 import CartItem from "../components/cart/CartItem";
 import CartEmpty from "./CartEmpty";
-import testProduct from "../assets/img/testProduct.png"
+import testProduct from "../assets/img/testProduct.png";
+import { Link } from 'react-router-dom'
 
 const Cart = () => {
     document.title = 'Giỏ Hàng'
@@ -75,9 +76,11 @@ const Cart = () => {
                         Dự kiến ​​giao hàng vào ngày <span className="font-semibold">01 tháng 02 năm 2025</span>
                     </p>
                     <div className="mt-4">
+                        <Link to="/payment">
                         <button className="w-full bg-[#BF6159] text-white py-2 rounded-lg hover:bg-red-600 mt-4">
                             Proceed to Checkout
                         </button>
+                        </Link>
                     </div>
                 </div>
             </div>
