@@ -16,7 +16,7 @@ const Address = ({ onNext }) => {
             />
             <div className="flex-1">
               <div className="flex justify-between">
-                <p className="font-Prompt text-lg">Lorem Ipsum</p>
+                <p className=" font-semiboldtext-lg">Lorem Ipsum</p>
                 <div className="space-x-4">
                   <button className="text-[#17183B] font-semibold">Edit</button>
                   <button className="text-[#BF6159] font-semibold">Remove</button>
@@ -38,7 +38,7 @@ const Address = ({ onNext }) => {
 
       {/* Phần Order Summary - Chiếm 30% */}
       <div className="bg-white p-6 rounded-lg border">
-        <h2 className="text-lg font-semibold mb-4 text-[#17183B]">Tạm Tính</h2>
+        <h2 className="text-lg font-bold mb-4 text-[#17183B]">Tạm Tính</h2>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <p>Thành Tiền</p>

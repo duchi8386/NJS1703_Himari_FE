@@ -52,7 +52,7 @@ const Paid = ({ onNext }) => {
         </div>
 
         {/* Add Payment Method Button */}
-        <button className="flex items-center text-[#BF6159] mt-4">
+        <button className="flex items-center text-[#3AA39F] mt-4">
           <span className="text-xl mr-2">+</span>
           Add Payment method
         </button>
