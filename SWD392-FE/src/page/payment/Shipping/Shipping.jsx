@@ -96,7 +96,7 @@ const Shipping = ({ onNext }) => {
         </p>
         <div className="mt-4">
           <button
-            className="w-full bg-[#BF6159] text-white py-2 rounded-lg hover:bg-red-600"
+            className="w-full font-semibold bg-[#BF6159] text-white py-2 rounded-lg hover:bg-red-600"
             onClick={onNext}
           >
             Continue to Payment

@@ -90,7 +90,7 @@ const Paid = ({ onNext }) => {
         </p>
         <div className="mt-4">
           <button
-            className="w-full bg-[#BF6159] text-white py-2 rounded-lg hover:bg-red-600 mt-4"
+            className="w-full font-semibold bg-[#BF6159] text-white py-2 rounded-lg hover:bg-red-600 mt-4"
             onClick={onNext}
           >
             Place Your Order and Pay

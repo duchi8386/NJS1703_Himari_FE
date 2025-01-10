@@ -16,7 +16,7 @@ const Address = ({ onNext }) => {
             />
             <div className="flex-1">
               <div className="flex justify-between">
-                <p className="font-semibold text-lg">Lorem Ipsum</p>
+                <p className="font-Prompt text-lg">Lorem Ipsum</p>
                 <div className="space-x-4">
                   <button className="text-[#17183B] font-semibold">Edit</button>
                   <button className="text-[#BF6159] font-semibold">Remove</button>
@@ -68,7 +68,7 @@ const Address = ({ onNext }) => {
         </p>
         <div className="mt-4">
           <button
-            className="w-full bg-[#BF6159] text-white py-2 rounded-lg hover:bg-red-600"
+            className="w-full font-semibold bg-[#BF6159] text-white py-2 rounded-lg hover:bg-red-600"
             onClick={onNext}
           >
             Continue to Shipping
