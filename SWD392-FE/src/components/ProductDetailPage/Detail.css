@@ -1,0 +1,26 @@
+.product-collapse {
+    .ant-collapse-item {
+      border-radius: 0 !important;
+      border-top: none !important;
+      border-left: none !important;
+      border-right: none !important;
+    }
+  
+    .ant-collapse-header {
+      padding: 16px !important;
+    }
+  
+    .ant-collapse-content-box {
+      padding: 16px  !important;
+    }
+  
+    /* Đường kẻ dưới */
+    .ant-collapse-item {
+      border-bottom: 1px solid #e8e8e8 !important;
+    }
+  
+    /* Style cho arrow */
+    .ant-collapse-expand-icon {
+      color: #666;
+    }
+  }

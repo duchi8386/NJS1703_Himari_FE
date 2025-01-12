@@ -22,7 +22,7 @@ const Header = () => {
                 <nav className='py-8'>
                     <ul className="flex space-x-8 text-gray-700">
                         <li><div className="text-[#666666] cursor-pointer" onClick={toggleModal}>Tài Khoản</div></li>
-                        <li><div className="text-[#666666]">Sản Phẩm</div></li>
+                        <li><Link to="/product" className="text-[#666666]">Sản Phẩm</Link></li>
                         <li><div className="text-[#666666]">Về Chúng Tôi</div></li>
                         <Link to="/cart" className="text-xl cursor-pointer"><img src={ShoppingCart} alt="" /></Link>
                     </ul>
