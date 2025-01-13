@@ -3,13 +3,14 @@ import HomePage from "../page/HomePage";
 import ProductPage from "../page/ProductPage";
 import RootLayout from "../layout/RootLayout";
 import Cart from "../page/Cart";
-import ProductDetail from "../page/ProductDetail";
+import ProductDetailPage from "../page/ProductDetailPage";
 import Loading from "../Loading/Loading";
 import Payment from "../page/payment/Payment";
+import Detail from "../components/ProductDetailPage/Detail";
 
 export const router = createBrowserRouter([
   {
-   path: "/",
+    path: "/",
     element: (
       <Loading>
         <RootLayout />
@@ -30,12 +31,13 @@ export const router = createBrowserRouter([
       },
       {
         path: "/product/:id",
-        element: <ProductDetail />,
+        // element: <ProductDetailPage />,
+        element: <Detail />,
       },
       {
-        path:"payment",
-        element:<Payment/>
-      }
+        path: "payment",
+        element: <Payment />,
+      },
     ],
   },
 ]);
