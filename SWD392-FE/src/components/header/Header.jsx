@@ -3,8 +3,9 @@ import ShoppingCart from '../../assets/img/shopping-cart.png'
 import LoginModal from '../modal/LoginModal'
 import { Link } from 'react-router-dom'
 import Logo from '../../assets/img/Logo.png'
-import { Input } from 'antd'
+import { Avatar, Input } from 'antd'
 import { FaSearch } from 'react-icons/fa'
+import { UserOutlined } from '@ant-design/icons';
 import Search from 'antd/es/transfer/search'
 const Header = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -22,6 +23,7 @@ const Header = () => {
                 </div>
                 <div className='flex w-[50%]'>
                     <Search
+                        style={{height: "500px"}}
                         placeholder="input search text"
                         enterButton="Search"
                         size="large"
@@ -35,7 +37,7 @@ const Header = () => {
                         <li><div className="text-[#666666]">Sản Phẩm</div></li>
                         <li><div className="text-[#666666]">Về Chúng Tôi</div></li>
                         <li><div className="text-[#666666]">Blog</div></li>
-                        <li><div className="text-[#666666] cursor-pointer" onClick={toggleModal}>Tài Khoản</div></li>
+                        <li><div><Avatar style={{backgroundColor: '#87d068',}}icon={<UserOutlined onClick={toggleModal} />} /></div> </li>
                     </ul>
                 </nav>
             </div>

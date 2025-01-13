@@ -50,13 +50,13 @@ const HomePage = () => {
             </section>
 
             {/* Product */}
-            <section className="py-12 bg-gray-50">
+            <section className="py-12">
                 <h2 className="text-2xl font-semibold text-center mb-6">Sản phẩm nổi bật</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-8">
                     {products.map((product) => (
                         <div
                             key={product.id}
-                            className="border rounded-md p-4 bg-white shadow-sm hover:shadow-lg transition"
+                            className=" rounded-md p-4 bg-white hover:shadow-lg transition cursor-pointer"
                         >
                             <div className="relative">
                                 <img
@@ -68,8 +68,8 @@ const HomePage = () => {
                                     {product.discount}
                                 </span>
                             </div>
-                            <h3 className="mt-4 text-sm font-semibold">{product.name}</h3>
-                            <p className="mt-2 text-pink-500 font-bold">{product.price}</p>
+                            <h3 className="mt-4 font-semibold flex justify-center font-Poppins text-xl">{product.name}</h3>
+                            <p className="mt-2 text-[#0A4535] text-2xl font-bold flex justify-center">{product.price}</p>
                         </div>
                     ))}
                 </div>
