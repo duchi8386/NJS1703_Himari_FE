@@ -59,7 +59,7 @@ const ProductDetail = () => {
                 autoplay
                 arrows
                 effect="fade"
-                className="w-[736px] h-[496px]"
+                className="w-full h-full"
                 ref={carouselRef}
               >
                 {/* Chỉ render từ product.details.images */}
@@ -198,7 +198,7 @@ const ProductDetail = () => {
         <Col xs={24} md={12}>
           <Collapse
             bordered={false}
-            className="product-collapse mt-8 text-xl"
+            className="product-collapse mt-8 text-md"
             expandIconPosition="start"
             style={{
               paddingInlineStart: 14,
