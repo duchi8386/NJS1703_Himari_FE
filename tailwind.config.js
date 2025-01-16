@@ -8,6 +8,7 @@ export default {
         EBGaramond: ["EB Garamond", "serif"],
         Prompt: ["Prompt", "serif"],
         poppins: ["Poppins", "sans-serif"], // Thêm font Poppins
+        PoltawskiNowy: ["Poltawski Nowy", "sans-serif"],
       },
     },
   },
