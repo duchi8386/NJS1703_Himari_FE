@@ -35,28 +35,35 @@ const Header = () => {
         </div>
 
         <nav className="py-8">
-          <ul className="flex space-x-8 text-gray-700">
-            <Link to="/cart" className="text-xl cursor-pointer">
-              <img src={ShoppingCart} alt="" />
-            </Link>
-            <li>
-              <Link to="/product" className="text-[#666666]">
+          <ul className="flex items-center justify-end space-x-8 text-gray-700">
+            <li className="flex items-center h-10">
+              <Link to="/cart" className="flex items-center">
+                <img src={ShoppingCart} alt="" className="w-6 h-6" />
+              </Link>
+            </li>
+            <li className="flex items-center h-10">
+              <Link
+                to="/product"
+                className="text-[#666666] text-base hover:text-gray-900"
+              >
                 Sản Phẩm
               </Link>
             </li>
-            <li>
-              <div className="text-[#666666]">Về Chúng Tôi</div>
+            <li className="flex items-center h-10">
+              <div className="text-[#666666] text-base hover:text-gray-900">
+                Về Chúng Tôi
+              </div>
             </li>
-            <li>
-              <div className="text-[#666666]">Blog</div>
+            <li className="flex items-center h-10">
+              <div className="text-[#666666] text-base hover:text-gray-900">
+                Blog
+              </div>
             </li>
-            <li>
-              <div>
-                <Avatar
-                  style={{ backgroundColor: "#87d068" }}
-                  icon={<UserOutlined onClick={toggleModal} />}
-                />
-              </div>{" "}
+            <li className="flex items-center h-10">
+              <Avatar
+                style={{ backgroundColor: "#eaddff", cursor: "pointer", color: "#666666" }}
+                icon={<UserOutlined onClick={toggleModal} />}
+              />
             </li>
           </ul>
         </nav>

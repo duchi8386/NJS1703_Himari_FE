@@ -25,7 +25,7 @@ const SearchResults = ({
                 Results for "<span className="font-bold">{searchQuery}</span>"
               </span>
             ) : (
-              "All Courses"
+              "Tất cả sản phẩm"
             )}
           </h2>
           <div className="flex items-center justify-between space-x-4 w-full sm:w-[400px]">
@@ -35,7 +35,7 @@ const SearchResults = ({
               className="w-full"
               onSearch={onSearch}
             />
-            <Button
+            {/* <Button
               icon={<GrGrid />}
               onClick={() => setViewMode("grid")}
               type={viewMode === "grid" ? "primary" : "default"}
@@ -46,7 +46,7 @@ const SearchResults = ({
               onClick={() => setViewMode("list")}
               type={viewMode === "list" ? "primary" : "default"}
               className="md:inline-block hidden view-button"
-            />
+            /> */}
           </div>
         </div>
 

@@ -3,10 +3,9 @@ import HomePage from "../page/HomePage";
 import ProductPage from "../page/ProductPage";
 import RootLayout from "../layout/RootLayout";
 import Cart from "../page/Cart";
-import ProductDetailPage from "../page/ProductDetailPage";
 import Loading from "../Loading/Loading";
 import Payment from "../page/payment/Payment";
-import Detail from "../components/ProductDetailPage/Detail";
+import ProductDetail from "../components/ProductDetailPage/Detail";
 
 export const router = createBrowserRouter([
   {
@@ -32,7 +31,7 @@ export const router = createBrowserRouter([
       {
         path: "/product/:id",
         // element: <ProductDetailPage />,
-        element: <Detail />,
+        element: <ProductDetail />,
       },
       {
         path: "payment",

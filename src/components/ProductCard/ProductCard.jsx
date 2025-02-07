@@ -1,32 +1,30 @@
-import { Card } from "antd";
+import { Card, Rate } from "antd";
 import { FaStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { moneyFormatter } from "../../utils/moneyFormatter.js";
-import sampleProducts from "../../data/sampleProducts.js";
 import { useCustomNavigate } from "../../hooks/customNavigate.jsx";
 
-const ProductCard = () => {
+const ProductCard = ({ products }) => {
   const viewMode = "grid";
   const navigate = useCustomNavigate(); // Thêm hook navigate
   return (
     <div>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {sampleProducts.map((product) => (
+        {products?.map((product) => (
           <Link
             key={product.id}
             to={`/product/${product.id}`}
             className="relative group"
           >
-            {/* {product.discount > 0 && (
-              <div className="absolute top-0 right-0 bg-red-500 text-white px-2 py-2 z-10 rounded-tr-lg rounded-bl-lg">
-                -{product.discount}%
-              </div>
-            )} */}
-            {product.isBestSeller && (
+            {product.isBestSeller ? (
               <div className="absolute top-2 right-2 bg-white/90 text-gray-700 px-3 py-1 z-10 rounded-md text-sm font-medium shadow-sm">
                 Bán chạy
               </div>
-            )}
+            ) : product.discount > 0 ? (
+              <div className="absolute top-2 right-2 bg-white/90 text-gray-700 px-3 py-1 z-10 rounded-md text-sm font-medium shadow-sm">
+                Đang giảm giá
+              </div>
+            ) : null}
             <Card
               hoverable
               styles={{
@@ -47,10 +45,13 @@ const ProductCard = () => {
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     {/* Rating - Sans Serif */}
                     <div className="flex items-center mb-2 font-sans">
-                      <FaStar className="text-black mr-1" size={16} />
-                      <span className="text-white text-sm">
-                        {product.rating}
-                      </span>
+                      <Rate
+                        disabled
+                        color="#FFD700"
+                        allowHalf
+                        style={{ fontSize: "14px", color: "black" }}
+                        value={product.rating}
+                      />
                     </div>
                     <div className="flex justify-between items-end">
                       {/* Tên sản phẩm - Inter */}
@@ -59,12 +60,11 @@ const ProductCard = () => {
                       </h3>
                       {/* Giá - System UI */}
                       <div className="text-white font-poppins font-bold">
-                        {moneyFormatter(product.price)}
-                        {product.discount > 0 && (
-                          <span className="block text-sm text-gray-300 line-through">
-                            {moneyFormatter(product.price)}
-                          </span>
-                        )}
+                        {product.discount > 0
+                          ? moneyFormatter(
+                              product.price * (1 - product.discount / 100)
+                            )
+                          : moneyFormatter(product.price)}
                       </div>
                     </div>
                   </div>

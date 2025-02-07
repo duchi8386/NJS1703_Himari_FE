@@ -63,7 +63,7 @@ const Category = () => {
                             style={box}
                             className='flex flex-col items-center space-y-4 cursor-pointer text-center text-4xl text-[#000000]'
                             whileHover={{
-                                scale: [null, 1.1, 1.6],
+                                scale: [null, 1.1, 1.15],
                                 transition: {
                                     duration: 0.5,
                                     times: [0, 0.6, 1],
