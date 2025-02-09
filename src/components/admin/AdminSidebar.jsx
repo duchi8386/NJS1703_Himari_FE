@@ -97,7 +97,7 @@ const AdminSidebar = ({ onMenuClick }) => {
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const lastPathSegment = pathSegments[2];
-  const [selectedParent, setSelectedParent] = useState < string > "";
+  const [selectedParent, setSelectedParent] = useState("");
 
   useEffect(() => {
     if (lastPathSegment) {
@@ -113,8 +113,8 @@ const AdminSidebar = ({ onMenuClick }) => {
     }
   }, [lastPathSegment]);
 
-  const handleMenuClick = () => {
-    if (onMenuClick) onMenuClick(); // Close Drawer if needed
+  const handleMenuClick = (key) => {
+    if (onMenuClick) onMenuClick();
 
     const selectedItem = menuItems.find(
       (item) =>
@@ -128,7 +128,7 @@ const AdminSidebar = ({ onMenuClick }) => {
     }
   };
 
-  const renderMenuItems = () => {
+  const renderMenuItems = (items) => {
     return items.map((item) => {
       const menuItem = {
         key: item.key,
@@ -138,11 +138,8 @@ const AdminSidebar = ({ onMenuClick }) => {
       };
 
       if (item.items) {
-        // For submenu, use items
         return {
-          key: item.key,
-          icon: item.icon,
-          label: item.label,
+          ...menuItem,
           children: item.items.map((child) => ({
             icon: child.icon,
             key: child.key,
@@ -151,7 +148,7 @@ const AdminSidebar = ({ onMenuClick }) => {
           })),
         };
       }
-      return menuItem; // Return the regular menu item
+      return menuItem;
     });
   };
 

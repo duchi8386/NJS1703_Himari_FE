@@ -1,17 +1,14 @@
 import { useState, useEffect } from "react";
 import { Layout, Button, Drawer, Avatar, Dropdown } from "antd";
 import { MenuOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
-import logoImage from "../../assets/EduMaster.png";
+import logoImage from "../../assets/img/Logo.png";
 import { useCustomNavigate } from "../../hooks/customNavigate";
 import AdminSidebar from "./AdminSidebar";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store/store";
 
 const { Sider } = Layout;
 
 const AdminNavBar = () => {
-  //   const { currentUser } = useSelector((state: RootState) => state.auth.login);
-
+  //   const { currentUser } = useSelector((state) => state.auth.login);
   const navigate = useCustomNavigate();
   const [isMobile, setIsMobile] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -23,7 +20,6 @@ const AdminNavBar = () => {
 
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -100,7 +96,7 @@ const AdminNavBar = () => {
             src={logoImage}
             alt="EduMaster logo"
             style={{
-              height: isMobile ? "30px" : "40px",
+              height: isMobile ? "45px" : "80px",
               marginRight: "16px",
             }}
           />
@@ -128,7 +124,7 @@ const AdminNavBar = () => {
             <Avatar
               shape="square"
               size="large"
-              src={currentUser.avatar_url}
+              //   src={currentUser.avatar_url}
               alt="User Avatar"
               style={{ border: "2px solid white" }}
             />
@@ -140,7 +136,7 @@ const AdminNavBar = () => {
                   transition: "color 0.3s",
                 }}
               >
-                {currentUser.name}
+                {/* {currentUser.name} */}
               </span>
             )}
           </div>
