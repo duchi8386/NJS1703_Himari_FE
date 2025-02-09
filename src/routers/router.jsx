@@ -3,10 +3,10 @@ import HomePage from "../page/HomePage";
 import ProductPage from "../page/ProductPage";
 import RootLayout from "../layout/RootLayout";
 import Cart from "../page/Cart";
-import ProductDetailPage from "../page/ProductDetailPage";
 import Loading from "../Loading/Loading";
 import Payment from "../page/payment/Payment";
-import Detail from "../components/ProductDetailPage/Detail";
+import ProductDetail from "../components/ProductDetailPage/Detail";
+import AdminLayout from "../layout/AdminLayout";
 
 export const router = createBrowserRouter([
   {
@@ -32,12 +32,35 @@ export const router = createBrowserRouter([
       {
         path: "/product/:id",
         // element: <ProductDetailPage />,
-        element: <Detail />,
+        element: <ProductDetail />,
       },
       {
         path: "payment",
         element: <Payment />,
       },
+    ],
+  },
+  // Admin Layout
+  {
+    path: "/admin",
+    element: (
+      <Loading>
+        <AdminLayout />
+      </Loading>
+    ),
+    children: [
+      // {
+      //   path: "", // /admin
+      //   element: <AdminDashboard />,
+      // },
+      // {
+      //   path: "products", // /admin/products
+      //   element: <AdminProducts />,
+      // },
+      // {
+      //   path: "orders", // /admin/orders
+      //   element: <AdminOrders />,
+      // },
     ],
   },
 ]);
