@@ -1,7 +1,6 @@
 import React from "react";
 import CartItem from "../components/cart/CartItem";
 import CartEmpty from "./CartEmpty";
-import testProduct from "../assets/img/testProduct.png";
 import { Link } from 'react-router-dom'
 
 const Cart = () => {
@@ -22,7 +21,7 @@ const Cart = () => {
                     ) : (
                         <>
                             {/* Single Item */}
-                            <CartItem
+                            {/* <CartItem
                                 title="Lorem Ipsum"
                                 price="350"
                                 color="Gunnared beige"
@@ -33,7 +32,7 @@ const Cart = () => {
                                 price="350"
                                 color="Lysed bright green"
                                 imageSrc={testProduct}
-                            />
+                            /> */}
 
                             {/* Discount Section */}
                             <div className="bg-blue-100 border-l-4 border-blue-500 p-4">

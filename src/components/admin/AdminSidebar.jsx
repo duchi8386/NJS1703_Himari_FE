@@ -8,7 +8,7 @@ import {
   FolderOutlined,
   MoneyCollectOutlined,
   FileTextOutlined,
-  SettingOutlined,
+  SettingOutlined,    
   BookOutlined,
   HourglassOutlined,
   ShoppingCartOutlined,
