@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Radio, Checkbox } from "antd";
 import Logo from "../../assets/img/Logo.png";
-import { SendOutlined } from '@ant-design/icons';
+import { SendOutlined } from "@ant-design/icons";
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -86,10 +86,10 @@ const LoginModal = ({ isOpen, onClose }) => {
                   label="Tài khoản"
                   name="account"
                   rules={[
-                    { required: true, message: 'Vui lòng nhập tài khoản!' }
+                    { required: true, message: "Vui lòng nhập tài khoản!" },
                   ]}
                 >
-                  <Input 
+                  <Input
                     placeholder="Email hoặc số điện thoại"
                     className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   />
@@ -99,17 +99,17 @@ const LoginModal = ({ isOpen, onClose }) => {
                   label="Mật khẩu"
                   name="password"
                   rules={[
-                    { required: true, message: 'Vui lòng nhập mật khẩu!' }
+                    { required: true, message: "Vui lòng nhập mật khẩu!" },
                   ]}
                 >
-                  <Input.Password 
+                  <Input.Password
                     placeholder="Mật khẩu"
                     className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   />
                 </Form.Item>
 
                 <Form.Item>
-                  <Button 
+                  <Button
                     htmlType="submit"
                     className="w-full bg-pink-300 hover:bg-pink-400 text-black border-none h-12 text-lg font-medium rounded-md"
                   >
@@ -122,22 +122,27 @@ const LoginModal = ({ isOpen, onClose }) => {
 
           {showForgotPassword && (
             <>
-              <h2 className="text-2xl font-bold mb-6 text-center">Quên mật khẩu</h2>
+              <h2 className="text-2xl font-bold mb-6 text-center">
+                Quên mật khẩu
+              </h2>
               <Form form={form} onFinish={onFinish} layout="vertical">
                 <Form.Item
                   name="forgotEmail"
                   rules={[
-                    { required: true, message: 'Vui lòng nhập email hoặc số điện thoại!' }
+                    {
+                      required: true,
+                      message: "Vui lòng nhập email hoặc số điện thoại!",
+                    },
                   ]}
                 >
-                  <Input 
+                  <Input
                     placeholder="Email hoặc số điện thoại"
                     className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     suffix={
-                      <Button 
+                      <Button
                         className="bg-transparent border-none text-black hover:bg-transparent"
                         icon={<SendOutlined />}
-                        onClick={() => console.log('Gửi mã')}
+                        onClick={() => console.log("Gửi mã")}
                       />
                     }
                   />
@@ -145,18 +150,16 @@ const LoginModal = ({ isOpen, onClose }) => {
 
                 <Form.Item
                   name="otpCode"
-                  rules={[
-                    { required: true, message: 'Vui lòng nhập mã OTP!' }
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập mã OTP!" }]}
                 >
-                  <Input 
+                  <Input
                     placeholder="OTP code"
                     className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   />
                 </Form.Item>
 
                 <Form.Item>
-                  <Button 
+                  <Button
                     htmlType="submit"
                     className="w-full bg-pink-300 hover:bg-pink-400 text-black border-none h-12 text-lg font-medium rounded-md"
                   >
