@@ -5,9 +5,9 @@ import Testimonials from '../components/testimonials/Testimonials'
 import SectionWithAnimation from '../components/animate/SectionWithAnimation'
 import Concept from '../components/concept/Concept'
 import ProductSection from '../components/product/ProductSection'
-import AboutUsSection from '../components/aboutus/aboutusSection'
 import SubscribeSection from '../components/subscribe/SubscribeSection'
 import Category from '../components/category/Category'
+import AboutUsSection from "../components/aboutus/AboutUsSection"
 const HomePage = () => {
     document.title = 'Trang Chủ'
 
