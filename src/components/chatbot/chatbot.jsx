@@ -18,7 +18,7 @@ const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-10 right-20">
+    <div className="fixed bottom-10 right-20 ">
       {/* Chat Toggle Button */}
       {!isOpen && (
         <Button
@@ -40,9 +40,14 @@ const Chatbot = () => {
             : "opacity-0 translate-y-4 invisible"
         }`}
       >
-        <div className="w-[400px] bg-white rounded-xl shadow-lg flex flex-col absolute bottom-5 right-0">
+        <div className="w-[400px] bg-white rounded-xl shadow-lg flex flex-col absolute bottom-5 right-0 border-2 border-pink-400">
           {/* Header */}
-          <div className="bg-white px-4 py-2 flex items-center justify-between border-b rounded-t-xl">
+          <div
+            className=" px-4 py-2 flex items-center justify-between border-b border-gray-400 rounded-t-xl"
+            style={{
+              background: "linear-gradient(to right, #FAEBEE, #F0D1D7)",
+            }}
+          >
             <div className="flex items-center gap-2">
               <img src={Logo} alt="Logo" className="w-10 h-10" />
             </div>
