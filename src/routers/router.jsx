@@ -7,6 +7,9 @@ import Loading from "../Loading/Loading";
 import Payment from "../page/payment/Payment";
 import ProductDetail from "../components/ProductDetailPage/Detail";
 import AdminLayout from "../layout/AdminLayout";
+import BlogPage from "../page/blogspage/BlogPage";
+import Profile from "../page/profile/Profile";
+
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +41,14 @@ export const router = createBrowserRouter([
         path: "payment",
         element: <Payment />,
       },
+      {
+        path: "/blog",
+        element: <BlogPage />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
     ],
   },
   // Admin Layout
@@ -64,3 +75,5 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+

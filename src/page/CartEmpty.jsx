@@ -1,4 +1,4 @@
-import React from "react";
+
 import EmptyCart from '../assets/img/emptycart.png';
 const CartEmpty = () => {
     return (
