@@ -1,0 +1,47 @@
+export const mockUsers = [
+  {
+    key: '1',
+    id: 1,
+    username: 'johndoe',
+    email: 'john@example.com',
+    phone: '0123456789',
+    role: 'user',
+    status: 'active',
+  },
+  {
+    key: '2',
+    id: 2,
+    username: 'janesmith',
+    email: 'jane@example.com',
+    phone: '0987654321',
+    role: 'admin',
+    status: 'active',
+  },
+  {
+    key: '3',
+    id: 3,
+    username: 'robertwilson',
+    email: 'robert@example.com',
+    phone: '0369852147',
+    role: 'user',
+    status: 'inactive',
+  },
+  {
+    key: '4',
+    id: 4,
+    username: 'maryjohnson',
+    email: 'mary@example.com',
+    phone: '0741852963',
+    role: 'user',
+    status: 'active',
+  },
+  {
+    key: '5',
+    id: 5,
+    username: 'davidbrown',
+    email: 'david@example.com',
+    phone: '0159753468',
+    role: 'admin',
+    status: 'active',
+  }
+]; 
