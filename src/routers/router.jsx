@@ -77,7 +77,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: "/admin/login",
+    path: "/login",
     element: <LoginAdmin />,
   },
   {
