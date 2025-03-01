@@ -1,8 +1,11 @@
-import { Layout } from "antd";
+import { Layout, Menu } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";
 import AdminNavBar from "../components/admin/AdminNavbar";
 import { useEffect, useState } from "react";
+import Sider from "antd/es/layout/Sider";
+import Logo from "../assets/img/Logo.png";
+import AdminSidebar from "../components/admin/AdminSidebar";
 
 const AdminLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -18,28 +21,38 @@ const AdminLayout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      {/* {Navbar} */}
-      <AdminNavBar />
+    <Layout className="h-screen">
+      {/* Main Content */}
       <Layout
         style={{
-          marginLeft: isMobile ? 0 : 250, // MarginLeft cho desktop
-          padding: "24px 24px 0 24px",
-          marginTop: "80px",
-          backgroundColor: "#e8ebee",
+          minHeight: "100vh",
+          background: "linear-gradient(to right, #ffe1b7, #ffd8c5, #facfe7)", // Gradient background
+          display: "flex",
         }}
+        className="p-8 "
       >
-        {/* <DynamicBreadcrumb /> */}
-        <Content
+        <Layout
           style={{
-            borderRadius: "15px",
-            padding: "8px",
-            backgroundColor: "#fff",
-            minHeight: "80vh",
+            width: "100%",
+            display: "flex",
+            background:
+              "linear-gradient(to right, #fff2de 0%, #ffede6 50%, #fdeaf3 100%)", // Gradient bên trong
+            borderRadius: "16px",
           }}
         >
-          <Outlet />
-        </Content>
+          {/* Sidebar */}
+          {/* <Sider width={240} className="rounded-l-2xl bg-transparent">
+            <div className="p-8">
+              <img src={Logo} alt="" />
+            </div>
+            <Menu mode="vertical" className="text-lg bg-white" />
+          </Sider> */}
+          <AdminSidebar />
+          {/* Main Content */}
+          <Content className="rounded-r-2xl  p-4">
+            <Outlet />
+          </Content>
+        </Layout>
       </Layout>
     </Layout>
   );
