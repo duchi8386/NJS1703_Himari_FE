@@ -10,22 +10,6 @@ const { Content } = Layout;
 const AdminPage = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    return savedMode ? JSON.parse(savedMode) : false;
-  });
-  const adminUser = JSON.parse(localStorage.getItem("adminUser"));
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  console.log("AdminPage Rendered, User:", adminUser); // ✅ Kiểm tra user có load đúng không
 
   const handleLogout = () => {
     try {
@@ -44,43 +28,33 @@ const AdminPage = () => {
     setCollapsed(!collapsed);
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
   return (
-    <Layout className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+    <Layout className={`min-h-screen `}>
       <Sidebar
         handleLogout={handleLogout}
         collapsed={collapsed}
         toggleCollapsed={toggleCollapsed}
-        isDarkMode={isDarkMode}
       />
       <Layout
         style={{
           marginLeft: collapsed ? 80 : 250,
           transition: "all 0.2s",
-          background: isDarkMode ? '#1f2937' : '#f0f2f5',
+          background: "#f0f2f5",
+          // background:  "#1f2937" : "#f0f2f5",
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
         }}
       >
-        <AdminHeader
-          collapsed={collapsed}
-          toggleCollapsed={toggleCollapsed}
-          adminUser={adminUser}
-          isDarkMode={isDarkMode}
-          toggleDarkMode={toggleDarkMode}
-        />
+        <AdminHeader collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
         <Content
           style={{
             margin: "24px 16px",
             padding: 24,
             flex: 1,
-            background: isDarkMode ? '#111827' : '#ffffff',
+            background: "#11182",
             borderRadius: 8,
-            color: isDarkMode ? '#ffffff' : '#000000',
+            color: "#ffffff",
             overflow: "auto",
           }}
         >

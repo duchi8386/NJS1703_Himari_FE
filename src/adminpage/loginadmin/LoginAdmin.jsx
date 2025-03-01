@@ -1,24 +1,45 @@
-import { Button, Card, Divider } from 'antd';
-import { GoogleOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import Logo from '../../assets/img/Logo.png';
+import { Button, Card, Divider } from "antd";
+import { GoogleOutlined, LockOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import Logo from "../../assets/img/Logo.png";
+import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const LoginAdmin = () => {
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleGoogleLogin = () => {
-    // Giả lập đăng nhập thành công
-    const mockAdminUser = {
-      fullName: "Admin User",
-      role: "admin",
-      email: "admin@example.com"
-    };
-    
-    // Lưu thông tin admin vào localStorage
-    localStorage.setItem('adminUser', JSON.stringify(mockAdminUser));
-    
-    // Chuyển hướng đến trang admin
-    navigate('/');
+  const handleGoogleLoginSuccess = async (response) => {
+    console.log("✅ Google Response:", response);
+
+    try {
+      // Lấy credential (idToken) từ response
+      const idToken = response.credential;
+      console.log("✅ ID Token:", idToken);
+
+      // Gửi idToken lên backend để xác thực
+      const backendResponse = await axios.post(
+        "http://wizlab.io.vn:12345/api/v1/auth/login/google/oauth",
+        idToken,
+        {
+          headers: { "Content-Type": "application/json" },
+        } // Gửi idToken lên backend
+      );
+      console.log("✅ Backend Response:", backendResponse.data);
+      // Lưu accessToken vào localStorage
+      localStorage.setItem("accessToken", backendResponse.data.accessToken);
+      // Đăng nhập thành công, chuyển hướng đến trang chính
+      login();
+      navigate("/admin/dashboard");
+    } catch (error) {
+      console.error("❌ Google login failed:", error);
+    }
+  };
+
+  const handleGoogleLoginError = () => {
+    console.error("❌ Google Login Failed");
   };
 
   return (
@@ -31,15 +52,15 @@ const LoginAdmin = () => {
         </div>
 
         <Divider className="my-6">Đăng nhập với</Divider>
-
-        <Button
-          icon={<GoogleOutlined />}
-          size="large"
-          className="w-full h-12 flex items-center justify-center text-base"
-          onClick={handleGoogleLogin}
-        >
-          Đăng nhập bằng Google
-        </Button>
+        <GoogleLogin onSuccess={handleGoogleLoginSuccess}>
+          <Button
+            icon={<GoogleOutlined />}
+            size="large"
+            className="w-full h-12 flex items-center justify-center text-base"
+          >
+            Đăng nhập bằng Google
+          </Button>
+        </GoogleLogin>
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <LockOutlined className="mr-2" />
