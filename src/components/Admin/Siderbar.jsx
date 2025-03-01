@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import { Layout, Menu } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   DashboardOutlined,
   UserOutlined,
@@ -17,6 +17,20 @@ const { Sider } = Layout;
 
 const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  const onLogout = () => {
+    // Call the handleLogout function passed from parent
+    handleLogout();
+    
+    // Clear localStorage items
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("adminUser");
+    
+    // Navigate to login page
+    navigate("/admin/login");
+  };
 
   const menuItems = [
     {
@@ -60,7 +74,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
       label: "Logout",
       className: "mt-auto",
       danger: true,
-      onClick: handleLogout,
+      onClick: onLogout,
     },
   ];
 
@@ -71,7 +85,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
       collapsed={collapsed}
       width={250}
       style={{
-        background:  '#ffffff',
+        background: '#ffffff',
         height: "100vh",
         position: "fixed",
         left: 0,
@@ -92,7 +106,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
             />
             {!collapsed && (
               <div className="flex font-bold items-center">
-                <span className={"text-xl font-bold  text-gray-800"}>
+                <span className="text-xl font-bold text-gray-800">
                   Himari
                 </span>
                 <span className="ml-1.5 text-[10px] font-medium tracking-widest text-gray-400 self-end mb-0.5">
@@ -109,12 +123,10 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
         mode="inline"
         selectedKeys={[location.pathname]}
         items={menuItems}
-        style={{ 
-          
+        style={{
           borderRight: 0,
-          background:  '#ffffff',
+          background: '#ffffff',
         }}
-       
       />
     </Sider>
   );

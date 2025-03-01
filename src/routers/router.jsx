@@ -13,8 +13,11 @@ import { useAuth } from "../context/AuthContext";
 // Component bảo vệ route admin
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth(); // Sử dụng useAuth để kiểm tra trạng thái đăng nhập
+  const accessToken = localStorage.getItem("accessToken");
+  const userRole = localStorage.getItem("userRole");
 
-  if (!user) {
+  // Kiểm tra cả token và role
+  if (!user || !accessToken || (userRole !== "ADMIN" && userRole !== "STAFF")) {
     return <Navigate to="/admin/login" replace />;
   }
   return children;
@@ -22,15 +25,11 @@ const ProtectedRoute = ({ children }) => {
 
 export const router = createBrowserRouter([
   {
-    path: "",
-    element: (
-      <ProtectedRoute>
-        <Navigate to="/admin/dashboard" replace />
-      </ProtectedRoute>
-    ),
+    path: "/",
+    element: <Navigate to="/admin/login" replace />,
   },
   {
-    path: "/login",
+    path: "/admin/login",
     element: <LoginAdmin />,
   },
   {
@@ -41,6 +40,10 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      {
+        path: "",
+        element: <Navigate to="/admin/dashboard" replace />,
+      },
       {
         path: "dashboard",
         element: <Dashboard />,
@@ -69,29 +72,6 @@ export const router = createBrowserRouter([
         path: "vouchers",
         element: <Vouchers />,
       },
-    ],
-  },
-  // Admin Layout
-  {
-    path: "/admin",
-    element: (
-      <Loading>
-        <AdminLayout />
-      </Loading>
-    ),
-    children: [
-      // {
-      //   path: "", // /admin
-      //   element: <AdminDashboard />,
-      // },
-      // {
-      //   path: "products", // /admin/products
-      //   element: <AdminProducts />,
-      // },
-      // {
-      //   path: "orders", // /admin/orders
-      //   element: <AdminOrders />,
-      // },
     ],
   },
 ]);
