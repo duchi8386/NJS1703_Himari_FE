@@ -2,7 +2,7 @@ import { Button, Card, Divider } from "antd";
 import { GoogleOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/img/Logo.png";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
@@ -19,27 +19,53 @@ const LoginAdmin = () => {
       const idToken = response.credential;
       console.log("✅ ID Token:", idToken);
 
-      // Gửi idToken lên backend để xác thực
+      // Gọi API login
       const backendResponse = await axios.post(
         "http://wizlab.io.vn:12345/api/v1/auth/login/google/oauth",
-        idToken,
+        // { idToken } // ✅ Gửi idToken trong một object
+        idToken, // ✅ Gửi idToken trong một object
         {
           headers: { "Content-Type": "application/json" },
-        } // Gửi idToken lên backend
+        }
       );
       console.log("✅ Backend Response:", backendResponse.data);
+
+      // Truy cập đúng cấu trúc của phản hồi
+      const { accessToken, refreshToken } = backendResponse.data.data;
+      console.log("✅ Access Token:", accessToken);
+      console.log("✅ Refresh Token:", refreshToken);
+
+      // Giải mã token để lấy userId
+      const decodedToken = jwtDecode(accessToken);
+      console.log(decodedToken);
+
+      // // Lấy role từ decodedToken
+      // const role =
+      //   decodedToken[
+      //     "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+      //   ];
+      // console.log("✅ Role:", role);
+
+      // // Kiểm tra role
+      // if (role === "ADMIN") {
+      //   console.log("✅ Người dùng là ADMIN.");
+      // } else if (role === "USER") {
+      //   console.log("✅ Người dùng là USER.");
+      // } else {
+      //   console.log("❌ Role không xác định.");
+      // }
+      const userId = Number(decodedToken.UserId);
+      console.log("✅ User ID:", userId);
+
       // Lưu accessToken vào localStorage
-      localStorage.setItem("accessToken", backendResponse.data.accessToken);
+      localStorage.setItem("accessToken", accessToken);
+
       // Đăng nhập thành công, chuyển hướng đến trang chính
       login();
       navigate("/admin/dashboard");
     } catch (error) {
       console.error("❌ Google login failed:", error);
     }
-  };
-
-  const handleGoogleLoginError = () => {
-    console.error("❌ Google Login Failed");
   };
 
   return (

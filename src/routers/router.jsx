@@ -1,13 +1,4 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-// import HomePage from "../page/HomePage";
-// import ProductPage from "../page/ProductPage";
-// import RootLayout from "../layout/RootLayout";
-// import Cart from "../page/Cart";
-// import Loading from "../Loading/Loading";
-// import Payment from "../page/payment/Payment";
-// import ProductDetail from "../components/ProductDetailPage/Detail";
-// import BlogPage from "../page/blogspage/BlogPage";
-// import Profile from "../page/profile/Profile";
 import AdminPage from "../adminpage/AdminPage";
 import Dashboard from "../adminpage/dashboard/Dashboard";
 import ProductManagement from "../adminpage/product/ProductManagement";
@@ -17,57 +8,19 @@ import Category from "../adminpage/category/Category";
 import Reports from "../adminpage/reports/Reports";
 import Vouchers from "../adminpage/vouchers/Vouchers";
 import LoginAdmin from "../adminpage/loginadmin/LoginAdmin";
+import { useAuth } from "../context/AuthContext";
 
 // Component bảo vệ route admin
 const ProtectedRoute = ({ children }) => {
-  const adminUser = localStorage.getItem("adminUser");
-  
-  if (!adminUser) {
+  const { user } = useAuth(); // Sử dụng useAuth để kiểm tra trạng thái đăng nhập
+
+  if (!user) {
     return <Navigate to="/admin/login" replace />;
   }
   return children;
 };
 
 export const router = createBrowserRouter([
-  // {
-  //   path: "/",
-  //   element: (
-  //     <Loading>
-  //       <RootLayout />
-  //     </Loading>
-  //   ),
-  //   children: [
-  //     {
-  //       path: "",
-  //       element: <HomePage />,
-  //     },
-  //     {
-  //       path: "/cart",
-  //       element: <Cart />,
-  //     },
-  //     {
-  //       path: "/product",
-  //       element: <ProductPage />,
-  //     },
-  //     {
-  //       path: "/product/:id",
-  //       // element: <ProductDetailPage />,
-  //       element: <ProductDetail />,
-  //     },
-  //     {
-  //       path: "payment",
-  //       element: <Payment />,
-  //     },
-  //     {
-  //       path: "/blog",
-  //       element: <BlogPage />,
-  //     },
-  //     {
-  //       path: "/profile",
-  //       element: <Profile />,
-  //     },
-  //   ],
-  // },
   {
     path: "",
     element: (
@@ -119,5 +72,3 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
-
-
