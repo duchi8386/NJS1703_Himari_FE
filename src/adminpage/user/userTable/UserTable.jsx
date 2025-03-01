@@ -103,14 +103,6 @@ const UserTable = () => {
 
   return (
     <div className="p-6">
-      <Button 
-        type="primary" 
-        icon={<PlusOutlined />}
-        onClick={() => setIsAddModalOpen(true)}
-        className="mb-4 bg-blue-500 hover:bg-blue-600"
-      >
-        Thêm người dùng
-      </Button>
 
       <div className="bg-white rounded-lg shadow">
         <Table 

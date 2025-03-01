@@ -3,24 +3,37 @@ import { Layout } from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Admin/Siderbar";
 import AdminHeader from "../components/Admin/Header";
-// import { logout } from "../../service/logout";
 
 const { Content } = Layout;
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const adminUser = JSON.parse(localStorage.getItem("adminUser"));
+
+  useEffect(() => {
+    // Check if user is logged in
+    const accessToken = localStorage.getItem("accessToken");
+    const userRole = localStorage.getItem("userRole");
+    
+    if (!accessToken || (userRole !== "ADMIN" && userRole !== "STAFF")) {
+      navigate("/admin/login");
+    }
+  }, [navigate]);
 
   const handleLogout = () => {
     try {
-      // Xóa thông tin admin user khỏi localStorage
+      // Remove all auth info from localStorage
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userRole");
       localStorage.removeItem("adminUser");
-      // Chuyển hướng về trang login
-      navigate("/admin/login");
+      
+      // Redirect to login page
+      navigate("/login");
     } catch (error) {
       console.error("Lỗi khi đăng xuất:", error);
-      // Trong trường hợp có lỗi, vẫn chuyển về trang login
-      navigate("/admin/login");
+// Trong trường hợp có lỗi, vẫn chuyển về trang login
+      navigate("/login");
     }
   };
 
@@ -29,7 +42,7 @@ const AdminPage = () => {
   };
 
   return (
-    <Layout className={`min-h-screen `}>
+    <Layout className="min-h-screen">
       <Sidebar
         handleLogout={handleLogout}
         collapsed={collapsed}
@@ -39,26 +52,35 @@ const AdminPage = () => {
         style={{
           marginLeft: collapsed ? 80 : 250,
           transition: "all 0.2s",
-          background: "#f0f2f5",
-          // background:  "#1f2937" : "#f0f2f5",
+          background: "#f5f5f5",
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
         }}
       >
-        <AdminHeader collapsed={collapsed} toggleCollapsed={toggleCollapsed} />
+        <AdminHeader 
+          collapsed={collapsed} 
+          toggleCollapsed={toggleCollapsed}
+          adminUser={adminUser}
+          style={{ 
+            position: "sticky",
+            top: 0,
+            zIndex: 1,
+            width: "100%"
+          }}
+        />
         <Content
           style={{
             margin: "24px 16px",
             padding: 24,
             flex: 1,
-            background: "#11182",
+            background: "#ffffff",
             borderRadius: 8,
-            color: "#ffffff",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
             overflow: "auto",
           }}
         >
-          <Outlet /> {/* ✅ Đảm bảo Dashboard có thể hiển thị */}
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

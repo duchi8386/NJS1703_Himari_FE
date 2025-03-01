@@ -1,4 +1,4 @@
-import { Button, Card, Divider } from "antd";
+import { Button, Card, Divider, message } from "antd";
 import { GoogleOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/img/Logo.png";
@@ -12,8 +12,7 @@ const LoginAdmin = () => {
   const navigate = useNavigate();
 
   const handleGoogleLoginSuccess = async (response) => {
-    console.log("✅ Google Response:", response);
-
+    
     try {
       // Lấy credential (idToken) từ response
       const idToken = response.credential;
@@ -28,43 +27,41 @@ const LoginAdmin = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log("✅ Backend Response:", backendResponse.data);
+      
 
       // Truy cập đúng cấu trúc của phản hồi
       const { accessToken, refreshToken } = backendResponse.data.data;
-      console.log("✅ Access Token:", accessToken);
-      console.log("✅ Refresh Token:", refreshToken);
 
-      // Giải mã token để lấy userId
+      // Giải mã token để lấy userId và role
       const decodedToken = jwtDecode(accessToken);
-      console.log(decodedToken);
-
-      // // Lấy role từ decodedToken
-      // const role =
-      //   decodedToken[
-      //     "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-      //   ];
-      // console.log("✅ Role:", role);
-
-      // // Kiểm tra role
-      // if (role === "ADMIN") {
-      //   console.log("✅ Người dùng là ADMIN.");
-      // } else if (role === "USER") {
-      //   console.log("✅ Người dùng là USER.");
-      // } else {
-      //   console.log("❌ Role không xác định.");
-      // }
+      
+      // Lấy role từ decodedToken
+      const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      console.log("✅ Role:", role);
+      
       const userId = Number(decodedToken.UserId);
       console.log("✅ User ID:", userId);
+      console.log("decodetoken", decodedToken);
 
-      // Lưu accessToken vào localStorage
+      // Lưu accessToken và role vào localStorage
       localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("userRole", role);
 
-      // Đăng nhập thành công, chuyển hướng đến trang chính
-      login();
-      navigate("/admin/dashboard");
+      // Kiểm tra role
+      if (role === "ADMIN" || role === "STAFF") {
+        // Đăng nhập thành công, chuyển hướng đến trang chính
+        login();
+        navigate("/admin/dashboard");
+        message.success(`Đăng nhập thành công với vai trò ${role}`);
+      } else {
+        // Không đủ quyền truy cập
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("userRole");
+        message.error("Bạn không có quyền truy cập vào trang quản trị");
+      }
     } catch (error) {
       console.error("❌ Google login failed:", error);
+      message.error("Đăng nhập thất bại. Vui lòng thử lại.");
     }
   };
 
@@ -90,7 +87,7 @@ const LoginAdmin = () => {
 
         <div className="mt-6 text-center text-sm text-gray-600">
           <LockOutlined className="mr-2" />
-          Chỉ dành cho Admin
+          Chỉ dành cho Admin và Staff
         </div>
       </Card>
     </div>

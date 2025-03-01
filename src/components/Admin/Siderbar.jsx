@@ -15,7 +15,7 @@ import Logo from '../../assets/img/Logo.png';
 
 const { Sider } = Layout;
 
-const Sidebar = ({ handleLogout, collapsed, toggleCollapsed, isDarkMode }) => {
+const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
   const location = useLocation();
 
   const menuItems = [
@@ -71,11 +71,11 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed, isDarkMode }) => {
       collapsed={collapsed}
       width={250}
       style={{
-        background: isDarkMode ? '#1f2937' : '#ffffff',
+        background:  '#ffffff',
         height: "100vh",
         position: "fixed",
         left: 0,
-        boxShadow: isDarkMode ? '2px 0 8px rgba(0,0,0,0.3)' : '2px 0 8px rgba(0,0,0,0.1)'
+        boxShadow: '2px 0 8px rgba(0,0,0,0.1)'
       }}
     >
       <div className="p-4">
@@ -92,7 +92,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed, isDarkMode }) => {
             />
             {!collapsed && (
               <div className="flex font-bold items-center">
-                <span className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                <span className={"text-xl font-bold  text-gray-800"}>
                   Himari
                 </span>
                 <span className="ml-1.5 text-[10px] font-medium tracking-widest text-gray-400 self-end mb-0.5">
@@ -105,20 +105,16 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed, isDarkMode }) => {
       </div>
 
       <Menu
-        theme={isDarkMode ? "dark" : "light"}
+        theme="light"
         mode="inline"
         selectedKeys={[location.pathname]}
         items={menuItems}
         style={{ 
           
           borderRight: 0,
-          background: isDarkMode ? '#1f2937' : '#ffffff',
+          background:  '#ffffff',
         }}
-        className={`${
-          isDarkMode 
-            ? '[&_.ant-menu-item:hover]:!bg-gray-700 [&_.ant-menu-item-selected]:!bg-gray-800' 
-            : ''
-        }`}
+       
       />
     </Sider>
   );

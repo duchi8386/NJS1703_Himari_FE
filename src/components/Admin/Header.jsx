@@ -1,16 +1,24 @@
 /* eslint-disable react/prop-types */
 
+
 import { Layout, Button } from 'antd';
-import { MenuFoldOutlined, MenuUnfoldOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined,  } from '@ant-design/icons';
 
 const { Header } = Layout;
-const AdminHeader = ({ collapsed, toggleCollapsed, adminUser, isDarkMode, toggleDarkMode }) => {
+const AdminHeader = ({ collapsed, toggleCollapsed, adminUser, toggleDarkMode }) => {
   return (
     <Header 
       style={{
-        background: isDarkMode ? '#1f2937' : '#ffffff',
-        borderBottom: isDarkMode ? '1px solid #374151' : '1px solid #f0f0f0',
         padding: '0 16px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background:  '#ffffff' ,
+        color:  '#000000' ,
       }}
       className="flex items-center justify-between"
     >
@@ -23,27 +31,15 @@ const AdminHeader = ({ collapsed, toggleCollapsed, adminUser, isDarkMode, toggle
             fontSize: '16px',
             width: 64,
             height: 64,
-            color: isDarkMode ? '#ffffff' : '#000000',
+            color:  '#000000' ,
           }}
         />
-        <span className={`ml-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+        <span className="text-xl font-bold text-gray-800">
           Welcome, {adminUser?.fullName}
         </span>
       </div>
-      
-      <Button
-        type="text"
-        icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />}
-        onClick={toggleDarkMode}
-        style={{
-          fontSize: '16px',
-          width: 64,
-          height: 64,
-          color: isDarkMode ? '#ffffff' : '#000000',
-        }}
-      />
     </Header>
   );
 };
 
-export default AdminHeader; 
+export default AdminHeader;
