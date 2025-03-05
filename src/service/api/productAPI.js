@@ -9,6 +9,15 @@ const ProductAPI = {
       },
     });
   },
+  AddProducts: async (productData) => {
+    return axiosInstance.post("/products", productData);
+  },
+  UpdateProducts: async (productData) => {
+    return axiosInstance.put("/products", productData);
+  },
+  DeleteProduct: async (productId) => {
+    return axiosInstance.delete(`/products/${productId}`);
+  },
 };
 
 export default ProductAPI;

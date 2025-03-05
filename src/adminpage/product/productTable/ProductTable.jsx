@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Table, Switch, Button, Space, Image } from 'antd';
+import { Table, Switch, Button, Space, Image, Popconfirm, message } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import AddProduct from '../addProduct/AddProduct';
 import EditProduct from '../editProduct/EditProduct';
 import { formatCurrency } from '../../../utils/moneyFormatter';
 // import { mockProducts } from './mockData';
 
-const ProductTable = ({ products }) => {
+const ProductTable = ({ products, loading, onEdit, onDelete }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -46,14 +46,6 @@ const ProductTable = ({ products }) => {
       key: 'description',
       ellipsis: true,
     },
-    // {
-    //   title: 'Status',
-    //   dataIndex: 'status',
-    //   key: 'status',
-    //   render: (_, record) => (
-    //     <Switch checked={record.status === 'Active'} />
-    //   ),
-    // },
     {
       title: 'Actions',
       key: 'actions',
@@ -62,12 +54,21 @@ const ProductTable = ({ products }) => {
           <Button
             type="primary"
             icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
+            onClick={() => onEdit(record)}
           />
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-          />
+          <Popconfirm
+            title="Xóa sản phẩm"
+            description="Bạn có chắc chắn muốn xóa sản phẩm này?"
+            onConfirm={() => onDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{ danger: true }}
+          >
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+            />
+          </Popconfirm>
         </Space>
       ),
     },
@@ -83,11 +84,12 @@ const ProductTable = ({ products }) => {
       <Table
         columns={columns}
         dataSource={products}
+        loading={loading}
         className="bg-white rounded-lg shadow"
         pagination={{
           pageSize: 10,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => `Tổng ${total} sản phẩm`,
         }}
       />
 
