@@ -15,7 +15,7 @@ const AdminPage = () => {
     // Check if user is logged in
     const accessToken = localStorage.getItem("accessToken");
     const userRole = localStorage.getItem("userRole");
-    
+
     if (!accessToken || (userRole !== "ADMIN" && userRole !== "STAFF")) {
       navigate("/admin/login");
     }
@@ -27,12 +27,12 @@ const AdminPage = () => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("userRole");
       localStorage.removeItem("adminUser");
-      
+
       // Redirect to login page
       navigate("/login");
     } catch (error) {
       console.error("Lỗi khi đăng xuất:", error);
-// Trong trường hợp có lỗi, vẫn chuyển về trang login
+      // Trong trường hợp có lỗi, vẫn chuyển về trang login
       navigate("/login");
     }
   };
@@ -58,11 +58,11 @@ const AdminPage = () => {
           flexDirection: "column",
         }}
       >
-        <AdminHeader 
-          collapsed={collapsed} 
+        <AdminHeader
+          collapsed={collapsed}
           toggleCollapsed={toggleCollapsed}
           adminUser={adminUser}
-          style={{ 
+          style={{
             position: "sticky",
             top: 0,
             zIndex: 1,

@@ -1,9 +1,14 @@
-import React from 'react'
+import axiosInstance from "../instance";
 
-const productAPI = () => {
-  return (
-    <div>productAPI</div>
-  )
-}
+const ProductAPI = {
+  getProducts: async (pageIndex, pageSize) => {
+    return axiosInstance.get(`/products`, {
+      params: {
+        "page-index": pageIndex,
+        "page-size": pageSize,
+      },
+    });
+  },
+};
 
-export default productAPI
+export default ProductAPI;
