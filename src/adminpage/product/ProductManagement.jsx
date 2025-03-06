@@ -52,7 +52,7 @@ const ProductManagement = () => {
     try {
       setLoadingCategories(true);
       const response = await CategoryAPI.getParentCategory(1, 6);
-      console.log(response)
+      // console.log(response)
       if (response?.data?.data?.data) {
         setParentCategories(response.data.data.data);
       }
@@ -111,7 +111,7 @@ const ProductManagement = () => {
         description: values.description,
         price: parseFloat(values.price),
         quantity: values.quantity || 0,
-        imageUrl: selectedProduct.imageUrl,
+        imageUrl: values.imageUrl,
         categoryId: values.childCategory,
         brandId: values.brand,
         gender: values.gender || true

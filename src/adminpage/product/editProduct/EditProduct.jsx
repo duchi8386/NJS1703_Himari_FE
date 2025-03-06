@@ -18,36 +18,36 @@ const EditProduct = ({
 }) => {
   const [form] = Form.useForm();
   const [selectedParentCategory, setSelectedParentCategory] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   useEffect(() => {
     if (productData) {
-      console.log("Product Data:", productData); // Kiểm tra dữ liệu sản phẩm
-
-      // Fetch child categories nếu có parent category
       if (productData.parentCategoryId) {
         onFetchChildCategories(productData.parentCategoryId);
         setSelectedParentCategory(productData.parentCategoryId);
       }
 
-      // Set giá trị cho form - bỏ parentCategory ra khỏi form vì không cần submit
+      setImageUrl(productData.imageUrl);
+      setPreviewUrl(productData.imageUrl);
       form.setFieldsValue({
         productName: productData.productName,
         price: productData.price,
         description: productData.description,
-        childCategory: productData.categoryId, // Chỉ lưu categoryId
+        childCategory: productData.categoryId,
         brand: productData.brandId,
         gender: productData.gender || true,
         quantity: productData.quantity || 0,
-        imageUrl: productData.imageUrl,
       });
     }
   }, [productData, form, onFetchChildCategories]);
 
-  // Handle parent category change - chỉ dùng để load child categories
   const handleParentCategoryChange = (value) => {
-    console.log("Selected Parent Category:", value); // Kiểm tra giá trị được chọn
+    console.log("Selected Parent Category:", value);
     setSelectedParentCategory(value);
-    form.setFieldValue('childCategory', undefined); // Reset child category
+    form.setFieldValue('childCategory', undefined);
     if (value) {
       onFetchChildCategories(value);
     } else {
@@ -55,9 +55,43 @@ const EditProduct = ({
     }
   };
 
-  const handleSubmit = (values) => {
-    console.log("Form Values:", values); // Kiểm tra giá trị form khi submit
-    onEditProduct(values, productData.id);
+  const handleImagePreview = (file) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+    setSelectedFile(file);
+    return false;
+  };
+
+  const handleSubmit = async (values) => {
+    try {
+      setUploading(true);
+      let finalImageUrl = imageUrl;
+
+      if (selectedFile) {
+        const response = await ProductAPI.uploadToFirebase(selectedFile);
+        if (response?.data) {
+          finalImageUrl = response.data.data;
+        } else {
+          throw new Error('Upload failed');
+        }
+      }
+
+      const updatedValues = {
+        ...values,
+        imageUrl: finalImageUrl,
+      };
+
+      await onEditProduct(updatedValues, productData.id);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error('Error during update:', error);
+      message.error('Có lỗi xảy ra khi cập nhật sản phẩm!');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -78,7 +112,6 @@ const EditProduct = ({
         }}
       >
         <div className="grid grid-cols-2 gap-6">
-          {/* Left Column */}
           <div>
             <Form.Item
               name="productName"
@@ -178,13 +211,12 @@ const EditProduct = ({
               label={<span className="text-sm">Số lượng</span>}
             >
               <Input
-                disabled
+                // disabled
                 className="h-10 rounded"
               />
             </Form.Item>
           </div>
 
-          {/* Right Column */}
           <div>
             <Form.Item
               name="description"
@@ -200,13 +232,12 @@ const EditProduct = ({
               />
             </Form.Item>
 
-            {/* Product Image Section */}
             <div className="mt-4">
               <p className="text-sm mb-2">Hình ảnh hiện tại:</p>
-              {productData?.imageUrl && (
+              {previewUrl && (
                 <div className="mb-4">
                   <img
-                    src={productData.imageUrl}
+                    src={previewUrl}
                     alt="Current product"
                     className="w-40 h-40 object-cover rounded-md"
                   />
@@ -218,10 +249,14 @@ const EditProduct = ({
               >
                 <Upload
                   maxCount={1}
-                  beforeUpload={() => false}
+                  beforeUpload={handleImagePreview}
+                  showUploadList={false}
                   className="w-full"
                 >
-                  <Button icon={<UploadOutlined />} className="w-32 h-10 rounded">
+                  <Button 
+                    icon={<UploadOutlined />} 
+                    className="w-32 h-10 rounded"
+                  >
                     Chọn ảnh mới
                   </Button>
                 </Upload>
@@ -230,7 +265,6 @@ const EditProduct = ({
           </div>
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-end space-x-2 mt-6">
           <Button
             onClick={onClose}
@@ -242,6 +276,7 @@ const EditProduct = ({
             type="primary"
             htmlType="submit"
             className="px-6 h-9 rounded bg-blue-600 hover:bg-blue-700"
+            loading={uploading}
           >
             Cập nhật
           </Button>
