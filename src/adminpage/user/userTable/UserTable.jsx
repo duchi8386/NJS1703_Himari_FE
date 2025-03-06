@@ -1,15 +1,12 @@
-import  { useState } from 'react';
-import { Button, Space, Table, Tag } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { mockUsers } from './mockData';
-import AddUser from '../addUser/AddUser';
+import { useState } from 'react';
+import { Button, Space, Table, Tag, Modal } from 'antd';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import EditUser from '../editUser/EditUser';
 
-const UserTable = () => {
-  const [data, setData] = useState(mockUsers);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+const UserTable = ({ users, loading, pagination, onTableChange, onDelete, onEdit }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  
   const columns = [
     {
       title: 'ID',
@@ -18,8 +15,8 @@ const UserTable = () => {
     },
     {
       title: 'Tên người dùng',
-      dataIndex: 'username',
-      key: 'username',
+      dataIndex: 'fullName',
+      key: 'fullName',
     },
     {
       title: 'Email',
@@ -28,16 +25,23 @@ const UserTable = () => {
     },
     {
       title: 'Số điện thoại',
-      dataIndex: 'phone',
-      key: 'phone',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
+      render: (phoneNumber) => phoneNumber || 'Chưa cung cấp'
+    },
+    {
+      title: 'Địa chỉ',
+      dataIndex: 'address',
+      key: 'address',
+      render: (address) => address || 'Chưa cung cấp'
     },
     {
       title: 'Vai trò',
       dataIndex: 'role',
       key: 'role',
       render: (role) => (
-        <Tag color={role === 'admin' ? 'red' : 'blue'}>
-          {role.toUpperCase()}
+        <Tag color={role === 'ADMIN' ? 'red' : 'blue'}>
+          {role || 'USER'}
         </Tag>
       ),
     },
@@ -47,7 +51,7 @@ const UserTable = () => {
       key: 'status',
       render: (status) => (
         <Tag color={status === 'active' ? 'green' : 'red'}>
-          {status.toUpperCase()}
+          {status?.toUpperCase() || 'ACTIVE'}
         </Tag>
       ),
     },
@@ -66,7 +70,7 @@ const UserTable = () => {
           <Button 
             danger 
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
+            onClick={() => showDeleteConfirm(record.id)}
           >
             Xóa
           </Button>
@@ -80,48 +84,43 @@ const UserTable = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (id) => {
-    console.log('Delete user:', id);
-    // Thêm logic xử lý xóa user
-  };
-
-  const handleAddUser = (values) => {
-    const newUser = {
-      key: String(data.length + 1),
-      id: data.length + 1,
-      ...values
-    };
-    setData([...data, newUser]);
+  const showDeleteConfirm = (userId) => {
+    Modal.confirm({
+      title: 'Bạn có chắc chắn muốn xóa người dùng này?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Hành động này không thể hoàn tác.',
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk() {
+        onDelete(userId);
+      },
+    });
   };
 
   const handleEditSubmit = (values) => {
-    const updatedData = data.map(item => 
-      item.id === values.id ? { ...item, ...values } : item
-    );
-    setData(updatedData);
+    onEdit(values);
+    setIsEditModalOpen(false);
   };
 
   return (
     <div className="p-6">
-
       <div className="bg-white rounded-lg shadow">
         <Table 
           columns={columns} 
-          dataSource={data}
+          dataSource={users}
+          rowKey="id"
+          loading={loading}
           pagination={{
-            total: data.length,
-            pageSize: 10,
+            current: pagination.pageIndex,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            onChange: (page, pageSize) => onTableChange(page, pageSize),
             showSizeChanger: true,
             showQuickJumper: true,
           }}
         />
       </div>
-
-      <AddUser
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSubmit={handleAddUser}
-      />
 
       <EditUser
         isOpen={isEditModalOpen}

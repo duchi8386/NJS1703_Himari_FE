@@ -7,9 +7,12 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
   useEffect(() => {
     if (userData) {
       form.setFieldsValue({
-        username: userData.username,
+        id: userData.id,
         email: userData.email,
-        phone: userData.phone,
+        fullName: userData.fullName || userData.username,
+        phoneNumber: userData.phoneNumber || userData.phone,
+        address: userData.address || '',
+        avatarUrl: userData.avatarUrl || '',
         role: userData.role,
         status: userData.status,
       });
@@ -20,7 +23,6 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
     try {
       const values = await form.validateFields();
       onSubmit({ ...values, id: userData?.id });
-      onClose();
     } catch (error) {
       console.error('Validation failed:', error);
     }
@@ -57,7 +59,7 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
         className="mt-4"
       >
         <Form.Item
-          name="username"
+          name="fullName"
           label={<span className="text-gray-700">Tên người dùng</span>}
           rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
         >
@@ -76,18 +78,39 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
           ]}
         >
           <Input 
+            disabled
             placeholder="Nhập email" 
             className="rounded-md"
           />
         </Form.Item>
 
         <Form.Item
-          name="phone"
+          name="phoneNumber"
           label={<span className="text-gray-700">Số điện thoại</span>}
           rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
         >
           <Input 
             placeholder="Nhập số điện thoại" 
+            className="rounded-md"
+          />
+        </Form.Item>
+        
+        <Form.Item
+          name="address"
+          label={<span className="text-gray-700">Địa chỉ</span>}
+        >
+          <Input 
+            placeholder="Nhập địa chỉ" 
+            className="rounded-md"
+          />
+        </Form.Item>
+        
+        <Form.Item
+          name="avatarUrl"
+          label={<span className="text-gray-700">Ảnh đại diện URL</span>}
+        >
+          <Input 
+            placeholder="Nhập URL ảnh đại diện" 
             className="rounded-md"
           />
         </Form.Item>
