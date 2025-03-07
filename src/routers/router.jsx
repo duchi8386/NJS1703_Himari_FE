@@ -4,9 +4,10 @@ import Dashboard from "../adminpage/dashboard/Dashboard";
 import ProductManagement from "../adminpage/product/ProductManagement";
 import UserManagement from "../adminpage/user/UserManagement";
 import OrderManagement from "../adminpage/order/OrderManagement";
-import Category from "../adminpage/category/Category";
-import Reports from "../adminpage/reports/Reports";
-import Vouchers from "../adminpage/vouchers/Vouchers";
+import Category from "../adminpage/category/CategoryPage";
+import BlogManagement from "../adminpage/Blog/BlogManagement/BlogPage";
+import BlogCategory from "../adminpage/Blog/BlogCategory/BlogCategory";
+import BrandManagement from "../adminpage/brand/BrandPage";
 import LoginAdmin from "../adminpage/loginadmin/LoginAdmin";
 import { useAuth } from "../context/AuthContext";
 
@@ -65,13 +66,19 @@ export const router = createBrowserRouter([
         element: <Category />,
       },
       {
-        path: "reports",
-        element: <Reports />,
+        path: "blogs",
+        element: <BlogManagement />,
       },
       {
-        path: "vouchers",
-        element: <Vouchers />,
+        path: "blogs-category",
+        element: <BlogCategory />,
       },
+      {
+        path: "brands",
+        element: <BrandManagement />,
+      },
+
+      
     ],
   },
 ]);

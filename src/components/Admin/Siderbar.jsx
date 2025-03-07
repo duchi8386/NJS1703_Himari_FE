@@ -8,8 +8,11 @@ import {
   ShoppingCartOutlined,
   InboxOutlined,
   BarChartOutlined,
-  GiftOutlined,
   LogoutOutlined,
+  FileTextOutlined,
+  FolderOutlined,
+  ReadOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import Logo from '../../assets/img/Logo.png';
 
@@ -41,37 +44,54 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     {
       key: "/admin/users",
       icon: <UserOutlined />,
-      label: <Link to="/admin/users">User Management</Link>,
+      label: <Link to="/admin/users">Quản lý người dùng</Link>,
     },
     {
       key: "/admin/orders",
       icon: <ShoppingCartOutlined />,
-      label: <Link to="/admin/orders">Order Management</Link>,
+      label: <Link to="/admin/orders">Quản lý đơn hàng</Link>,
     },
     {
       key: "/admin/products",
       icon: <InboxOutlined />,
-      label: <Link to="/admin/products">Products</Link>,
+      label: <Link to="/admin/products">Quản lý sản phẩm</Link>,
     },
     {
       key: "/admin/category",
-      icon: <InboxOutlined />,
-      label: <Link to="/admin/category">Category Management</Link>,
+      icon: <FolderOutlined />,
+      label: <Link to="/admin/category">Quản lý danh mục</Link>,
     },
     {
-      key: "/admin/reports",
-      icon: <BarChartOutlined />,
-      label: <Link to="/admin/reports">Reports</Link>,
+      key: "blog",
+      icon: <ReadOutlined />,
+      label: "Blog",
+      children: [
+        {
+          key: "/admin/blogs",
+          icon: <FileTextOutlined />,
+          label: <Link to="/admin/blogs">Quản lý Blogs</Link>,
+        },
+        {
+          key: "/admin/blogs-category",
+          icon: <FolderOutlined />,
+          label: <Link to="/admin/blogs-category">Quản lý danh mục Blogs</Link>,
+        },
+      ]
     },
     {
-      key: "/admin/vouchers",
-      icon: <GiftOutlined />,
-      label: <Link to="/admin/vouchers">Vouchers</Link>,
+      key: "/admin/brands",
+      icon: <ShopOutlined />,
+      label: <Link to="/admin/brands">Quản lý Brands</Link>,
     },
+    // {
+    //   key: "/admin/vouchers",
+    //   icon: <GiftOutlined />,
+    //   label: <Link to="/admin/vouchers">Vouchers</Link>,
+    // },
     {
       key: "logout",
       icon: <LogoutOutlined />,
-      label: "Logout",
+      label: "Đăng xuất",
       className: "mt-auto",
       danger: true,
       onClick: onLogout,
@@ -122,6 +142,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
         theme="light"
         mode="inline"
         selectedKeys={[location.pathname]}
+        defaultOpenKeys={['blog']}
         items={menuItems}
         style={{
           borderRight: 0,
