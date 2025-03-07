@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import BrandAPI from "../../../service/api/brandAPI";
 
 const { TextArea } = Input;
 
@@ -8,6 +9,7 @@ const BrandEdit = ({ isOpen, onClose, onUpdateBrand, brand }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (isOpen && brand) {
@@ -34,47 +36,35 @@ const BrandEdit = ({ isOpen, onClose, onUpdateBrand, brand }) => {
     }
   }, [isOpen, brand, form]);
 
-  const handleUpdate = () => {
-    form.validateFields()
-      .then((values) => {
-        // Kiểm tra xem có hình ảnh không
-        if (fileList.length === 0 && !imageUrl) {
-          message.error("Vui lòng tải lên hình ảnh thương hiệu");
-          return;
-        }
+  const handleUpdate = async () => {
+    try {
+      const values = await form.validateFields();
 
-        // Giả lập việc upload hình ảnh lên Firebase và nhận URL
-        // Trong thực tế, bạn sẽ cần thay thế bằng API upload hình ảnh thực
-        const fakeUpload = () => {
-          return new Promise((resolve) => {
-            // Nếu file là mới upload, giả lập việc upload và lấy URL
-            if (fileList.length > 0 && fileList[0].originFileObj) {
-              setTimeout(() => {
-                resolve(imageUrl);
-              }, 500);
-            } else {
-              // Nếu không có file mới, giữ lại URL cũ
-              resolve(brand.image);
-            }
-          });
-        };
+      setUploading(true);
 
-        fakeUpload().then(imageUrl => {
-          // Create updated brand object
-          const updatedBrand = {
-            ...brand,
-            brandName: values.brandName,
-            description: values.description,
-            image: imageUrl
-          };
+      // Upload image to Firebase if a new file is selected
+      let finalImageUrl = brand.image;
+      if (fileList.length > 0 && fileList[0].originFileObj) {
+        const response = await BrandAPI.uploadToFirebase(fileList[0].originFileObj);
+        finalImageUrl = response.data.url;
+      }
 
-          onUpdateBrand(updatedBrand);
-          onClose();
-        });
-      })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
+      // Create updated brand object
+      const updatedBrand = {
+        ...brand,
+        brandName: values.brandName,
+        description: values.description,
+        image: finalImageUrl
+      };
+
+      // Call the parent component's update function
+      await onUpdateBrand(updatedBrand);
+      onClose();
+    } catch (error) {
+      console.error("Error in updating brand:", error);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const uploadProps = {
@@ -83,14 +73,14 @@ const BrandEdit = ({ isOpen, onClose, onUpdateBrand, brand }) => {
       setImageUrl("");
     },
     beforeUpload: (file) => {
-      // Chỉ cho phép upload hình ảnh
+      // Only allow image upload
       const isImage = file.type.startsWith('image/');
       if (!isImage) {
         message.error('Bạn chỉ có thể tải lên file hình ảnh!');
         return Upload.LIST_IGNORE;
       }
 
-      // Tạo URL tạm thời để hiển thị preview
+      // Create temporary URL for preview
       const url = URL.createObjectURL(file);
       setImageUrl(url);
       setFileList([{
@@ -113,6 +103,7 @@ const BrandEdit = ({ isOpen, onClose, onUpdateBrand, brand }) => {
       onCancel={onClose}
       okText="Cập nhật"
       onOk={handleUpdate}
+      okButtonProps={{ loading: uploading }}
       maskClosable={false}
       width={600}
     >

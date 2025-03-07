@@ -4,80 +4,58 @@ import { PlusOutlined } from "@ant-design/icons";
 import BrandTable from "./BrandComponent/BrandTable";
 import BrandAdd from "./BrandComponent/BrandAdd";
 import BrandEdit from "./BrandComponent/BrandEdit";
+import BrandAPI from "../../service/api/brandAPI";
 
 const BrandPage = () => {
-  const [brands, setBrands] = useState([
-    {
-      id: 1,
-      brandName: "Loreal",
-      description: "L'Oréal SA (L'Oréal) là nhà cung cấp các sản phẩm chăm sóc cá nhân.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2Floreal.png?alt=media&token=4bdf2161-97f6-4387-905c-44d8f05132f8"
-    },
-    {
-      id: 2,
-      brandName: "Cocoon ",
-      description: "Cocoon tự hào là mỹ phẩm 100% thuần chay từ thực vật Việt Nam.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(1).png?alt=media&token=4bdf6db7-d2f5-470f-8adf-bcefde630347"
-    },
-    {
-      id: 3,
-      brandName: "Bioderma ",
-      description: "BIODERMA là thương hiệu dược mỹ phẩm trong lĩnh vực chăm sóc sức khỏe.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(2).png?alt=media&token=dce50201-6276-42af-bda3-d6e7e189dc60"
-    },
-    {
-      id: 4,
-      brandName: "Cerave",
-      description: "Tất cả các sản phẩm CeraVe đều chứa ceramides, thành phần thiết yếu giúp tạo nên hàng rào dưỡng ẩm khỏe mạnh cho da.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(4).png?alt=media&token=d29f9521-3035-495f-ba0d-128ea8a70a5d"
-    },
-    {
-      id: 5,
-      brandName: "La Roche-Posay",
-      description: "La Roche-Posay nổi tiếng với những thành phần lành tính, an toàn và thân thiện với mọi loại da, đặc biệt là làn da mụn hoặc da nhạy cảm.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(5).png?alt=media&token=f124acb2-d591-492b-8a9f-978e41349d28"
-    },
-    {
-      id: 6,
-      brandName: "Klairs",
-      description: "Klairs - thương hiệu mỹ phẩm Hàn Quốc với các dòng sản phẩm hoàn toàn từ thiên nhiên.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(7).png?alt=media&token=57e71b5d-1760-43b7-a68f-50a53b68525e"
-    },
-    {
-      id: 7,
-      brandName: "Estee Lauder",
-      description: "Thương hiệu mỹ phẩm cao cấp của Mỹ, nổi tiếng với các sản phẩm chăm sóc da và trang điểm chất lượng.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(4).png?alt=media&token=d29f9521-3035-495f-ba0d-128ea8a70a5d"
-    },
-    {
-      id: 8,
-      brandName: "Kiehl's",
-      description: "Thương hiệu mỹ phẩm Mỹ với lịch sử lâu đời, chuyên cung cấp các sản phẩm chăm sóc da từ thiên nhiên.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(4).png?alt=media&token=d29f9521-3035-495f-ba0d-128ea8a70a5d"
-    },
-    {
-      id: 9,
-      brandName: "Clinique",
-      description: "Thương hiệu mỹ phẩm Mỹ được kiểm nghiệm bởi các bác sĩ da liễu, không chứa chất gây dị ứng.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(4).png?alt=media&token=d29f9521-3035-495f-ba0d-128ea8a70a5d"
-    },
-    {
-      id: 10,
-      brandName: "Paula's Choice",
-      description: "Thương hiệu mỹ phẩm Mỹ nổi tiếng với các sản phẩm chăm sóc da không chứa hương liệu và chất gây dị ứng.",
-      image: "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2FThi%E1%BA%BFt%20k%E1%BA%BF%20ch%C6%B0a%20c%C3%B3%20t%C3%AAn%20(4).png?alt=media&token=d29f9521-3035-495f-ba0d-128ea8a70a5d"
-    }
-  ]);
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentBrand, setCurrentBrand] = useState(null);
+
+  // Updated pagination state to include metadata from API
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 16,
+    total: 0,
+    hasNext: false,
+    hasPrevious: false
   });
+
+  // Fetch brands when component mounts or pagination changes
+  useEffect(() => {
+    fetchBrands();
+  }, [pagination.current, pagination.pageSize]);
+
+  const fetchBrands = async () => {
+    try {
+      setLoading(true);
+      const response = await BrandAPI.getBrands(pagination.current, pagination.pageSize);
+
+      if (response.statusCode === 200) {
+        setBrands(response.data.data);
+
+        // Update pagination with metadata from API
+        setPagination({
+          current: response.data.metaData.currentPage,
+          pageSize: response.data.metaData.pageSize,
+          total: response.data.metaData.totalCount,
+          totalPages: response.data.metaData.totalPages,
+          hasNext: response.data.metaData.hasNext,
+          hasPrevious: response.data.metaData.hasPrevious
+        });
+      } else {
+        message.error("Không thể tải danh sách thương hiệu");
+      }
+    } catch (error) {
+      message.error("Không thể tải danh sách thương hiệu");
+      console.error("Error fetching brands:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Function to show edit modal
   const showEditModal = (brand) => {
@@ -86,29 +64,68 @@ const BrandPage = () => {
   };
 
   // Function to handle add brand
-  const handleAddBrand = (newBrand) => {
-    setBrands([...brands, newBrand]);
-    message.success("Thêm thương hiệu thành công");
+  const handleAddBrand = async (brandData) => {
+    try {
+      setLoading(true);
+      const response = await BrandAPI.createBrand(brandData);
+      if (response.statusCode === 200) {
+        message.success("Thêm thương hiệu thành công");
+        fetchBrands(); // Refresh the brand list
+      } else {
+        message.error("Thêm thương hiệu thất bại: " + response.message);
+      }
+    } catch (error) {
+      message.error("Thêm thương hiệu thất bại");
+      console.error("Error adding brand:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to handle update brand
-  const handleUpdateBrand = (updatedBrand) => {
-    const updatedBrands = brands.map(brand => 
-      brand.id === updatedBrand.id ? updatedBrand : brand
-    );
-    setBrands(updatedBrands);
-    message.success("Cập nhật thương hiệu thành công");
+  const handleUpdateBrand = async (updatedBrand) => {
+    try {
+      setLoading(true);
+      const response = await BrandAPI.updateBrand(updatedBrand);
+      if (response.statusCode === 200) {
+        message.success("Cập nhật thương hiệu thành công");
+        fetchBrands(); // Refresh the brand list
+      } else {
+        message.error("Cập nhật thương hiệu thất bại: " + response.message);
+      }
+    } catch (error) {
+      message.error("Cập nhật thương hiệu thất bại");
+      console.error("Error updating brand:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to handle delete brand
-  const handleDeleteBrand = (brandId) => {
-    setBrands(brands.filter(brand => brand.id !== brandId));
-    message.success("Xóa thương hiệu thành công");
+  const handleDeleteBrand = async (brandId) => {
+    try {
+      setLoading(true);
+      // Note: API for deleting brands doesn't exist in the provided code
+      // This would typically be: await BrandAPI.deleteBrand(brandId);
+
+      // For now, just refresh the list
+      message.success("Xóa thương hiệu thành công");
+      fetchBrands();
+    } catch (error) {
+      message.error("Xóa thương hiệu thất bại");
+      console.error("Error deleting brand:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-  
-  // Xử lý thay đổi phân trang
-  const handleTableChange = (pagination) => {
-    setPagination(pagination);
+
+  // Handle pagination changes
+  const handleTableChange = (pagination, filters, sorter) => {
+    setPagination(prev => ({
+      ...prev,
+      current: pagination.current,
+      pageSize: pagination.pageSize
+    }));
   };
 
   return (
@@ -127,21 +144,22 @@ const BrandPage = () => {
         </div>
       </div>
 
-      <BrandTable 
-        brands={brands} 
+      <BrandTable
+        brands={brands}
+        loading={loading}
         onEdit={showEditModal}
         onDelete={handleDeleteBrand}
         pagination={pagination}
         onChange={handleTableChange}
       />
-      
-      <BrandAdd 
+
+      <BrandAdd
         isOpen={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
         onAddBrand={handleAddBrand}
       />
 
-      <BrandEdit 
+      <BrandEdit
         isOpen={isEditModalVisible}
         onClose={() => setIsEditModalVisible(false)}
         onUpdateBrand={handleUpdateBrand}

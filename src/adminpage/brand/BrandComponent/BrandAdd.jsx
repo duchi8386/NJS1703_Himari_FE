@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Form, Input, Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import BrandAPI from "../../../service/api/brandAPI";
 
 const { TextArea } = Input;
 
@@ -8,42 +9,44 @@ const BrandAdd = ({ isOpen, onClose, onAddBrand }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
-  const handleAdd = () => {
-    form.validateFields()
-      .then((values) => {
-        // Kiểm tra xem có upload hình ảnh không
-        if (fileList.length === 0) {
-          message.error("Vui lòng tải lên hình ảnh thương hiệu");
-          return;
-        }
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
 
-        // Giả lập việc upload hình ảnh lên Firebase và nhận URL
-        // Trong thực tế, bạn sẽ cần thay thế bằng API upload hình ảnh thực
-        const fakeUpload = () => {
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              resolve(imageUrl || "https://firebasestorage.googleapis.com/v0/b/little-joy-2c5d3.appspot.com/o/himari%2Fdefault-brand.png?alt=media");
-            }, 500);
-          });
-        };
+      // Check if image is uploaded
+      if (fileList.length === 0) {
+        message.error("Vui lòng tải lên hình ảnh thương hiệu");
+        return;
+      }
 
-        fakeUpload().then(imageUrl => {
-          // Create new brand object
-          const newBrand = {
-            id: Date.now(), // Tạm thời sử dụng timestamp, sau này sẽ do server sinh
-            brandName: values.brandName,
-            description: values.description,
-            image: imageUrl
-          };
+      setUploading(true);
 
-          onAddBrand(newBrand);
-          handleCancel();
-        });
-      })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
-      });
+      // Upload image to Firebase if a file is selected
+      let imageUrl = "";
+      if (fileList.length > 0 && fileList[0].originFileObj) {
+        const response = await BrandAPI.uploadToFirebase(fileList[0].originFileObj);
+        imageUrl = response.data.url;
+      }
+
+      // Create brand data object
+      const brandData = {
+        brandName: values.brandName,
+        description: values.description,
+        image: imageUrl
+      };
+
+      // Call the parent component's add function
+      await onAddBrand(brandData);
+
+      // Reset form and close modal
+      handleCancel();
+    } catch (error) {
+      console.error("Error in adding brand:", error);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -59,17 +62,22 @@ const BrandAdd = ({ isOpen, onClose, onAddBrand }) => {
       setImageUrl("");
     },
     beforeUpload: (file) => {
-      // Chỉ cho phép upload hình ảnh
+      // Only allow image upload
       const isImage = file.type.startsWith('image/');
       if (!isImage) {
         message.error('Bạn chỉ có thể tải lên file hình ảnh!');
         return Upload.LIST_IGNORE;
       }
 
-      // Tạo URL tạm thời để hiển thị preview
+      // Create temporary URL for preview
       const url = URL.createObjectURL(file);
       setImageUrl(url);
-      setFileList([file]);
+      setFileList([{
+        uid: "-1",
+        name: file.name,
+        status: "done",
+        originFileObj: file,
+      }]);
       return false;
     },
     fileList,
@@ -84,6 +92,7 @@ const BrandAdd = ({ isOpen, onClose, onAddBrand }) => {
       onCancel={handleCancel}
       okText="Thêm"
       onOk={handleAdd}
+      okButtonProps={{ loading: uploading }}
       maskClosable={false}
       width={600}
     >

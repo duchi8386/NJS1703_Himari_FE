@@ -2,7 +2,7 @@ import React from "react";
 import { Table, Button, Space, Popconfirm, Image } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
-const BrandTable = ({ brands, onEdit, onDelete, pagination, onChange }) => {
+const BrandTable = ({ brands, loading, onEdit, onDelete, pagination, onChange }) => {
   const columns = [
     {
       title: "ID",
@@ -72,6 +72,7 @@ const BrandTable = ({ brands, onEdit, onDelete, pagination, onChange }) => {
         columns={columns}
         dataSource={brands}
         rowKey="id"
+        loading={loading}
         className="bg-white rounded-lg shadow"
         pagination={{
           ...pagination,

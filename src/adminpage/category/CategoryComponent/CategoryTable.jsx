@@ -4,12 +4,12 @@ import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange, loading }) => {
   const columns = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      width: 80,
-    },
+    // {
+    //   title: "ID",
+    //   dataIndex: "id",
+    //   key: "id",
+    //   width: 80,
+    // },
     {
       title: "Tên danh mục",
       dataIndex: "categoryName",

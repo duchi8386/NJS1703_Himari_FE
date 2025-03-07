@@ -69,7 +69,7 @@ const AddProduct = ({
 
       // Add product
       const response = await ProductAPI.AddProducts(productData);
-      
+
       if (response.status === 200) {
         message.success('Thêm sản phẩm thành công!');
         onProductAdded();
@@ -94,9 +94,9 @@ const AddProduct = ({
       footer={null}
       width={800}
     >
-      <Form 
-        form={form} 
-        layout="vertical" 
+      <Form
+        form={form}
+        layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
           gender: true,
