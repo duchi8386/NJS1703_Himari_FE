@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Form, Input, Select, Button, message } from "antd";
+import { Modal, Form, Input, Select } from "antd";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -10,15 +10,8 @@ const CategoryAdd = ({ isOpen, onClose, onAddCategory, parentCategories }) => {
   const handleAdd = () => {
     form.validateFields()
       .then((values) => {
-        // Create new category object
-        const newCategory = {
-          id: Date.now(), // Tạm thời sử dụng timestamp, sau này sẽ do server sinh
-          ...values,
-          // parentCategoryName sẽ được thêm trong component cha
-        };
-
-        onAddCategory(newCategory);
-        message.success("Thêm danh mục thành công");
+        // Pass form values to parent for API handling
+        onAddCategory(values);
         handleCancel();
       })
       .catch((info) => {

@@ -20,10 +20,10 @@ const ProductAPI = {
   },
   uploadToFirebase: async (file) => {
     const formData = new FormData();
-    formData.append('file', file);
-    return axiosInstance.post('/firebase/upload', formData, {
+    formData.append("file", file);
+    return axiosInstance.post("/firebase/upload", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
   },

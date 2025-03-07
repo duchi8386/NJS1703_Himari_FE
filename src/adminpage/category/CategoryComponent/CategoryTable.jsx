@@ -1,8 +1,8 @@
 import React from "react";
-import { Table, Button, Tag, Space, Popconfirm, message } from "antd";
+import { Table, Button, Space, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
-const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange }) => {
+const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange, loading }) => {
   const columns = [
     {
       title: "ID",
@@ -29,7 +29,7 @@ const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange }) =
       title: "Danh mục cha",
       dataIndex: "parentCategoryName",
       key: "parentCategoryName",
-      render: (parentName) => parentName || <span style={{color: "#999"}}>Không có</span>,
+      render: (parentName) => parentName || <span style={{ color: "#999" }}>Không có</span>,
     },
     {
       title: "Hành động",
@@ -37,7 +37,7 @@ const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange }) =
       render: (_, record) => {
         // Kiểm tra xem danh mục có là parent của danh mục khác không
         const hasChildren = categories.some(cat => cat.parentCategoryId === record.id);
-        
+
         return (
           <Space>
             <Button
@@ -46,8 +46,8 @@ const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange }) =
               onClick={() => onEdit(record)}
             />
             <Popconfirm
-              title={hasChildren ? 
-                "Danh mục này có chứa các danh mục con. Bạn không thể xóa!" : 
+              title={hasChildren ?
+                "Danh mục này có chứa các danh mục con. Bạn không thể xóa!" :
                 "Bạn có chắc muốn xóa danh mục này?"}
               onConfirm={() => {
                 if (!hasChildren) {
@@ -58,10 +58,10 @@ const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange }) =
               cancelText="Hủy"
               disabled={hasChildren}
             >
-              <Button 
-                danger 
-                icon={<DeleteOutlined />} 
-                disabled={hasChildren}
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+              // disabled={hasChildren}
               />
             </Popconfirm>
           </Space>
@@ -82,9 +82,19 @@ const CategoryTable = ({ categories, onEdit, onDelete, pagination, onChange }) =
         pagination={{
           ...pagination,
           showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '30', '50'],
           showTotal: (total) => `Tổng ${total} danh mục`,
+          onChange: (page, pageSize) => {
+            // When page changes, call the onChange handler with the updated pagination
+            onChange({ ...pagination, current: page, pageSize });
+          },
+          onShowSizeChange: (current, size) => {
+            // When page size changes, update pagination
+            onChange({ ...pagination, current: 1, pageSize: size });
+          }
         }}
-        onChange={onChange}
+        onChange={(newPagination) => onChange(newPagination)}
+        loading={loading}
       />
     </div>
   );

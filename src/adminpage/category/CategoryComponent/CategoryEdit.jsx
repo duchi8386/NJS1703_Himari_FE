@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Modal, Form, Input, Select, Button, message } from "antd";
+import { Modal, Form, Input, Select } from "antd";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -20,15 +20,13 @@ const CategoryEdit = ({ isOpen, onClose, onUpdateCategory, category, parentCateg
   const handleUpdate = () => {
     form.validateFields()
       .then((values) => {
-        // Create updated category object
+        // Create updated category object with ID for API
         const updatedCategory = {
-          ...category,
+          id: category.id,
           ...values,
-          // parentCategoryName sẽ được thêm trong component cha
         };
 
         onUpdateCategory(updatedCategory);
-        message.success("Cập nhật danh mục thành công");
         onClose();
       })
       .catch((info) => {
@@ -45,18 +43,18 @@ const CategoryEdit = ({ isOpen, onClose, onUpdateCategory, category, parentCateg
       const directChildren = parentCategories
         .filter(cat => cat.parentCategoryId === categoryId)
         .map(cat => cat.id);
-      
+
       let allChildren = [...directChildren];
       directChildren.forEach(childId => {
         const nestedChildren = findAllChildrenIds(childId);
         allChildren = [...allChildren, ...nestedChildren];
       });
-      
+
       return allChildren;
     };
 
     const childrenIds = findAllChildrenIds(category.id);
-    return parentCategories.filter(cat => 
+    return parentCategories.filter(cat =>
       cat.id !== category.id && !childrenIds.includes(cat.id)
     );
   };

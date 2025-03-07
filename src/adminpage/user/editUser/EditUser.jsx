@@ -35,16 +35,16 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
       onCancel={onClose}
       className="min-w-[500px]"
       footer={[
-        <Button 
-          key="back" 
+        <Button
+          key="back"
           onClick={onClose}
           className="min-w-[100px] bg-gray-100 hover:bg-gray-200"
         >
           Hủy
         </Button>,
-        <Button 
-          key="submit" 
-          type="primary" 
+        <Button
+          key="submit"
+          type="primary"
           onClick={handleSubmit}
           className="min-w-[100px] bg-blue-500 hover:bg-blue-600"
         >
@@ -63,8 +63,8 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
           label={<span className="text-gray-700">Tên người dùng</span>}
           rules={[{ required: true, message: 'Vui lòng nhập tên người dùng!' }]}
         >
-          <Input 
-            placeholder="Nhập tên người dùng" 
+          <Input
+            placeholder="Nhập tên người dùng"
             className="rounded-md"
           />
         </Form.Item>
@@ -77,9 +77,9 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
             { type: 'email', message: 'Email không hợp lệ!' }
           ]}
         >
-          <Input 
+          <Input
             disabled
-            placeholder="Nhập email" 
+            placeholder="Nhập email"
             className="rounded-md"
           />
         </Form.Item>
@@ -89,33 +89,33 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
           label={<span className="text-gray-700">Số điện thoại</span>}
           rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
         >
-          <Input 
-            placeholder="Nhập số điện thoại" 
-            className="rounded-md"
-          />
-        </Form.Item>
-        
-        <Form.Item
-          name="address"
-          label={<span className="text-gray-700">Địa chỉ</span>}
-        >
-          <Input 
-            placeholder="Nhập địa chỉ" 
-            className="rounded-md"
-          />
-        </Form.Item>
-        
-        <Form.Item
-          name="avatarUrl"
-          label={<span className="text-gray-700">Ảnh đại diện URL</span>}
-        >
-          <Input 
-            placeholder="Nhập URL ảnh đại diện" 
+          <Input
+            placeholder="Nhập số điện thoại"
             className="rounded-md"
           />
         </Form.Item>
 
         <Form.Item
+          name="address"
+          label={<span className="text-gray-700">Địa chỉ</span>}
+        >
+          <Input
+            placeholder="Nhập địa chỉ"
+            className="rounded-md"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="avatarUrl"
+          label={<span className="text-gray-700">Ảnh đại diện URL</span>}
+        >
+          <Input
+            placeholder="Nhập URL ảnh đại diện"
+            className="rounded-md"
+          />
+        </Form.Item>
+
+        {/* <Form.Item
           name="role"
           label={<span className="text-gray-700">Vai trò</span>}
           rules={[{ required: true, message: 'Vui lòng chọn vai trò!' }]}
@@ -127,21 +127,21 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
             <Select.Option value="admin">Admin</Select.Option>
             <Select.Option value="user">User</Select.Option>
           </Select>
-        </Form.Item>
+        </Form.Item> */}
 
-        <Form.Item
+        {/* <Form.Item
           name="status"
           label={<span className="text-gray-700">Trạng thái</span>}
           rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
         >
-          <Select 
+          <Select
             placeholder="Chọn trạng thái"
             className="rounded-md"
           >
             <Select.Option value="active">Active</Select.Option>
             <Select.Option value="inactive">Inactive</Select.Option>
           </Select>
-        </Form.Item>
+        </Form.Item> */}
       </Form>
     </Modal>
   );

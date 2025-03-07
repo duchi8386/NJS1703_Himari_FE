@@ -1,11 +1,11 @@
 import axiosInstance from "../instance";
 
 const CategoryAPI = {
-  getAllCategory: async (page) => {
+  getAllCategory: async (page, pageSize = 10) => {
     return axiosInstance.get(`/categories`, {
       params: {
         "page-index": page,
-        "page-size": 50,
+        "page-size": pageSize,
       },
     });
   },
@@ -28,6 +28,15 @@ const CategoryAPI = {
         "page-size": pageSize,
       },
     });
+  },
+  createCatrgory: async (categoryData) => {
+    return axiosInstance.post("/categories", categoryData);
+  },
+  updateCategory: async (categoryData) => {
+    return axiosInstance.put(`/categories`, categoryData);
+  },
+  deleteCategory: async (categoryId) => {
+    return axiosInstance.delete(`/categories/${categoryId}`);
   },
 };
 

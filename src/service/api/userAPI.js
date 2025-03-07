@@ -9,22 +9,20 @@ const userAPI = {
       },
     });
   },
-  
+
   updateUser: async (userData) => {
     // The userData should follow the required format
     // {id, email, fullName, phoneNumber, address, avatarUrl}
     return axiosInstance.put(`/users`, userData);
   },
-  
+
   deleteUser: async (userId) => {
     return axiosInstance.delete(`/users/${userId}`);
   },
-  
+
   getUserById: async (userId) => {
     return axiosInstance.get(`/users/${userId}`);
-  }
+  },
 };
 
 export default userAPI;
-
-

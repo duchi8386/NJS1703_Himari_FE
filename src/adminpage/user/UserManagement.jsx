@@ -4,7 +4,6 @@ import { Button, message } from "antd";
 import userAPI from "../../service/api/userAPI";
 
 const UserManagement = () => {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -18,22 +17,22 @@ const UserManagement = () => {
     try {
       setLoading(true);
       const response = await userAPI.getUsers(
-        pagination.pageIndex, 
+        pagination.pageIndex,
         pagination.pageSize
       );
-      
+
       // Update to match the actual API response structure
       if (response.data && response.data.data && response.data.data.data) {
         const userData = response.data.data.data;
         const metaData = response.data.data.metaData;
-        
+
         // Add id property to each user for table key purposes if it doesn't exist
         const processedUsers = userData.map((user, index) => ({
           ...user,
           id: user.id || index + 1, // Use existing id or generate one
           status: user.status || 'active' // Default status if null
         }));
-        
+
         setUsers(processedUsers);
         setPagination({
           pageIndex: metaData.currentPage,
@@ -64,13 +63,7 @@ const UserManagement = () => {
     });
   };
 
-  // Handle add user
-  const handleAddUser = (values) => {
-    // Add user logic here
-    // Will need to implement later if there's an API for it
-    message.success("User added successfully");
-    fetchUsers(); // Refresh the list
-  };
+
 
   // Handle edit user
   const handleEditUser = async (userData) => {
@@ -82,10 +75,10 @@ const UserManagement = () => {
         email: userData.email,
         fullName: userData.fullName,
         phoneNumber: userData.phoneNumber,
-        address: userData.address || "", 
+        address: userData.address || "",
         avatarUrl: userData.avatarUrl || ""
       };
-      
+
       await userAPI.updateUser(formattedData);
       message.success("User updated successfully");
       fetchUsers(); // Refresh the list
@@ -118,7 +111,7 @@ const UserManagement = () => {
         <h2 className="text-2xl font-bold">Quản lý người dùng</h2>
       </div>
 
-      <UserTable 
+      <UserTable
         users={users}
         loading={loading}
         pagination={pagination}
