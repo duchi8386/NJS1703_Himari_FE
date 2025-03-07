@@ -5,7 +5,7 @@ import BrandAPI from "../../../service/api/brandAPI";
 
 const { TextArea } = Input;
 
-const BrandEdit = ({ isOpen, onClose, onUpdateBrand, brand }) => {
+const BrandEdit = ({ isOpen, onClose, onSuccess, brand }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
@@ -39,28 +39,35 @@ const BrandEdit = ({ isOpen, onClose, onUpdateBrand, brand }) => {
   const handleUpdate = async () => {
     try {
       const values = await form.validateFields();
-
       setUploading(true);
 
       // Upload image to Firebase if a new file is selected
       let finalImageUrl = brand.image;
       if (fileList.length > 0 && fileList[0].originFileObj) {
         const response = await BrandAPI.uploadToFirebase(fileList[0].originFileObj);
-        finalImageUrl = response.data.url;
+        finalImageUrl = response.data.data;
       }
 
       // Create updated brand object
       const updatedBrand = {
-        ...brand,
+        id: brand.id,
         brandName: values.brandName,
         description: values.description,
         image: finalImageUrl
       };
 
-      // Call the parent component's update function
-      await onUpdateBrand(updatedBrand);
-      onClose();
+      // Call API to update brand
+      const response = await BrandAPI.updateBrand(updatedBrand);
+
+      if (response.statusCode === 200) {
+        message.success("Cập nhật thương hiệu thành công");
+        onSuccess();
+        onClose();
+      } else {
+        message.error("Không thể cập nhật thương hiệu");
+      }
     } catch (error) {
+      message.error("Cập nhật thương hiệu thất bại");
       console.error("Error in updating brand:", error);
     } finally {
       setUploading(false);

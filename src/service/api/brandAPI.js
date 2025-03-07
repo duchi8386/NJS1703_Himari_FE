@@ -45,6 +45,17 @@ const BrandAPI = {
       throw error;
     }
   },
+
+  deleteBrand: async (brandId) => {
+    try {
+      const response = await axiosInstance.delete(`/brands/${brandId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting brand:", error);
+      throw error;
+    }
+  },
+
   uploadToFirebase: async (file) => {
     const formData = new FormData();
     formData.append("file", file);

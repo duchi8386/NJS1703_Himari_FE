@@ -63,50 +63,11 @@ const BrandPage = () => {
     setIsEditModalVisible(true);
   };
 
-  // Function to handle add brand
-  const handleAddBrand = async (brandData) => {
-    try {
-      setLoading(true);
-      const response = await BrandAPI.createBrand(brandData);
-      if (response.statusCode === 200) {
-        message.success("Thêm thương hiệu thành công");
-        fetchBrands(); // Refresh the brand list
-      } else {
-        message.error("Thêm thương hiệu thất bại: " + response.message);
-      }
-    } catch (error) {
-      message.error("Thêm thương hiệu thất bại");
-      console.error("Error adding brand:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Function to handle update brand
-  const handleUpdateBrand = async (updatedBrand) => {
-    try {
-      setLoading(true);
-      const response = await BrandAPI.updateBrand(updatedBrand);
-      if (response.statusCode === 200) {
-        message.success("Cập nhật thương hiệu thành công");
-        fetchBrands(); // Refresh the brand list
-      } else {
-        message.error("Cập nhật thương hiệu thất bại: " + response.message);
-      }
-    } catch (error) {
-      message.error("Cập nhật thương hiệu thất bại");
-      console.error("Error updating brand:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Function to handle delete brand
   const handleDeleteBrand = async (brandId) => {
     try {
       setLoading(true);
-      // Note: API for deleting brands doesn't exist in the provided code
-      // This would typically be: await BrandAPI.deleteBrand(brandId);
+      await BrandAPI.deleteBrand(brandId);
 
       // For now, just refresh the list
       message.success("Xóa thương hiệu thành công");
@@ -156,13 +117,13 @@ const BrandPage = () => {
       <BrandAdd
         isOpen={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
-        onAddBrand={handleAddBrand}
+        onSuccess={fetchBrands}
       />
 
       <BrandEdit
         isOpen={isEditModalVisible}
         onClose={() => setIsEditModalVisible(false)}
-        onUpdateBrand={handleUpdateBrand}
+        onSuccess={fetchBrands}
         brand={currentBrand}
       />
     </div>

@@ -5,55 +5,55 @@ import BrandAPI from "../../../service/api/brandAPI";
 
 const { TextArea } = Input;
 
-const BrandAdd = ({ isOpen, onClose, onAddBrand }) => {
+const BrandAdd = ({ isOpen, onClose, onSuccess }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  const handleAdd = async () => {
+  const handleCreate = async () => {
     try {
       const values = await form.validateFields();
 
-      // Check if image is uploaded
-      if (fileList.length === 0) {
+      // Validate image exists
+      if (fileList.length === 0 || !fileList[0].originFileObj) {
         message.error("Vui lòng tải lên hình ảnh thương hiệu");
         return;
       }
 
       setUploading(true);
 
-      // Upload image to Firebase if a file is selected
-      let imageUrl = "";
-      if (fileList.length > 0 && fileList[0].originFileObj) {
-        const response = await BrandAPI.uploadToFirebase(fileList[0].originFileObj);
-        imageUrl = response.data.url;
-      }
+      // Upload image to Firebase
+      const uploadResponse = await BrandAPI.uploadToFirebase(fileList[0].originFileObj);
+      console.log(uploadResponse)
+      const imageUrl = uploadResponse.data.data;
 
-      // Create brand data object
+      // Create brand object
       const brandData = {
         brandName: values.brandName,
         description: values.description,
         image: imageUrl
       };
 
-      // Call the parent component's add function
-      await onAddBrand(brandData);
+      // Call API to create brand
+      const response = await BrandAPI.createBrand(brandData);
 
-      // Reset form and close modal
-      handleCancel();
+      if (response.statusCode === 201 || response.statusCode === 200) {
+        message.success("Thêm thương hiệu mới thành công");
+        form.resetFields();
+        setFileList([]);
+        setImageUrl("");
+        onSuccess();
+        onClose();
+      } else {
+        message.error("Không thể thêm thương hiệu");
+      }
     } catch (error) {
-      console.error("Error in adding brand:", error);
+      message.error("Thêm thương hiệu thất bại");
+      console.error("Error in creating brand:", error);
     } finally {
       setUploading(false);
     }
-  };
-
-  const handleCancel = () => {
-    form.resetFields();
-    setFileList([]);
-    setImageUrl("");
-    onClose();
   };
 
   const uploadProps = {
@@ -89,9 +89,9 @@ const BrandAdd = ({ isOpen, onClose, onAddBrand }) => {
     <Modal
       title="Thêm thương hiệu mới"
       open={isOpen}
-      onCancel={handleCancel}
-      okText="Thêm"
-      onOk={handleAdd}
+      onCancel={onClose}
+      okText="Thêm mới"
+      onOk={handleCreate}
       okButtonProps={{ loading: uploading }}
       maskClosable={false}
       width={600}
@@ -119,9 +119,15 @@ const BrandAdd = ({ isOpen, onClose, onAddBrand }) => {
           rules={[{ required: true, message: "Vui lòng tải lên hình ảnh thương hiệu" }]}
         >
           <Upload {...uploadProps}>
-            <Button icon={<UploadOutlined />}>Chọn hình ảnh</Button>
+            <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
           </Upload>
         </Form.Item>
+
+        {imageUrl && (
+          <div className="mt-2">
+            <img src={imageUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+          </div>
+        )}
       </Form>
     </Modal>
   );
