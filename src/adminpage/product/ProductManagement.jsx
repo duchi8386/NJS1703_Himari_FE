@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import ProductTable from './productTable/ProductTable'
-import { Button, message } from 'antd'
+import { Button, message, Pagination } from 'antd'
 import AddProduct from './addProduct/AddProduct'
 import ProductAPI from '../../service/api/productAPI'
 import CategoryAPI from '../../service/api/CategoryAPI'
@@ -13,6 +13,25 @@ const ProductManagement = () => {
   const [parentCategories, setParentCategories] = useState([]);
   const [childCategories, setChildCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+
+  // Pagination states
+  const [productPagination, setProductPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
+
+  const [categoryPagination, setCategoryPagination] = useState({
+    current: 1,
+    pageSize: 20,
+    total: 0
+  });
+
+  const [brandPagination, setBrandPagination] = useState({
+    current: 1,
+    pageSize: 20,
+    total: 0
+  });
 
   // States for modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -29,15 +48,23 @@ const ProductManagement = () => {
     fetchProducts();
     fetchParentCategories();
     fetchBrands();
-  }, []);
+  }, [productPagination.current, categoryPagination.current, brandPagination.current]);
 
   // Fetch products
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await ProductAPI.getProducts(1, 50);
+      const response = await ProductAPI.getProducts(
+        productPagination.current,
+        productPagination.pageSize
+      );
+
       if (response?.data?.data) {
         setProducts(response.data.data.data);
+        setProductPagination({
+          ...productPagination,
+          total: response.data.data.totalRecord || 0
+        });
       }
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -51,10 +78,17 @@ const ProductManagement = () => {
   const fetchParentCategories = async () => {
     try {
       setLoadingCategories(true);
-      const response = await CategoryAPI.getParentCategory(1, 6);
-      // console.log(response)
+      const response = await CategoryAPI.getParentCategory(
+        categoryPagination.current,
+        categoryPagination.pageSize
+      );
+
       if (response?.data?.data?.data) {
         setParentCategories(response.data.data.data);
+        setCategoryPagination({
+          ...categoryPagination,
+          total: response.data.data.totalRecords || 0
+        });
       }
     } catch (error) {
       console.error('Error fetching parent categories:', error);
@@ -68,7 +102,12 @@ const ProductManagement = () => {
   const fetchChildCategories = async (parentId) => {
     try {
       setLoadingCategories(true);
-      const response = await CategoryAPI.getCategoryByParentId(parentId, 1, 20);
+      const response = await CategoryAPI.getCategoryByParentId(
+        parentId,
+        categoryPagination.current,
+        categoryPagination.pageSize
+      );
+
       if (response?.data?.data?.data) {
         setChildCategories(response.data.data.data);
       }
@@ -84,9 +123,17 @@ const ProductManagement = () => {
   const fetchBrands = async () => {
     try {
       setLoadingBrands(true);
-      const response = await BrandAPI.getBrands(1, 17);
+      const response = await BrandAPI.getBrands(
+        brandPagination.current,
+        brandPagination.pageSize
+      );
+
       if (response?.data) {
         setBrands(response.data.data);
+        setBrandPagination({
+          ...brandPagination,
+          total: response.data.totalRecords || 0
+        });
       }
     } catch (error) {
       console.error('Error fetching brands:', error);
@@ -144,6 +191,15 @@ const ProductManagement = () => {
     }
   };
 
+  // Handle product pagination change
+  const handleProductPageChange = (page, pageSize) => {
+    setProductPagination({
+      ...productPagination,
+      current: page,
+      pageSize: pageSize
+    });
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -168,6 +224,18 @@ const ProductManagement = () => {
         }}
         onDelete={handleDeleteProduct}
       />
+
+      {/* Add pagination control for products */}
+      <div className="flex justify-end mt-4">
+        <Pagination
+          current={productPagination.current}
+          pageSize={productPagination.pageSize}
+          total={productPagination.total}
+          onChange={handleProductPageChange}
+          showSizeChanger
+          showTotal={(total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`}
+        />
+      </div>
 
       <AddProduct
         isOpen={isAddModalOpen}
