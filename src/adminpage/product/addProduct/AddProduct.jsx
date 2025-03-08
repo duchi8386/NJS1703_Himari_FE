@@ -65,6 +65,7 @@ const AddProduct = ({
         categoryId: values.childCategory,
         brandId: values.brand,
         gender: values.gender || true,
+        quantity: values.quantity || 0,
       };
 
       // Add product
@@ -183,6 +184,15 @@ const AddProduct = ({
                   </Select.Option>
                 ))}
               </Select>
+            </Form.Item>
+            <Form.Item
+              name="quantity"
+              label={<span className="text-sm">Số lượng</span>}
+            >
+              <Input
+                // disabled
+                className="h-10 rounded"
+              />
             </Form.Item>
 
             <Form.Item

@@ -38,6 +38,15 @@ const CategoryAPI = {
   deleteCategory: async (categoryId) => {
     return axiosInstance.delete(`/categories/${categoryId}`);
   },
+  getCategoryById: async (categoryId) => {
+    try {
+      const response = await axiosInstance.get(`/categories/${categoryId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching category details:", error);
+      throw error;
+    }
+  },
 };
 
 export default CategoryAPI;

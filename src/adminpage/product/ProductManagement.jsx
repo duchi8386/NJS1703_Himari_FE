@@ -68,7 +68,7 @@ const ProductManagement = () => {
   const fetchChildCategories = async (parentId) => {
     try {
       setLoadingCategories(true);
-      const response = await CategoryAPI.getCategoryByParentId(parentId, 1, 6);
+      const response = await CategoryAPI.getCategoryByParentId(parentId, 1, 20);
       if (response?.data?.data?.data) {
         setChildCategories(response.data.data.data);
       }
@@ -84,7 +84,7 @@ const ProductManagement = () => {
   const fetchBrands = async () => {
     try {
       setLoadingBrands(true);
-      const response = await BrandAPI.getBrands(1, 6);
+      const response = await BrandAPI.getBrands(1, 17);
       if (response?.data) {
         setBrands(response.data.data);
       }

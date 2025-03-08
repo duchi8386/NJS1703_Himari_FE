@@ -3,6 +3,7 @@ import { Modal, Form, Input, Upload, Select, Button, Switch } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { message } from 'antd';
 import ProductAPI from '../../../service/api/productAPI';
+import CategoryAPI from '../../../service/api/CategoryAPI'; // Import CategoryAPI
 
 const EditProduct = ({
   isOpen,
@@ -22,27 +23,52 @@ const EditProduct = ({
   const [imageUrl, setImageUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
+  const [loadingCategoryData, setLoadingCategoryData] = useState(false);
 
   useEffect(() => {
     if (productData) {
-      if (productData.parentCategoryId) {
-        onFetchChildCategories(productData.parentCategoryId);
-        setSelectedParentCategory(productData.parentCategoryId);
-      }
-
       setImageUrl(productData.imageUrl);
       setPreviewUrl(productData.imageUrl);
       form.setFieldsValue({
         productName: productData.productName,
         price: productData.price,
         description: productData.description,
-        childCategory: productData.categoryId,
         brand: productData.brandId,
         gender: productData.gender || true,
         quantity: productData.quantity || 0,
       });
+
+      // Fetch category information using categoryId
+      fetchCategoryInfo(productData.categoryId);
     }
-  }, [productData, form, onFetchChildCategories]);
+  }, [productData, form]);
+
+  const fetchCategoryInfo = async (categoryId) => {
+    if (!categoryId) return;
+
+    try {
+      setLoadingCategoryData(true);
+      const categoryData = await CategoryAPI.getCategoryById(categoryId);
+      console.log("cate info:", categoryData);
+      if (categoryData && categoryData.data.parentCategoryId) {
+        // Set parent category
+        setSelectedParentCategory(categoryData.data.parentCategoryId);
+        form.setFieldValue('childCategory', categoryId);
+
+        // Fetch child categories of this parent
+        onFetchChildCategories(categoryData.data.parentCategoryId);
+      } else {
+        // If it's a parent category itself
+        setSelectedParentCategory(categoryId);
+        form.setFieldValue('childCategory', null);
+      }
+    } catch (error) {
+      console.error('Error fetching category details:', error);
+      message.error('Không thể tải thông tin danh mục');
+    } finally {
+      setLoadingCategoryData(false);
+    }
+  };
 
   const handleParentCategoryChange = (value) => {
     console.log("Selected Parent Category:", value);
@@ -253,8 +279,8 @@ const EditProduct = ({
                   showUploadList={false}
                   className="w-full"
                 >
-                  <Button 
-                    icon={<UploadOutlined />} 
+                  <Button
+                    icon={<UploadOutlined />}
                     className="w-32 h-10 rounded"
                   >
                     Chọn ảnh mới
