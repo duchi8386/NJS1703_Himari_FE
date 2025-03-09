@@ -10,6 +10,9 @@ import BlogCategory from "../adminpage/Blog/BlogCategory/BlogCategory";
 import BrandManagement from "../adminpage/brand/BrandPage";
 import LoginAdmin from "../adminpage/loginadmin/LoginAdmin";
 import { useAuth } from "../context/AuthContext";
+import SymptomPart from "../adminpage/symptoms/SymptomPart/SymptomPart";
+import ProductSymptoms from "../adminpage/symptoms/ProductSymptoms/ProductSymptoms";
+import BodyPart from "../adminpage/symptoms/BodyPart/BodyPart";
 
 // Component bảo vệ route admin
 const ProtectedRoute = ({ children }) => {
@@ -72,13 +75,23 @@ export const router = createBrowserRouter([
       {
         path: "blogs-category",
         element: <BlogCategory />,
-      },
+      },      
       {
         path: "brands",
         element: <BrandManagement />,
       },
-
-      
+      {
+        path: "part-symptoms",
+        element: <SymptomPart/>,
+      },
+      {
+        path: "product-symptoms",
+        element: <ProductSymptoms/>
+      },
+      {
+        path:"body-parts",
+        element: <BodyPart/>
+      }      
     ],
   },
 ]);
