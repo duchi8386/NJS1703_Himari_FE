@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Upload, Select, Button, Switch } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Select, Button, Switch } from 'antd';
 import { message } from 'antd';
 import ProductAPI from '../../../service/api/productAPI';
-import CategoryAPI from '../../../service/api/CategoryAPI'; // Import CategoryAPI
+import CategoryAPI from '../../../service/api/CategoryAPI';
+import ImageUpload from '../../../components/ImageUpload/ImageUpload';
 
 const EditProduct = ({
   isOpen,
@@ -21,14 +21,12 @@ const EditProduct = ({
   const [selectedParentCategory, setSelectedParentCategory] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
   const [loadingCategoryData, setLoadingCategoryData] = useState(false);
 
+  // Reset form and state when productData changes or when modal is opened/closed
   useEffect(() => {
     if (productData) {
       setImageUrl(productData.imageUrl);
-      setPreviewUrl(productData.imageUrl);
       form.setFieldsValue({
         productName: productData.productName,
         price: productData.price,
@@ -36,12 +34,14 @@ const EditProduct = ({
         brand: productData.brandId,
         gender: productData.gender || true,
         quantity: productData.quantity || 0,
+        // Important: Remove this field from form so ImageUpload gets initialized properly
+        thumbnail: null,
       });
 
       // Fetch category information using categoryId
       fetchCategoryInfo(productData.categoryId);
     }
-  }, [productData, form]);
+  }, [productData, form, isOpen]); // Add isOpen to dependencies to reset when modal is opened/closed
 
   const fetchCategoryInfo = async (categoryId) => {
     if (!categoryId) return;
@@ -81,14 +81,8 @@ const EditProduct = ({
     }
   };
 
-  const handleImagePreview = (file) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-    setSelectedFile(file);
-    return false;
+  const handleImageChange = (file) => {
+    form.setFieldValue('thumbnail', file);
   };
 
   const handleSubmit = async (values) => {
@@ -96,10 +90,12 @@ const EditProduct = ({
       setUploading(true);
       let finalImageUrl = imageUrl;
 
-      if (selectedFile) {
-        const response = await ProductAPI.uploadToFirebase(selectedFile);
+      if (values.thumbnail) {
+        const response = await ProductAPI.uploadToFirebase(values.thumbnail);
         if (response?.data) {
           finalImageUrl = response.data.data;
+          // Update the imageUrl state with the new URL
+          setImageUrl(finalImageUrl);
         } else {
           throw new Error('Upload failed');
         }
@@ -111,7 +107,9 @@ const EditProduct = ({
       };
 
       await onEditProduct(updatedValues, productData.id);
-      setSelectedFile(null);
+      
+      // Clear the thumbnail field after successful update
+      form.setFieldValue('thumbnail', null);
     } catch (error) {
       console.error('Error during update:', error);
       message.error('Có lỗi xảy ra khi cập nhật sản phẩm!');
@@ -120,11 +118,17 @@ const EditProduct = ({
     }
   };
 
+  const handleClose = () => {
+    // Reset form and clear thumbnail field when closing the modal
+    form.setFieldValue('thumbnail', null);
+    onClose();
+  };
+
   return (
     <Modal
       title={<div className="text-xl font-semibold">Chỉnh sửa sản phẩm</div>}
       open={isOpen}
-      onCancel={onClose}
+      onCancel={handleClose}
       footer={null}
       width={800}
     >
@@ -237,7 +241,6 @@ const EditProduct = ({
               label={<span className="text-sm">Số lượng</span>}
             >
               <Input
-                // disabled
                 className="h-10 rounded"
               />
             </Form.Item>
@@ -260,10 +263,10 @@ const EditProduct = ({
 
             <div className="mt-4">
               <p className="text-sm mb-2">Hình ảnh hiện tại:</p>
-              {previewUrl && (
+              {imageUrl && (
                 <div className="mb-4">
                   <img
-                    src={previewUrl}
+                    src={imageUrl}
                     alt="Current product"
                     className="w-40 h-40 object-cover rounded-md"
                   />
@@ -273,19 +276,11 @@ const EditProduct = ({
                 name="thumbnail"
                 label={<span className="text-sm">Cập nhật hình ảnh</span>}
               >
-                <Upload
-                  maxCount={1}
-                  beforeUpload={handleImagePreview}
-                  showUploadList={false}
-                  className="w-full"
-                >
-                  <Button
-                    icon={<UploadOutlined />}
-                    className="w-32 h-10 rounded"
-                  >
-                    Chọn ảnh mới
-                  </Button>
-                </Upload>
+                {/* Pass key prop to force re-render when imageUrl changes */}
+                <ImageUpload 
+                  onChange={handleImageChange}
+                  key={imageUrl} 
+                />
               </Form.Item>
             </div>
           </div>
@@ -293,7 +288,7 @@ const EditProduct = ({
 
         <div className="flex justify-end space-x-2 mt-6">
           <Button
-            onClick={onClose}
+            onClick={handleClose}
             className="px-6 h-9 rounded"
           >
             Hủy

@@ -2,7 +2,6 @@ import axios from "axios";
 
 const API_BASE_URL = "http://wizlab.io.vn:12345/api/v1/";
 
-// Tạo custom hook để xử lý navigation và authentication
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

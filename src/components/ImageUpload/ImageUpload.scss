@@ -1,0 +1,18 @@
+.image-upload-container {
+  .ant-upload-list {
+    margin-top: 8px;
+  }
+
+  .ant-upload-list-picture .ant-upload-list-item {
+    border-radius: 4px;
+  }
+
+  .ant-upload-list-picture .ant-upload-list-item-thumbnail img {
+    object-fit: cover;
+  }
+
+  .ant-btn {
+    height: 36px;
+    border-radius: 4px;
+  }
+}

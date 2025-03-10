@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Upload, Select, Button, Switch, message } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Select, Button, Switch, message } from 'antd';
 import ProductAPI from '../../../service/api/productAPI';
-import CategoryAPI from '../../../service/api/CategoryAPI';
-import BrandAPI from '../../../service/api/brandAPI';
+import ImageUpload from '../../../components/ImageUpload/ImageUpload';
 
 const AddProduct = ({
   isOpen,
@@ -18,8 +16,6 @@ const AddProduct = ({
 }) => {
   const [form] = Form.useForm();
   const [selectedParentCategory, setSelectedParentCategory] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
   // Handle parent category change
@@ -31,14 +27,8 @@ const AddProduct = ({
     }
   };
 
-  const handleImagePreview = (file) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-    setSelectedFile(file);
-    return false; // Prevent default upload behavior
+  const handleImageChange = (file) => {
+    form.setFieldValue('thumbnail', file);
   };
 
   const handleSubmit = async (values) => {
@@ -47,8 +37,8 @@ const AddProduct = ({
 
       // Upload image to Firebase first
       let imageUrl = '';
-      if (selectedFile) {
-        const uploadResponse = await ProductAPI.uploadToFirebase(selectedFile);
+      if (values.thumbnail) {
+        const uploadResponse = await ProductAPI.uploadToFirebase(values.thumbnail);
         if (uploadResponse?.data) {
           imageUrl = uploadResponse.data.data;
         } else {
@@ -75,8 +65,6 @@ const AddProduct = ({
         message.success('Thêm sản phẩm thành công!');
         onProductAdded();
         form.resetFields();
-        setSelectedFile(null);
-        setPreviewUrl('');
         onClose();
       }
     } catch (error) {
@@ -190,7 +178,6 @@ const AddProduct = ({
               label={<span className="text-sm">Số lượng</span>}
             >
               <Input
-                // disabled
                 className="h-10 rounded"
               />
             </Form.Item>
@@ -229,27 +216,7 @@ const AddProduct = ({
                 label={<span className="text-sm">Hình ảnh <span className="text-red-500">*</span></span>}
                 rules={[{ required: true, message: 'Vui lòng tải lên hình ảnh sản phẩm!' }]}
               >
-                <div>
-                  {previewUrl && (
-                    <div className="mb-4">
-                      <img
-                        src={previewUrl}
-                        alt="Product preview"
-                        className="w-40 h-40 object-cover rounded-md"
-                      />
-                    </div>
-                  )}
-                  <Upload
-                    maxCount={1}
-                    beforeUpload={handleImagePreview}
-                    showUploadList={false}
-                    className="w-full"
-                  >
-                    <Button icon={<UploadOutlined />} className="w-32 h-10 rounded">
-                      Chọn ảnh
-                    </Button>
-                  </Upload>
-                </div>
+                <ImageUpload onChange={handleImageChange} />
               </Form.Item>
             </div>
           </div>

@@ -17,7 +17,7 @@ const ProductManagement = () => {
   // Pagination states
   const [productPagination, setProductPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 50,
     total: 0
   });
 
@@ -226,7 +226,7 @@ const ProductManagement = () => {
       />
 
       {/* Add pagination control for products */}
-      <div className="flex justify-end mt-4">
+      {/* <div className="flex justify-end mt-4">
         <Pagination
           current={productPagination.current}
           pageSize={productPagination.pageSize}
@@ -235,7 +235,7 @@ const ProductManagement = () => {
           showSizeChanger
           showTotal={(total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`}
         />
-      </div>
+      </div> */}
 
       <AddProduct
         isOpen={isAddModalOpen}
