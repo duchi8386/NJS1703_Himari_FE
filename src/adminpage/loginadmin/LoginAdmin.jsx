@@ -46,6 +46,7 @@ const LoginAdmin = () => {
       // Lưu accessToken và role vào localStorage
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("userRole", role);
+      localStorage.setItem("userId", userId);
 
       // Kiểm tra role
       if (role === "ADMIN" || role === "STAFF") {

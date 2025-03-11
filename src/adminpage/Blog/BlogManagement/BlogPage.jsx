@@ -26,7 +26,7 @@ const BlogPage = () => {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const response = await BlogAPI.GetBlogs();
+      const response = await BlogAPI.GetBlogs(1, 20);
       console.log("blogs data:", response);
       const blogsData = response.data.data || [];
       setBlogs(blogsData);
@@ -49,7 +49,19 @@ const BlogPage = () => {
       // First get all categories
       const allCategoriesResponse = await BlogAPI.GetBlogCategories();
       console.log("allCategoriesResponse:", allCategoriesResponse);
-      const allCategories = allCategoriesResponse.data || [];
+      
+      // Ensure categories is always an array
+      let allCategories = [];
+      if (allCategoriesResponse && allCategoriesResponse.data) {
+        // Check if data is an array or if it's nested in a data property
+        if (Array.isArray(allCategoriesResponse.data)) {
+          allCategories = allCategoriesResponse.data;
+        } else if (allCategoriesResponse.data.data && Array.isArray(allCategoriesResponse.data.data)) {
+          allCategories = allCategoriesResponse.data.data;
+        }
+      }
+      
+      console.log("Processed categories:", allCategories);
       setCategories(allCategories);
       
       // Create a map for quick category lookup
@@ -63,7 +75,7 @@ const BlogPage = () => {
         if (!categoryMap.has(blog.blogCategoryId)) {
           try {
             const categoryResponse = await BlogAPI.GetBlogCategoriesById(blog.blogCategoryId);
-            console.log("categoryResponse:", categoryResponse);
+            // console.log("categoryResponse:", categoryResponse);
             
             // Handle the specific response structure
             if (categoryResponse && categoryResponse.data) {
@@ -108,7 +120,33 @@ const BlogPage = () => {
   // Function to handle add blog
   const handleAddBlog = async (newBlog) => {
     try {
-      await BlogAPI.AddBlog(newBlog);
+      // Get the current user ID (you might need to get this from your auth state or context)
+      const userId = localStorage.getItem('userId') || 1; // Default to 1 if not available
+      
+      // Find the category ID based on the selected category name
+      let blogCategoryId = null;
+      if (Array.isArray(categories)) {
+        const foundCategory = categories.find(cat => cat.name === newBlog.category);
+        blogCategoryId = foundCategory ? foundCategory.id : null;
+      }
+      
+      if (!blogCategoryId) {
+        message.error('Invalid category selected');
+        return;
+      }
+      
+      // Prepare the blog data according to API requirements
+      const blogData = {
+        title: newBlog.title,
+        image: newBlog.image,
+        content: newBlog.content,
+        blogCategoryId: blogCategoryId,
+        userId: parseInt(userId),
+        status: newBlog.status
+      };
+      
+      console.log("Sending blog data:", blogData);
+      await BlogAPI.AddBlog(blogData);
       message.success('Blog added successfully');
       fetchBlogs(); // Refresh blogs after adding
       setIsAddModalVisible(false);
@@ -121,7 +159,29 @@ const BlogPage = () => {
   // Function to handle update blog
   const handleUpdateBlog = async (updatedBlog) => {
     try {
-      await BlogAPI.UpdateBlog(updatedBlog);
+      // Find the category ID based on the selected category name
+      let blogCategoryId = null;
+      if (Array.isArray(categories)) {
+        const foundCategory = categories.find(cat => cat.name === updatedBlog.category);
+        blogCategoryId = foundCategory ? foundCategory.id : updatedBlog.blogCategoryId;
+      }
+      
+      if (!blogCategoryId) {
+        message.error('Invalid category selected');
+        return;
+      }
+      
+      // Prepare the blog data according to API requirements
+      const blogData = {
+        id: updatedBlog.id,
+        title: updatedBlog.title,
+        image: updatedBlog.image,
+        content: updatedBlog.content,
+        categoryBlogId: blogCategoryId // Changed from blogCategoryId to categoryBlogId
+      };
+      
+      console.log("Updating blog data:", blogData);
+      await BlogAPI.UpdateBlog(blogData);
       message.success('Blog updated successfully');
       fetchBlogs(); // Refresh blogs after updating
       setIsEditModalVisible(false);
@@ -171,7 +231,7 @@ const BlogPage = () => {
         isOpen={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
         onAddBlog={handleAddBlog}
-        // categories={categories}
+        categories={categories}
       />
 
       <BlogEdit 
@@ -179,7 +239,7 @@ const BlogPage = () => {
         onClose={() => setIsEditModalVisible(false)}
         onUpdateBlog={handleUpdateBlog}
         blog={currentBlog}
-        // categories={categories}
+        categories={categories}
       />
 
       {/* View Blog Modal */}
@@ -211,7 +271,7 @@ const BlogPage = () => {
                 By {currentBlog.fullName} 
               </span>
             </div>
-            <p>{currentBlog.content}</p>
+            <div dangerouslySetInnerHTML={{ __html: currentBlog.content }}></div>
           </div>
         )}
       </Modal>

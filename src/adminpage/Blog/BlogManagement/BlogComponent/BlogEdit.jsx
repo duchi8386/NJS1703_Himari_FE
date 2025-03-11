@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Modal, Form, Input, Select, Upload, Button, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import { useQuill } from 'react-quilljs';
+import 'quill/dist/quill.snow.css';
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 const BlogEdit = ({ 
@@ -14,15 +15,45 @@ const BlogEdit = ({
 }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
+  const [blogContent, setBlogContent] = useState('');
+  
+  // React Quill setup
+  const { quill, quillRef } = useQuill({
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ color: [] }, { background: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        [{ align: [] }],
+        ['link', 'image'],
+        ['clean']
+      ],
+    },
+  });
+  
+  // Track content changes when quill is ready
+  useMemo(() => {
+    if (quill) {
+      quill.on('text-change', () => {
+        setBlogContent(quill.root.innerHTML);
+      });
+    }
+  }, [quill]);
   
   useEffect(() => {
     if (isOpen && blog) {
       form.setFieldsValue({
         title: blog.title,
         category: blog.category,
-        content: blog.content || '',
         status: blog.status || 'Draft',
       });
+      
+      // Set content in the quill editor
+      if (quill && blog.content) {
+        quill.clipboard.dangerouslyPasteHTML(blog.content);
+        setBlogContent(blog.content);
+      }
       
       // Set image preview if available
       if (blog.image) {
@@ -38,23 +69,33 @@ const BlogEdit = ({
         setFileList([]);
       }
     }
-  }, [isOpen, blog, form]);
+  }, [isOpen, blog, form, quill]);
   
   const handleUpdate = () => {
     form.validateFields()
       .then(values => {
-        // Create updated blog object
+        // Check if quill editor has content
+        if (!blogContent || blogContent === '<p><br></p>') {
+          message.error('Blog content is required');
+          return;
+        }
+        
+        // Handle image - in a real application, you would upload to a server first
+        const imageUrl = fileList.length > 0 && fileList[0].originFileObj ? 
+          URL.createObjectURL(fileList[0].originFileObj) : 
+          (fileList.length > 0 ? fileList[0].url : blog.image);
+        
+        // Create updated blog object with the correct structure for API
         const updatedBlog = {
-          ...blog,
-          ...values,
-          image: fileList.length > 0 && fileList[0].originFileObj ? 
-            URL.createObjectURL(fileList[0].originFileObj) : 
-            (fileList.length > 0 ? fileList[0].url : blog.image),
+          id: blog.id,
+          title: values.title,
+          category: values.category, // For parent component to find category ID
+          content: blogContent,
+          image: imageUrl,
+          // Remove status since it's not in the required request body
         };
         
         onUpdateBlog(updatedBlog);
-        message.success('Blog updated successfully');
-        onClose();
       })
       .catch(info => {
         console.log('Validate Failed:', info);
@@ -87,7 +128,7 @@ const BlogEdit = ({
       okText="Update"
       onOk={handleUpdate}
       maskClosable={false}
-      width={700}
+      width={800}
     >
       <Form
         form={form}
@@ -107,18 +148,19 @@ const BlogEdit = ({
           rules={[{ required: true, message: 'Please select a category' }]}
         >
           <Select placeholder="Select category">
-            {categories.map(category => (
-              <Option key={category.id} value={category.name}>{category.name}</Option>
-            ))}
+            {Array.isArray(categories) ? categories.map(category => (
+              <Option key={category.id || category._id} value={category.name}>{category.name}</Option>
+            )) : <Option value="default">No categories available</Option>}
           </Select>
         </Form.Item>
         
         <Form.Item
-          name="content"
           label="Content"
           rules={[{ required: true, message: 'Please enter blog content' }]}
         >
-          <TextArea rows={6} placeholder="Enter blog content" />
+          <div style={{ height: 300 }}>
+            <div ref={quillRef} style={{ height: 250 }} />
+          </div>
         </Form.Item>
         
         <Form.Item
@@ -130,15 +172,6 @@ const BlogEdit = ({
           </Upload>
         </Form.Item>
         
-        <Form.Item
-          name="status"
-          label="Status"
-        >
-          <Select>
-            <Option value="Draft">Draft</Option>
-            <Option value="Published">Published</Option>
-          </Select>
-        </Form.Item>
       </Form>
     </Modal>
   );

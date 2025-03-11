@@ -1,9 +1,14 @@
 import axiosInstance from "../instance";
 
 const BlogAPI = {
-  GetBlogs: async () => {
+  GetBlogs: async (pageIndex, pageSize) => {
     try {
-      const response = await axiosInstance.get("/blogs");
+      const response = await axiosInstance.get("/blogs", {
+        params: {
+          "page-index": pageIndex,
+          "page-size": pageSize,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching blogs:", error);
@@ -19,9 +24,10 @@ const BlogAPI = {
       throw error;
     }
   },
-  UpdateBlog: async ( blogData) => {
+  UpdateBlog: async (blogData) => {
     try {
-      const response = await axiosInstance.put(`/blogs/`, blogData);
+      // Ensure the API endpoint matches what the backend expects
+      const response = await axiosInstance.put("/blogs", blogData);
       return response.data;
     } catch (error) {
       console.error("Error updating blog:", error);
