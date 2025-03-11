@@ -1,58 +1,97 @@
-import { useState } from 'react';
-import { Button, Modal, Image, Tag } from 'antd';
+import { useState, useEffect } from 'react';
+import { Button, Modal, Image, Tag, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import BlogTable from './BlogComponent/BlogTable';
 import BlogAdd from './BlogComponent/BlogAdd';
 import BlogEdit from './BlogComponent/BlogEdit';
+import BlogAPI from '../../../service/api/blogAPI';
 
 const BlogPage = () => {
-  const [blogs, setBlogs] = useState([
-    {
-      id: 1,
-      title: 'Spring Fashion Trends 2025',
-      category: 'Fashion',
-      author: 'John Smith',
-      image: 'https://source.unsplash.com/random/800x400/?fashion',
-      status: 'Published',
-      createdAt: '2025-02-20',
-      content: 'This is a sample content for Spring Fashion Trends 2025.',
-    },
-    {
-      id: 2,
-      title: 'Eco-friendly Home Décor Ideas',
-      category: 'Lifestyle',
-      author: 'Sarah Johnson',
-      image: 'https://source.unsplash.com/random/800x400/?home',
-      status: 'Draft',
-      createdAt: '2025-02-18',
-      content: 'This is a sample content for Eco-friendly Home Décor Ideas.',
-    },
-    {
-      id: 3,
-      title: 'Summer Travel Destinations 2025',
-      category: 'Travel',
-      author: 'Michael Wong',
-      image: 'https://source.unsplash.com/random/800x400/?travel',
-      status: 'Published',
-      createdAt: '2025-02-15',
-      content: 'This is a sample content for Summer Travel Destinations 2025.',
-    },
-  ]);
-
-  // Sample categories for form selection
-  const categories = [
-    { id: 1, name: 'Fashion' },
-    { id: 2, name: 'Lifestyle' },
-    { id: 3, name: 'Travel' },
-    { id: 4, name: 'Technology' },
-    { id: 5, name: 'Food' },
-  ];
+  const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
   const [currentBlog, setCurrentBlog] = useState(null);
+
+  // Fetch blogs on component mount
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  // Function to fetch blogs
+  const fetchBlogs = async () => {
+    setLoading(true);
+    try {
+      const response = await BlogAPI.GetBlogs();
+      console.log("blogs data:", response);
+      const blogsData = response.data.data || [];
+      setBlogs(blogsData);
+      
+      // After fetching blogs, get categories for each blog
+      if (blogsData.length > 0) {
+        fetchCategories(blogsData);
+      }
+    } catch (error) {
+      message.error('Failed to fetch blogs');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to fetch categories for each blog
+  const fetchCategories = async (blogsData) => {
+    try {
+      // First get all categories
+      const allCategoriesResponse = await BlogAPI.GetBlogCategories();
+      console.log("allCategoriesResponse:", allCategoriesResponse);
+      const allCategories = allCategoriesResponse.data || [];
+      setCategories(allCategories);
+      
+      // Create a map for quick category lookup
+      const categoryMap = new Map();
+      
+      // For each blog, fetch its specific category if needed
+      const updatedBlogs = await Promise.all(blogsData.map(async (blog) => {
+        if (!blog.blogCategoryId) return blog;
+        
+        // Check if we already fetched this category
+        if (!categoryMap.has(blog.blogCategoryId)) {
+          try {
+            const categoryResponse = await BlogAPI.GetBlogCategoriesById(blog.blogCategoryId);
+            console.log("categoryResponse:", categoryResponse);
+            
+            // Handle the specific response structure
+            if (categoryResponse && categoryResponse.data) {
+              // The data field directly contains the category object
+              const categoryData = categoryResponse.data;
+              categoryMap.set(blog.blogCategoryId, categoryData);
+            }
+          } catch (err) {
+            console.error(`Error fetching category for blog ${blog.id}:`, err);
+          }
+        }
+        
+        // Assign category name to blog
+        const categoryData = categoryMap.get(blog.blogCategoryId);
+        return {
+          ...blog,
+          category: categoryData ? categoryData.name : 'Unknown Category'
+        };
+      }));
+      
+      // Update blogs with category information
+      setBlogs(updatedBlogs);
+      
+    } catch (error) {
+      message.error('Failed to fetch blog categories');
+      console.error(error);
+    }
+  };
 
   // Function to show edit modal
   const showEditModal = (blog) => {
@@ -67,21 +106,41 @@ const BlogPage = () => {
   };
 
   // Function to handle add blog
-  const handleAddBlog = (newBlog) => {
-    setBlogs([...blogs, newBlog]);
+  const handleAddBlog = async (newBlog) => {
+    try {
+      await BlogAPI.AddBlog(newBlog);
+      message.success('Blog added successfully');
+      fetchBlogs(); // Refresh blogs after adding
+      setIsAddModalVisible(false);
+    } catch (error) {
+      message.error('Failed to add blog');
+      console.error(error);
+    }
   };
 
   // Function to handle update blog
-  const handleUpdateBlog = (updatedBlog) => {
-    const updatedBlogs = blogs.map(blog => 
-      blog.id === updatedBlog.id ? updatedBlog : blog
-    );
-    setBlogs(updatedBlogs);
+  const handleUpdateBlog = async (updatedBlog) => {
+    try {
+      await BlogAPI.UpdateBlog(updatedBlog);
+      message.success('Blog updated successfully');
+      fetchBlogs(); // Refresh blogs after updating
+      setIsEditModalVisible(false);
+    } catch (error) {
+      message.error('Failed to update blog');
+      console.error(error);
+    }
   };
 
   // Function to handle delete blog
-  const handleDeleteBlog = (blogId) => {
-    setBlogs(blogs.filter(blog => blog.id !== blogId));
+  const handleDeleteBlog = async (blogId) => {
+    try {
+      await BlogAPI.DeleteBlog(blogId);
+      message.success('Blog deleted successfully');
+      fetchBlogs(); // Refresh blogs after deletion
+    } catch (error) {
+      message.error('Failed to delete blog');
+      console.error(error);
+    }
   };
 
   return (
@@ -102,6 +161,7 @@ const BlogPage = () => {
 
       <BlogTable 
         blogs={blogs} 
+        loading={loading}
         onEdit={showEditModal}
         onDelete={handleDeleteBlog}
         onView={showViewModal}
@@ -111,7 +171,7 @@ const BlogPage = () => {
         isOpen={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
         onAddBlog={handleAddBlog}
-        categories={categories}
+        // categories={categories}
       />
 
       <BlogEdit 
@@ -119,7 +179,7 @@ const BlogPage = () => {
         onClose={() => setIsEditModalVisible(false)}
         onUpdateBlog={handleUpdateBlog}
         blog={currentBlog}
-        categories={categories}
+        // categories={categories}
       />
 
       {/* View Blog Modal */}
@@ -148,7 +208,7 @@ const BlogPage = () => {
                 {currentBlog.status}
               </Tag>
               <span style={{ marginLeft: 8, color: '#666' }}>
-                By {currentBlog.author} on {currentBlog.createdAt}
+                By {currentBlog.fullName} 
               </span>
             </div>
             <p>{currentBlog.content}</p>

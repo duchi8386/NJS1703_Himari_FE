@@ -4,6 +4,7 @@ import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 
 const BlogTable = ({ 
   blogs, 
+  loading,
   onEdit, 
   onDelete,
   onView
@@ -38,26 +39,8 @@ const BlogTable = ({
     },
     {
       title: 'Tác giả',
-      dataIndex: 'author',
-      key: 'author',
-    },
-    {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-    },
-    {
-      title: 'Tình trạng',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => (
-        <Tag color={status === 'Published' ? 'success' : 'warning'}>
-          {status}
-        </Tag>
-      ),
-      width: 100,
-      align: 'center',
+      dataIndex: 'fullName',
+      key: 'fullName',
     },
     {
       title: 'Hành động',
@@ -98,6 +81,7 @@ const BlogTable = ({
         columns={columns}
         dataSource={blogs}
         rowKey="id"
+        loading={loading}
         className="bg-white rounded-lg shadow"
         pagination={{
           pageSize: 10,

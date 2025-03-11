@@ -49,7 +49,7 @@ const EditProduct = ({
     try {
       setLoadingCategoryData(true);
       const categoryData = await CategoryAPI.getCategoryById(categoryId);
-      console.log("cate info:", categoryData);
+      // console.log("cate info:", categoryData);
       if (categoryData && categoryData.data.parentCategoryId) {
         // Set parent category
         setSelectedParentCategory(categoryData.data.parentCategoryId);
