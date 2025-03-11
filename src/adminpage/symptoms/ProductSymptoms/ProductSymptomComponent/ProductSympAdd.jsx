@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Modal, Form, Select, message } from "antd";
+import { Modal, Form, Select, message, Typography } from "antd";
 
 const { Option } = Select;
+const { Text } = Typography;
 
 const ProductSympAdd = ({ isOpen, onClose, onAddProductSymptom, products, symptoms }) => {
   const [form] = Form.useForm();
@@ -21,31 +22,39 @@ const ProductSympAdd = ({ isOpen, onClose, onAddProductSymptom, products, sympto
       .then(values => {
         setLoading(true);
         
-        // Find selected product and symptom to get their names
+        // Find selected product
         const selectedProduct = products.find(p => p.id === values.productId);
-        const selectedSymptom = symptoms.find(s => s.id === values.partSymptomId);
         
-        if (!selectedProduct || !selectedSymptom) {
-          message.error("Không tìm thấy thông tin sản phẩm hoặc triệu chứng");
+        if (!selectedProduct) {
+          message.error("Không tìm thấy thông tin sản phẩm");
           setLoading(false);
           return;
         }
         
-        // Create new product-symptom link
-        const newProductSymptom = {
-          id: Date.now(), // Sử dụng timestamp làm id tạm thời
-          partSymptomId: values.partSymptomId,
-          productId: values.productId,
-          partSymptomName: selectedSymptom.name,
-          productName: selectedProduct.name,
-          createdDate: new Date().toISOString(),
-          updatedDate: null,
-          isDeleted: false
-        };
+        // Create new product-symptom links for each selected symptom
+        const newProductSymptoms = values.partSymptomIds.map(symptomId => {
+          const selectedSymptom = symptoms.find(s => s.id === symptomId);
+          
+          return {
+            id: Date.now() + Math.floor(Math.random() * 1000), // Unique ID
+            partSymptomId: symptomId,
+            productId: values.productId,
+            partSymptomName: selectedSymptom ? selectedSymptom.name : 'Unknown',
+            productName: selectedProduct.name,
+            createdDate: new Date().toISOString(),
+            updatedDate: null,
+            isDeleted: false
+          };
+        });
 
         // Giả lập API call
         setTimeout(() => {
-          onAddProductSymptom(newProductSymptom);
+          // Thêm từng liên kết triệu chứng-sản phẩm
+          newProductSymptoms.forEach(item => {
+            onAddProductSymptom(item);
+          });
+          
+          message.success(`Đã thêm ${newProductSymptoms.length} liên kết sản phẩm-triệu chứng`);
           handleCancel();
           setLoading(false);
         }, 500);
@@ -94,17 +103,21 @@ const ProductSympAdd = ({ isOpen, onClose, onAddProductSymptom, products, sympto
         </Form.Item>
 
         <Form.Item
-          name="partSymptomId"
+          name="partSymptomIds"
           label="Triệu chứng"
-          rules={[{ required: true, message: "Vui lòng chọn triệu chứng" }]}
+          rules={[{ required: true, message: "Vui lòng chọn ít nhất một triệu chứng" }]}
+          extra={<Text type="secondary">Bạn có thể chọn nhiều triệu chứng cùng lúc</Text>}
         >
           <Select
             placeholder="Chọn triệu chứng"
             showSearch
+            mode="multiple"
             optionFilterProp="children"
             filterOption={(input, option) =>
               option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
+            maxTagCount={5}
+            maxTagTextLength={15}
           >
             {symptoms.map(symptom => (
               <Option key={symptom.id} value={symptom.id}>
