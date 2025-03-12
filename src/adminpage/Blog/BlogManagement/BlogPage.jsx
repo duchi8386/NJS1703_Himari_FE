@@ -27,7 +27,7 @@ const BlogPage = () => {
     setLoading(true);
     try {
       const response = await BlogAPI.GetBlogs(1, 20);
-      console.log("blogs data:", response);
+      // console.log("blogs data:", response);
       const blogsData = response.data.data || [];
       setBlogs(blogsData);
       
@@ -48,7 +48,7 @@ const BlogPage = () => {
     try {
       // First get all categories
       const allCategoriesResponse = await BlogAPI.GetBlogCategories();
-      console.log("allCategoriesResponse:", allCategoriesResponse);
+      // console.log("allCategoriesResponse:", allCategoriesResponse);
       
       // Ensure categories is always an array
       let allCategories = [];
@@ -61,7 +61,7 @@ const BlogPage = () => {
         }
       }
       
-      console.log("Processed categories:", allCategories);
+      // console.log("Processed categories:", allCategories);
       setCategories(allCategories);
       
       // Create a map for quick category lookup
@@ -145,7 +145,7 @@ const BlogPage = () => {
         status: newBlog.status
       };
       
-      console.log("Sending blog data:", blogData);
+      // console.log("Sending blog data:", blogData);
       await BlogAPI.AddBlog(blogData);
       message.success('Blog added successfully');
       fetchBlogs(); // Refresh blogs after adding
@@ -180,7 +180,7 @@ const BlogPage = () => {
         categoryBlogId: blogCategoryId // Changed from blogCategoryId to categoryBlogId
       };
       
-      console.log("Updating blog data:", blogData);
+      // console.log("Updating blog data:", blogData);
       await BlogAPI.UpdateBlog(blogData);
       message.success('Blog updated successfully');
       fetchBlogs(); // Refresh blogs after updating

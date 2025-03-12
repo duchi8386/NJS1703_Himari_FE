@@ -1,63 +1,38 @@
-import { useState } from 'react';
-import { Button } from 'antd';
+import { useState, useEffect } from 'react';
+import { Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import BlogCategoryTable from './BlogCategoryComponent/BlogCategoryTable';
 import BlogCategoryAdd from './BlogCategoryComponent/BlogCategoryAdd';
 import BlogCategoryEdit from './BlogCategoryComponent/BlogCategoryEdit';
+import BlogAPI from '../../../service/api/blogAPI';
 
 const BlogCategory = () => {
-  const [categories, setCategories] = useState([
-    {
-      id: 1,
-      name: 'Fashion',
-      description: 'Latest fashion trends and styles',
-      slug: 'fashion',
-      postCount: 12,
-      active: true,
-      order: 1
-    },
-    {
-      id: 2,
-      name: 'Lifestyle',
-      description: 'Tips for better living and wellness',
-      slug: 'lifestyle',
-      postCount: 8,
-      active: true,
-      order: 2
-    },
-    {
-      id: 3,
-      name: 'Travel',
-      description: 'Destinations and travel guides',
-      slug: 'travel',
-      postCount: 5,
-      active: true,
-      order: 3
-    },
-    {
-      id: 4,
-      name: 'Technology',
-      description: 'Latest tech news and reviews',
-      slug: 'technology',
-      postCount: 7,
-      active: false,
-      order: 4
-    },
-    {
-      id: 5,
-      name: 'Food',
-      description: 'Recipes and culinary experiences',
-      slug: 'food',
-      postCount: 9,
-      active: true,
-      order: 5
-    }
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Function to fetch categories
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await BlogAPI.GetBlogCategories(1, 20);
+      // console.log(response);
+      setCategories(response.data.data || []);
+    } catch (error) {
+      message.error('Failed to fetch blog categories');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Function to show edit modal
   const showEditModal = (category) => {
@@ -66,21 +41,55 @@ const BlogCategory = () => {
   };
 
   // Function to handle add category
-  const handleAddCategory = (newCategory) => {
-    setCategories([...categories, newCategory]);
+  const handleAddCategory = async (newCategory) => {
+    try {
+      setLoading(true);
+      const response = await BlogAPI.AddBlogCategory(newCategory);
+      if (response) {
+        message.success('Category added successfully');
+        await fetchCategories(); // Refresh the list
+        setIsAddModalVisible(false);
+      }
+    } catch (error) {
+      message.error('Failed to add category');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to handle update category
-  const handleUpdateCategory = (updatedCategory) => {
-    const updatedCategories = categories.map(category => 
-      category.id === updatedCategory.id ? updatedCategory : category
-    );
-    setCategories(updatedCategories);
+  const handleUpdateCategory = async (updatedCategory) => {
+    try {
+      setLoading(true);
+      const response = await BlogAPI.UpdateBlogCategory(updatedCategory);
+      if (response) {
+        message.success('Category updated successfully');
+        await fetchCategories(); // Refresh the list
+        setIsEditModalVisible(false);
+      }
+    } catch (error) {
+      message.error('Failed to update category');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to handle delete category
-  const handleDeleteCategory = (categoryId) => {
-    setCategories(categories.filter(category => category.id !== categoryId));
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      setLoading(true);
+      const result = await BlogAPI.DeleteBlogCategory(categoryId);
+      if (result) {
+        message.success('Category deleted successfully');
+        await fetchCategories(); // Refresh the list
+      }
+    } catch (error) {
+      message.error('Failed to delete category');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -93,6 +102,7 @@ const BlogCategory = () => {
             onClick={() => setIsAddModalVisible(true)}
             className="h-9 rounded"
             icon={<PlusOutlined />}
+            loading={loading}
           >
             Thêm danh mục mới
           </Button>
@@ -103,6 +113,7 @@ const BlogCategory = () => {
         categories={categories} 
         onEdit={showEditModal}
         onDelete={handleDeleteCategory}
+        loading={loading}
       />
       
       <BlogCategoryAdd 
@@ -110,6 +121,7 @@ const BlogCategory = () => {
         onClose={() => setIsAddModalVisible(false)}
         onAddCategory={handleAddCategory}
         categoriesLength={categories.length}
+        loading={loading}
       />
 
       <BlogCategoryEdit 
@@ -117,6 +129,7 @@ const BlogCategory = () => {
         onClose={() => setIsEditModalVisible(false)}
         onUpdateCategory={handleUpdateCategory}
         category={currentCategory}
+        loading={loading}
       />
     </div>
   );

@@ -5,7 +5,8 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 const BlogCategoryTable = ({ 
   categories, 
   onEdit, 
-  onDelete 
+  onDelete,
+  loading 
 }) => {
   const columns = [
     {
@@ -14,37 +15,6 @@ const BlogCategoryTable = ({
       key: 'name',
       sorter: (a, b) => a.name.localeCompare(b.name),
       render: (name) => <span style={{ fontWeight: 500, color: '#1890ff' }}>{name}</span>,
-    },
-    {
-      title: 'Mô tả',
-      dataIndex: 'description',
-      key: 'description',
-      ellipsis: true,
-    },
-    {
-      title: 'Slug',
-      dataIndex: 'slug',
-      key: 'slug',
-    },
-    {
-      title: 'Bài Đăng',
-      dataIndex: 'postCount',
-      key: 'postCount',
-      render: (count) => count,
-      width: 80,
-      align: 'center',
-    },
-    {
-      title: 'Tình Trang',
-      dataIndex: 'active',
-      key: 'active',
-      render: (active) => (
-        <Tag color={active ? 'success' : 'default'}>
-          {active ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
-      width: 100,
-      align: 'center',
     },
     {
       title: 'Hoạt Động',
@@ -87,6 +57,7 @@ const BlogCategoryTable = ({
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} categories`
         }}
+        loading={loading}
       />
     </div>
   );

@@ -42,9 +42,14 @@ const BlogAPI = {
       console.error("Error deleting blog:", error);
     }
   },
-  GetBlogCategories: async () => {
+  GetBlogCategories: async (pageIndex, pageSize) => {
     try {
-      const response = await axiosInstance.get("/blog-categories");
+      const response = await axiosInstance.get("/blog-categories",{
+        params: {
+          "page-index": pageIndex,
+          "page-size": pageSize,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching blog categories:", error);
