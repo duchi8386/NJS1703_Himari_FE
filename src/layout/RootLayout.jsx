@@ -6,9 +6,9 @@ import ScrollToTop from "../components/scrollToTop/ScrollToTop ";
 
 function RootLayout() {
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <main>
+      <main className="flex-grow">
         <div className="flex justify-center overflow-hidden py-4">
           <Outlet />
           <Chatbot/>
@@ -16,7 +16,7 @@ function RootLayout() {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
 

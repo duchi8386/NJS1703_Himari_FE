@@ -55,9 +55,9 @@ const Header = () => {
               </div>
             </li>
             <li className="flex items-center h-10">
-              <div className="text-[#666666] text-base hover:text-gray-900">
+              <Link to="/blog" className="text-[#666666] text-base hover:text-gray-900">
                 Blog
-              </div>
+              </Link>
             </li>
             <li className="flex items-center h-10">
               <Avatar
