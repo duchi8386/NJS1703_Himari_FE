@@ -7,30 +7,31 @@ import {
   UserOutlined,
   ShoppingCartOutlined,
   InboxOutlined,
-  BarChartOutlined,
   LogoutOutlined,
   FileTextOutlined,
   FolderOutlined,
   ReadOutlined,
   ShopOutlined,
+  GiftOutlined,
 } from "@ant-design/icons";
-import Logo from '../../assets/img/Logo.png';
+import { FaHandDots, FaPerson, FaBoxArchive } from "react-icons/fa6";
+import Logo from "../../assets/img/Logo.png";
 
 const { Sider } = Layout;
 
 const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const onLogout = () => {
     // Call the handleLogout function passed from parent
     handleLogout();
-    
+
     // Clear localStorage items
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
     localStorage.removeItem("adminUser");
-    
+
     // Navigate to login page
     navigate("/admin/login");
   };
@@ -76,18 +77,35 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
           icon: <FolderOutlined />,
           label: <Link to="/admin/blogs-category">Quản lý danh mục Blogs</Link>,
         },
-      ]
+      ],
     },
     {
       key: "/admin/brands",
       icon: <ShopOutlined />,
       label: <Link to="/admin/brands">Quản lý Brands</Link>,
     },
-    // {
-    //   key: "/admin/vouchers",
-    //   icon: <GiftOutlined />,
-    //   label: <Link to="/admin/vouchers">Vouchers</Link>,
-    // },
+    {
+      key: "symptoms",
+      icon: <GiftOutlined />,
+      label: "Triệu chứng",
+      children: [
+        {
+          key: "/admin/part-symptoms",
+          icon: <FaHandDots />,
+          label: <Link to="/admin/part-symptoms">Quản lý Triệu chứng cơ thể</Link>,
+        },
+        {
+          key: "/admin/product-symptoms",
+          icon: <FaBoxArchive />,
+          label: <Link to="/admin/product-symptoms">Quản lý Triệu chứng sản phẩm</Link>
+        },
+        {
+          key: "/admin/body-parts",
+          icon: <FaPerson />,
+          label: <Link to="/admin/body-parts">Quản lý vùng cơ thể</Link>,
+        },
+      ],
+    },
     {
       key: "logout",
       icon: <LogoutOutlined />,
@@ -105,11 +123,11 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
       collapsed={collapsed}
       width={250}
       style={{
-        background: '#ffffff',
+        background: "#ffffff",
         height: "100vh",
         position: "fixed",
         left: 0,
-        boxShadow: '2px 0 8px rgba(0,0,0,0.1)'
+        boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
       }}
     >
       <div className="p-4">
@@ -119,16 +137,16 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
           }`}
         >
           <div className="flex items-center gap-3">
-            <img 
-              src={Logo} 
-              alt="Logo" 
-              className={`object-contain ${collapsed ? 'w-12 h-12' : 'h-12 w-12'}`}
+            <img
+              src={Logo}
+              alt="Logo"
+              className={`object-contain ${
+                collapsed ? "w-12 h-12" : "h-12 w-12"
+              }`}
             />
             {!collapsed && (
               <div className="flex font-bold items-center">
-                <span className="text-xl font-bold text-gray-800">
-                  Himari
-                </span>
+                <span className="text-xl font-bold text-gray-800">Himari</span>
                 <span className="ml-1.5 text-[10px] font-medium tracking-widest text-gray-400 self-end mb-0.5">
                   ADMIN
                 </span>
@@ -142,11 +160,11 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
         theme="light"
         mode="inline"
         selectedKeys={[location.pathname]}
-        defaultOpenKeys={['blog']}
+        defaultOpenKeys={["blog"]}
         items={menuItems}
         style={{
           borderRight: 0,
-          background: '#ffffff',
+          background: "#ffffff",
         }}
       />
     </Sider>
