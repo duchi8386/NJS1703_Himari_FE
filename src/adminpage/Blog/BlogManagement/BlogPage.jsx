@@ -10,6 +10,7 @@ const BlogPage = () => {
   const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(false);
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -17,9 +18,10 @@ const BlogPage = () => {
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
   const [currentBlog, setCurrentBlog] = useState(null);
 
-  // Fetch blogs on component mount
+  // Fetch blogs and categories on component mount
   useEffect(() => {
     fetchBlogs();
+    fetchAllCategories();
   }, []);
 
   // Function to fetch blogs
@@ -27,13 +29,13 @@ const BlogPage = () => {
     setLoading(true);
     try {
       const response = await BlogAPI.GetBlogs(1, 20);
-      // console.log("blogs data:", response);
-      const blogsData = response.data.data || [];
-      setBlogs(blogsData);
+      console.log("blogs data:", response);
       
-      // After fetching blogs, get categories for each blog
-      if (blogsData.length > 0) {
-        fetchCategories(blogsData);
+      if (response && response.data && response.data.data) {
+        setBlogs(response.data.data);
+      } else {
+        setBlogs([]);
+        console.error("Unexpected API response structure:", response);
       }
     } catch (error) {
       message.error('Failed to fetch blogs');
@@ -43,65 +45,24 @@ const BlogPage = () => {
     }
   };
 
-  // Function to fetch categories for each blog
-  const fetchCategories = async (blogsData) => {
+  // Function to fetch all blog categories
+  const fetchAllCategories = async () => {
+    setLoadingCategories(true);
     try {
-      // First get all categories
-      const allCategoriesResponse = await BlogAPI.GetBlogCategories();
-      // console.log("allCategoriesResponse:", allCategoriesResponse);
-      
-      // Ensure categories is always an array
-      let allCategories = [];
-      if (allCategoriesResponse && allCategoriesResponse.data) {
-        // Check if data is an array or if it's nested in a data property
-        if (Array.isArray(allCategoriesResponse.data)) {
-          allCategories = allCategoriesResponse.data;
-        } else if (allCategoriesResponse.data.data && Array.isArray(allCategoriesResponse.data.data)) {
-          allCategories = allCategoriesResponse.data.data;
-        }
+      // Get all categories - using a large pageSize to ensure we get all
+      const response = await BlogAPI.GetBlogCategories(1, 20);
+      // console.log("categories data:", response);
+      if (response && response.data && response.data.data) {
+        setCategories(response.data.data);
+      } else {
+        setCategories([]);
+        console.error("Unexpected API response structure for categories:", response);
       }
-      
-      // console.log("Processed categories:", allCategories);
-      setCategories(allCategories);
-      
-      // Create a map for quick category lookup
-      const categoryMap = new Map();
-      
-      // For each blog, fetch its specific category if needed
-      const updatedBlogs = await Promise.all(blogsData.map(async (blog) => {
-        if (!blog.blogCategoryId) return blog;
-        
-        // Check if we already fetched this category
-        if (!categoryMap.has(blog.blogCategoryId)) {
-          try {
-            const categoryResponse = await BlogAPI.GetBlogCategoriesById(blog.blogCategoryId);
-            // console.log("categoryResponse:", categoryResponse);
-            
-            // Handle the specific response structure
-            if (categoryResponse && categoryResponse.data) {
-              // The data field directly contains the category object
-              const categoryData = categoryResponse.data;
-              categoryMap.set(blog.blogCategoryId, categoryData);
-            }
-          } catch (err) {
-            console.error(`Error fetching category for blog ${blog.id}:`, err);
-          }
-        }
-        
-        // Assign category name to blog
-        const categoryData = categoryMap.get(blog.blogCategoryId);
-        return {
-          ...blog,
-          category: categoryData ? categoryData.name : 'Unknown Category'
-        };
-      }));
-      
-      // Update blogs with category information
-      setBlogs(updatedBlogs);
-      
     } catch (error) {
       message.error('Failed to fetch blog categories');
       console.error(error);
+    } finally {
+      setLoadingCategories(false);
     }
   };
 
@@ -139,6 +100,8 @@ const BlogPage = () => {
             onClick={() => setIsAddModalVisible(true)}
             className="h-9 rounded"
             icon={<PlusOutlined />}
+            loading={loadingCategories}
+            disabled={loadingCategories}
           >
             Thêm bài viết mới
           </Button>
@@ -156,16 +119,18 @@ const BlogPage = () => {
       <BlogAdd 
         isOpen={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
-        onSuccess={fetchBlogs} // Simply call fetchBlogs after successful addition
+        onSuccess={fetchBlogs}
         categories={categories}
+        loadingCategories={loadingCategories}
       />
 
       <BlogEdit 
         isOpen={isEditModalVisible}
         onClose={() => setIsEditModalVisible(false)}
-        onSuccess={fetchBlogs} // Simply call fetchBlogs after successful update
+        onSuccess={fetchBlogs}
         blog={currentBlog}
         categories={categories}
+        loadingCategories={loadingCategories}
       />
 
       {/* View Blog Modal */}
@@ -189,10 +154,7 @@ const BlogPage = () => {
             />
             <h2 style={{ fontSize: 24, fontWeight: 'bold' }}>{currentBlog.title}</h2>
             <div style={{ marginBottom: 16 }}>
-              <Tag color="blue">{currentBlog.category}</Tag>
-              <Tag color={currentBlog.status === 'Published' ? 'green' : 'orange'}>
-                {currentBlog.status}
-              </Tag>
+              <Tag color="blue">{currentBlog.categoryName}</Tag>
               <span style={{ marginLeft: 8, color: '#666' }}>
                 By {currentBlog.fullName} 
               </span>

@@ -34,8 +34,8 @@ const BlogTable = ({
     },
     {
       title: 'Danh mục',
-      dataIndex: 'category',
-      key: 'category',
+      dataIndex: 'categoryName',
+      key: 'categoryName',
     },
     {
       title: 'Tác giả',

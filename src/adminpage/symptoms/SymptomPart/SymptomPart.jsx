@@ -156,7 +156,7 @@ const SymptomPart = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Quản lý triệu chứng</h2>
+        <h2 className="text-2xl font-bold">Quản lý Triệu chứng cơ thể</h2>
         <div>
           <Button
             type="primary"

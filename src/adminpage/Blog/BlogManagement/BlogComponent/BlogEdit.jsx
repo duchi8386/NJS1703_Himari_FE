@@ -10,9 +10,10 @@ const { Option } = Select;
 const BlogEdit = ({ 
   isOpen, 
   onClose, 
-  onSuccess, // Changed from onUpdateBlog to onSuccess callback
+  onSuccess,
   blog, 
-  categories = [] 
+  categories = [],
+  loadingCategories = false
 }) => {
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
@@ -45,15 +46,13 @@ const BlogEdit = ({
     }
   }, [quill]);
   
+  // Update form when blog data changes or modal opens
   useEffect(() => {
     if (isOpen && blog) {
-      // Determine the correct category value to set in the form
-      const categoryValue = blog.categoryBlogId || blog.blogCategoryId || blog.categoryId || blog.category;
-      
+      // Set form values based on the blog data from API
       form.setFieldsValue({
         title: blog.title,
-        category: categoryValue,
-        status: blog.status || 'Draft',
+        category: blog.blogCategoryId, // Using the field from the response
       });
       
       // Set content in the quill editor
@@ -81,8 +80,6 @@ const BlogEdit = ({
       setPreviewImage('');
     }
   }, [isOpen, blog, form, quill]);
-  
-
   
   const handleUpdate = async () => {
     try {
@@ -121,13 +118,12 @@ const BlogEdit = ({
       const blogData = {
         id: blog.id,
         title: values.title,
-        categoryBlogId: values.category,
+        blogCategoryId: values.category, // Using categoryBlogId for the API request
         content: blogContent,
         image: finalImageUrl,
       };
       
       try {
-        // Directly call the API here
         await BlogAPI.UpdateBlog(blogData);
         message.success('Blog updated successfully');
         onClose(); // Close the modal
@@ -145,6 +141,8 @@ const BlogEdit = ({
   };
   
   const uploadProps = {
+    name: 'file',
+    accept: 'image/*',
     onRemove: () => {
       setFileList([]);
       setPreviewImage('');
@@ -212,12 +210,19 @@ const BlogEdit = ({
           label="Category"
           rules={[{ required: true, message: 'Please select a category' }]}
         >
-          <Select placeholder="Select category">
-            {Array.isArray(categories) ? categories.map(category => (
-              <Option key={category.id || category._id} value={category.id || category._id}>
-                {category.name}
-              </Option>
-            )) : <Option value="default">No categories available</Option>}
+          <Select 
+            placeholder="Select category"
+            loading={loadingCategories}
+            // disabled={loadingCategories}
+          >
+            {Array.isArray(categories) && categories.length > 0 ? 
+              categories.map(category => (
+                <Option key={category.id} value={category.id}>
+                  {category.name}
+                </Option>
+              )) : 
+              <Option value="default" disabled>No categories available</Option>
+            }
           </Select>
         </Form.Item>
         
