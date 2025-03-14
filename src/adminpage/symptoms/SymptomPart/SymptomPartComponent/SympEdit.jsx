@@ -28,12 +28,17 @@ const SympEdit = ({ isOpen, onClose, onUpdateSymptom, symptom, bodyParts }) => {
           bodyPartId: values.bodyPartId
         };
 
-        // Giả lập API call
-        setTimeout(() => {
-          onUpdateSymptom(updatedSymptom);
-          onClose();
-          setLoading(false);
-        }, 500);
+        // Call the API through parent component
+        onUpdateSymptom(updatedSymptom)
+          .then(() => {
+            onClose();
+          })
+          .catch(() => {
+            // Error handling is done in parent component
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       })
       .catch(info => {
         console.log('Validate Failed:', info);

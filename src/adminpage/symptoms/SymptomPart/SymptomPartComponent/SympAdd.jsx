@@ -14,17 +14,21 @@ const SympAdd = ({ isOpen, onClose, onAddSymptom, bodyParts }) => {
         
         // Create new symptom object
         const newSymptom = {
-          id: Date.now(), // Sử dụng timestamp làm id tạm thời
           name: values.name,
           bodyPartId: values.bodyPartId
         };
 
-        // Giả lập API call
-        setTimeout(() => {
-          onAddSymptom(newSymptom);
-          handleCancel();
-          setLoading(false);
-        }, 500);
+        // Call the API through parent component
+        onAddSymptom(newSymptom)
+          .then(() => {
+            handleCancel();
+          })
+          .catch(() => {
+            // Error handling is done in parent component
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       })
       .catch(info => {
         console.log('Validate Failed:', info);
