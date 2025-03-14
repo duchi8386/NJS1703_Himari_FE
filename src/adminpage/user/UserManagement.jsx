@@ -8,7 +8,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     pageIndex: 1,
-    pageSize: 10,
+    pageSize: 20,
     total: 0
   });
 

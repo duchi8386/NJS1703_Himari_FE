@@ -1,7 +1,7 @@
 import axiosInstance from "../instance";
 
 const partSymptomAPI = {
-  getPartSymptom: async (pageIndex, pageSize) => {
+  getPartSymptoms: async (pageIndex, pageSize) => {
     try {
       const response = await axiosInstance.get("/part-symptoms", {
         params: {
@@ -12,6 +12,17 @@ const partSymptomAPI = {
       return response.data;
     } catch (error) {
       console.error("Error fetching part symptoms:", error);
+      throw error;
+    }
+  },
+  getPartSymptomById: async (partSymptomId) => {
+    try {
+      const response = await axiosInstance.get(
+        `/part-symptoms/${partSymptomId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching part symptom by ID:", error);
       throw error;
     }
   },

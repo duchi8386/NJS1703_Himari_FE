@@ -97,11 +97,26 @@ const ProductSympTable = ({ productSymptoms, loading, onEdit, onDelete, paginati
         loading={loading}
         className="bg-white rounded-lg shadow"
         pagination={{
-          ...pagination,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
           showSizeChanger: true,
           showTotal: (total) => `Tổng ${total} liên kết sản phẩm-triệu chứng`,
+          onChange: (page, pageSize) => {
+            // Make sure we pass both page and pageSize to parent component
+            onChange({
+              current: page,
+              pageSize: pageSize
+            });
+          },
+          onShowSizeChange: (current, size) => {
+            // Handle page size changes
+            onChange({
+              current: 1, // Reset to page 1 when changing page size
+              pageSize: size
+            });
+          }
         }}
-        onChange={onChange}
       />
     </div>
   );

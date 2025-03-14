@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, message } from "antd";
+import { Modal, Form, Input } from "antd";
 
 const { TextArea } = Input;
 
@@ -20,20 +20,21 @@ const BodyEdit = ({ isOpen, onClose, onUpdateBodyPart, bodyPart }) => {
     form.validateFields()
       .then(values => {
         setLoading(true);
-        
+
         // Create updated body part object
         const updatedBodyPart = {
           ...bodyPart,
+          id: bodyPart.id,
           bodyPartName: values.bodyPartName,
           description: values.description
         };
 
-        // Giả lập API call
-        setTimeout(() => {
-          onUpdateBodyPart(updatedBodyPart);
-          onClose();
-          setLoading(false);
-        }, 500);
+        // Call the API through parent component
+        onUpdateBodyPart(updatedBodyPart)
+          .finally(() => {
+            onClose();
+            setLoading(false);
+          });
       })
       .catch(info => {
         console.log('Validate Failed:', info);

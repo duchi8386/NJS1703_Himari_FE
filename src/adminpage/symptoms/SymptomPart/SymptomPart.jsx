@@ -38,14 +38,14 @@ const SymptomPart = () => {
     setLoading(true);
     try {
       // API expects the page number directly (not zero-based)
-      const response = await partSymptomAPI.getPartSymptom(page, pageSize);
-      
+      const response = await partSymptomAPI.getPartSymptoms(page, pageSize);
+
       if (response?.data?.data) {
         // Extract the symptom items and metadata from the response
         const { data, metaData } = response.data;
-        
+
         setSymptoms(data);
-        
+
         // Update pagination with the metadata from the API
         setPagination({
           ...pagination,
@@ -114,11 +114,11 @@ const SymptomPart = () => {
       message.success("Xóa triệu chứng thành công");
       // After deletion, we may need to adjust the current page
       // If we're on the last page and delete the last item, go to previous page
-      const newPage = 
-        symptoms.length === 1 && pagination.current > 1 
-          ? pagination.current - 1 
+      const newPage =
+        symptoms.length === 1 && pagination.current > 1
+          ? pagination.current - 1
           : pagination.current;
-      
+
       fetchSymptoms(newPage, pagination.pageSize);
     } catch (error) {
       message.error("Không thể xóa triệu chứng: " + error.message);
@@ -131,7 +131,7 @@ const SymptomPart = () => {
   const handleTableChange = (newPagination, filters, sorter) => {
     // Extract the new pagination values
     const { current, pageSize } = newPagination;
-    
+
     // Fetch data with the new pagination parameters
     fetchSymptoms(current, pageSize);
   };

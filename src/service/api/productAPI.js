@@ -9,6 +9,9 @@ const ProductAPI = {
       },
     });
   },
+  getProductById: async (productId) => {
+    return axiosInstance.get(`/products/${productId}`);
+  },
   AddProducts: async (productData) => {
     return axiosInstance.post("/products", productData);
   },
