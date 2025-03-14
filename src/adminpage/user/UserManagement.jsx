@@ -20,16 +20,19 @@ const UserManagement = () => {
         pagination.pageIndex,
         pagination.pageSize
       );
-
+      // console.log("Users data:", response);
       // Update to match the actual API response structure
       if (response.data && response.data.data && response.data.data.data) {
         const userData = response.data.data.data;
         const metaData = response.data.data.metaData;
 
-        // Add id property to each user for table key purposes if it doesn't exist
-        const processedUsers = userData.map((user, index) => ({
+        // Process users with their address information for display
+        const processedUsers = userData.map(user => ({
           ...user,
-          id: user.id || index + 1, // Use existing id or generate one
+          // Create a combined address field for display in the table
+          address: [user.province, user.district, user.ward, user.addressBonus]
+            .filter(Boolean)
+            .join(', '),
           status: user.status || 'active' // Default status if null
         }));
 
@@ -63,19 +66,20 @@ const UserManagement = () => {
     });
   };
 
-
-
   // Handle edit user
   const handleEditUser = async (userData) => {
     try {
       setLoading(true);
-      // Transform data to match API format if needed
+      // Format data to match the required API request body
       const formattedData = {
         id: userData.id,
         email: userData.email,
         fullName: userData.fullName,
-        phoneNumber: userData.phoneNumber,
-        address: userData.address || "",
+        phoneNumber: userData.phoneNumber || "",
+        province: userData.province || "",
+        district: userData.district || "",
+        ward: userData.ward || "",
+        addressBonus: userData.addressBonus || "",
         avatarUrl: userData.avatarUrl || ""
       };
 

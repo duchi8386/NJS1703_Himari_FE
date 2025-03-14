@@ -29,8 +29,8 @@ const BlogPage = () => {
     setLoading(true);
     try {
       const response = await BlogAPI.GetBlogs(1, 20);
-      console.log("blogs data:", response);
-      
+      // console.log("blogs data:", response);
+
       if (response && response.data && response.data.data) {
         setBlogs(response.data.data);
       } else {
@@ -108,15 +108,15 @@ const BlogPage = () => {
         </div>
       </div>
 
-      <BlogTable 
-        blogs={blogs} 
+      <BlogTable
+        blogs={blogs}
         loading={loading}
         onEdit={showEditModal}
         onDelete={handleDeleteBlog}
         onView={showViewModal}
       />
-      
-      <BlogAdd 
+
+      <BlogAdd
         isOpen={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
         onSuccess={fetchBlogs}
@@ -124,7 +124,7 @@ const BlogPage = () => {
         loadingCategories={loadingCategories}
       />
 
-      <BlogEdit 
+      <BlogEdit
         isOpen={isEditModalVisible}
         onClose={() => setIsEditModalVisible(false)}
         onSuccess={fetchBlogs}
@@ -147,8 +147,8 @@ const BlogPage = () => {
       >
         {currentBlog && (
           <div>
-            <Image 
-              src={currentBlog.image} 
+            <Image
+              src={currentBlog.image}
               alt={currentBlog.title}
               style={{ width: '100%', height: 300, objectFit: 'cover', marginBottom: 16 }}
             />
@@ -156,7 +156,7 @@ const BlogPage = () => {
             <div style={{ marginBottom: 16 }}>
               <Tag color="blue">{currentBlog.categoryName}</Tag>
               <span style={{ marginLeft: 8, color: '#666' }}>
-                By {currentBlog.fullName} 
+                By {currentBlog.fullName}
               </span>
             </div>
             <div dangerouslySetInnerHTML={{ __html: currentBlog.content }}></div>

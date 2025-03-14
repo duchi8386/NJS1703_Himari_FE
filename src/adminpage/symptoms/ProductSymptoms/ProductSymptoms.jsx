@@ -83,7 +83,7 @@ const ProductSymptoms = () => {
     updateState({ productsLoading: true });
     try {
       const response = await ProductAPI.getProducts(1, 50);
-      console.log("Products response:", response);
+      // console.log("Products response:", response);
       if (response?.data?.data) {
         const productList = response.data.data.data.map(item => ({
           id: item.id,
@@ -106,7 +106,7 @@ const ProductSymptoms = () => {
     updateState({ symptomsLoading: true });
     try {
       const response = await partSymptomAPI.getPartSymptoms(1, 100);
-      console.log("Symptoms response:", response);
+      // console.log("Symptoms response:", response);
       if (response?.data) {
         const symptomList = response.data.data.map(item => ({
           id: item.id,
