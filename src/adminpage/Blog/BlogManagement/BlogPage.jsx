@@ -150,7 +150,7 @@ const BlogPage = () => {
             <Image
               src={currentBlog.image}
               alt={currentBlog.title}
-              style={{ width: '100%', height: 300, objectFit: 'cover', marginBottom: 16 }}
+              style={{ width: '100%', height: 300, objectFit: 'contain', marginBottom: 16 }}
             />
             <h2 style={{ fontSize: 24, fontWeight: 'bold' }}>{currentBlog.title}</h2>
             <div style={{ marginBottom: 16 }}>

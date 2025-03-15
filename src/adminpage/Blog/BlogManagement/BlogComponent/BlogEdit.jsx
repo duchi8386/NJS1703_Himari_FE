@@ -4,14 +4,15 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useQuill } from 'react-quilljs';
 import 'quill/dist/quill.snow.css';
 import BlogAPI from '../../../../service/api/blogAPI';
+import ImageUploadBlog from '../../../../components/ImageUploadBlog/ImageUploadBlog';
 
 const { Option } = Select;
 
-const BlogEdit = ({ 
-  isOpen, 
-  onClose, 
+const BlogEdit = ({
+  isOpen,
+  onClose,
   onSuccess,
-  blog, 
+  blog,
   categories = [],
   loadingCategories = false
 }) => {
@@ -21,7 +22,8 @@ const BlogEdit = ({
   const [uploading, setUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [existingImage, setExistingImage] = useState('');
-  
+  const [imageFile, setImageFile] = useState(null); // Add missing state variable for imageFile
+
   // React Quill setup
   const { quill, quillRef } = useQuill({
     theme: 'snow',
@@ -36,7 +38,7 @@ const BlogEdit = ({
       ],
     },
   });
-  
+
   // Track content changes when quill is ready
   useMemo(() => {
     if (quill) {
@@ -45,7 +47,7 @@ const BlogEdit = ({
       });
     }
   }, [quill]);
-  
+
   // Update form when blog data changes or modal opens
   useEffect(() => {
     if (isOpen && blog) {
@@ -54,13 +56,13 @@ const BlogEdit = ({
         title: blog.title,
         category: blog.blogCategoryId, // Using the field from the response
       });
-      
+
       // Set content in the quill editor
       if (quill && blog.content) {
         quill.clipboard.dangerouslyPasteHTML(blog.content);
         setBlogContent(blog.content);
       }
-      
+
       // Set image preview if available
       if (blog.image) {
         setExistingImage(blog.image);
@@ -76,28 +78,30 @@ const BlogEdit = ({
         setFileList([]);
         setExistingImage('');
       }
-      
+
+      // Reset preview image and image file when modal opens
       setPreviewImage('');
+      setImageFile(null);
     }
   }, [isOpen, blog, form, quill]);
-  
+
   const handleUpdate = async () => {
     try {
       const values = await form.validateFields();
-      
+
       // Check if quill editor has content
       if (!blogContent || blogContent === '<p><br></p>') {
         message.error('Blog content is required');
         return;
       }
-      
+
       setUploading(true);
-      
+
       // Handle image upload if there's a new file
       let finalImageUrl = existingImage;
-      if (fileList.length > 0 && fileList[0].originFileObj) {
+      if (imageFile) { // Use imageFile state instead of fileList
         try {
-          const response = await BlogAPI.uploadToFirebase(fileList[0].originFileObj);
+          const response = await BlogAPI.uploadToFirebase(imageFile);
           if (response && response.data) {
             finalImageUrl = response.data.data;
             message.success('Image uploaded successfully');
@@ -113,7 +117,7 @@ const BlogEdit = ({
           return;
         }
       }
-      
+
       // Create updated blog object with the correct structure for API
       const blogData = {
         id: blog.id,
@@ -122,10 +126,15 @@ const BlogEdit = ({
         content: blogContent,
         image: finalImageUrl,
       };
-      
+
       try {
         await BlogAPI.UpdateBlog(blogData);
         message.success('Blog updated successfully');
+
+        // Reset preview image and image file after successful update
+        setPreviewImage('');
+        setImageFile(null);
+
         onClose(); // Close the modal
         onSuccess(); // Notify parent to refresh the list
       } catch (apiError) {
@@ -139,54 +148,33 @@ const BlogEdit = ({
       setUploading(false);
     }
   };
-  
-  const uploadProps = {
-    name: 'file',
-    accept: 'image/*',
-    onRemove: () => {
-      setFileList([]);
-      setPreviewImage('');
-    },
-    beforeUpload: (file) => {
-      // Validate file type and size
-      const isImage = file.type.startsWith('image/');
-      if (!isImage) {
-        message.error('You can only upload image files!');
-        return Upload.LIST_IGNORE;
-      }
-      
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isLt2M) {
-        message.error('Image must be smaller than 2MB!');
-        return Upload.LIST_IGNORE;
-      }
-      
-      // Create preview for the selected image
+
+  const handleImageChange = (file) => {
+    setImageFile(file);
+    if (file) {
+      // Create a preview URL for the selected file
       const reader = new FileReader();
       reader.onload = () => {
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
-      
-      setFileList([{
-        uid: '-1',
-        name: file.name,
-        status: 'done',
-        originFileObj: file,
-      }]);
-      
-      return false;
-    },
-    fileList,
-    listType: "picture",
-    maxCount: 1
+      // Don't clear existing image, just keep it for reference
+      // setExistingImage(''); - Remove this line
+    } else {
+      setPreviewImage('');
+    }
   };
 
   return (
     <Modal
       title="Edit Blog"
       open={isOpen}
-      onCancel={onClose}
+      onCancel={() => {
+        // Also reset preview image when canceling
+        setPreviewImage('');
+        setImageFile(null);
+        onClose();
+      }}
       okText="Update"
       onOk={handleUpdate}
       maskClosable={false}
@@ -204,28 +192,28 @@ const BlogEdit = ({
         >
           <Input placeholder="Enter blog title" />
         </Form.Item>
-        
+
         <Form.Item
           name="category"
           label="Category"
           rules={[{ required: true, message: 'Please select a category' }]}
         >
-          <Select 
+          <Select
             placeholder="Select category"
             loading={loadingCategories}
-            // disabled={loadingCategories}
+          // disabled={loadingCategories}
           >
-            {Array.isArray(categories) && categories.length > 0 ? 
+            {Array.isArray(categories) && categories.length > 0 ?
               categories.map(category => (
                 <Option key={category.id} value={category.id}>
                   {category.name}
                 </Option>
-              )) : 
+              )) :
               <Option value="default" disabled>No categories available</Option>
             }
           </Select>
         </Form.Item>
-        
+
         <Form.Item
           label="Content"
           rules={[{ required: true, message: 'Please enter blog content' }]}
@@ -234,25 +222,21 @@ const BlogEdit = ({
             <div ref={quillRef} style={{ height: 250 }} />
           </div>
         </Form.Item>
-        
+
         <Form.Item
           name="featured_image"
           label="Featured Image"
         >
-          <Upload {...uploadProps}>
-            <Button icon={<UploadOutlined />}>
-              {existingImage ? 'Change Image' : 'Upload Image'}
-            </Button>
-          </Upload>
-          {previewImage ? (
+          <ImageUploadBlog
+            onChange={handleImageChange}
+            value={existingImage}  // Use value instead of defaultImage to match component props
+          />
+
+          {/* Simplified image preview logic */}
+          {previewImage && (
             <div style={{ marginTop: 8 }}>
               <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
               <p>New image selected (not yet uploaded)</p>
-            </div>
-          ) : existingImage && (
-            <div style={{ marginTop: 8 }}>
-              <img src={existingImage} alt="Existing" style={{ maxWidth: '100%', maxHeight: '200px' }} />
-              <p>Current image</p>
             </div>
           )}
         </Form.Item>

@@ -3,7 +3,7 @@ import Cropper from 'react-cropper';
 import './cropper.css';
 import { Button, Modal } from 'antd';
 
-const ImageCropper = ({ visible, imageUrl, aspectRatio = 4 / 5, onCancel, onCrop }) => {
+const ImageCropper = ({ visible, imageUrl, aspectRatio, onCancel, onCrop }) => {
   const cropperRef = useRef(null);
   const [croppedImageUrl, setCroppedImageUrl] = useState(null);
 
