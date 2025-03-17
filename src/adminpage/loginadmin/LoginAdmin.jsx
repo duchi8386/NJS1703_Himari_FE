@@ -20,7 +20,7 @@ const LoginAdmin = () => {
 
       // Gọi API login
       const backendResponse = await axios.post(
-        "http://wizlab.io.vn:12345/api/v1/auth/login/google/oauth",
+        "https://wizlab.io.vn:9999/api/v1/auth/login/google/oauth",
         // { idToken } // ✅ Gửi idToken trong một object
         idToken, // ✅ Gửi idToken trong một object
         {
