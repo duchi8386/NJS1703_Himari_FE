@@ -28,11 +28,7 @@ const formatDate = (dateString) => {
 
 const NotificationTable = ({ 
   notifications, 
-  loading, 
-  onEdit, 
-  onDelete, 
-  onSendToUser,
-  onSendToAll,
+  loading,
   pagination, 
   onChange 
 }) => {
@@ -60,24 +56,6 @@ const NotificationTable = ({
       width: 450,
     },
     {
-      title: "Đường dẫn",
-      dataIndex: "href",
-      key: "href",
-      render: (href) => href ? (
-        <Button 
-          type="link" 
-          icon={<LinkOutlined />}
-          href={href} 
-          target="_blank"
-          size="small"
-        >
-          Xem liên kết
-        </Button>
-      ) : (
-        <span className="text-gray-400">Không có</span>
-      ),
-    },
-    {
       title: "Ngày tạo",
       dataIndex: "createdDate",
       key: "createdDate",
@@ -91,43 +69,7 @@ const NotificationTable = ({
         return dateA - dateB;
       },
       width: 180,
-    },
-    {
-      title: "Hành động",
-      key: "actions",
-      render: (_, record) => (
-        <Space>
-          <Tooltip title="Gửi cho người dùng cụ thể">
-            <Button
-              type="default"
-              style={{ backgroundColor: "#722ed1", borderColor: "#722ed1", color: "#fff" }}
-              icon={<UserOutlined />}
-              onClick={() => onSendToUser(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Gửi cho tất cả người dùng">
-            <Button
-              type="default"
-              style={{ backgroundColor: "#13c2c2", borderColor: "#13c2c2", color: "#fff" }}
-              icon={<GlobalOutlined />}
-              onClick={() => onSendToAll(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Xóa">
-            <Popconfirm
-              title="Bạn có chắc muốn xóa thông báo này?"
-              onConfirm={() => onDelete(record.id)}
-              okText="Đồng ý"
-              cancelText="Hủy"
-            >
-              <Button danger icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
-      width: 220,
-      align: "center",
-    },
+    }
   ];
 
   return (

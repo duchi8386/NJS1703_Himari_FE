@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Button, message, Input } from "antd";
-import { PlusOutlined, SearchOutlined, ReloadOutlined } from "@ant-design/icons";
+import {  SearchOutlined, ReloadOutlined, UserOutlined, GlobalOutlined } from "@ant-design/icons";
 import NotificationTable from "./NotificationComponents/NotificationTable";
-import NotificationAdd from "./NotificationComponents/NotificationAdd";
 import SendToUserModal from "./NotificationComponents/SendToUserModal";
 import SendToAllModal from "./NotificationComponents/SendToAllModal";
 // Import your actual API service
-// import NotificationAPI from "../../service/api/NotificationAPI";
+import NotificationAPI from "../../service/api/notificationApi";
 
 const NotificationManagement = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+
   const [isSendToUserModalVisible, setIsSendToUserModalVisible] = useState(false);
   const [isSendToAllModalVisible, setIsSendToAllModalVisible] = useState(false);
   const [currentNotification, setCurrentNotification] = useState(null);
@@ -23,248 +21,134 @@ const NotificationManagement = () => {
     total: 0,
   });
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [users, setUsers] = useState([]);
   
-  // Mock user data
-  const users = [
-    { id: 1, name: "Nguyễn Văn A", email: "nguyenvana@example.com" },
-    { id: 2, name: "Trần Thị B", email: "tranthib@example.com" },
-    { id: 3, name: "Lê Văn C", email: "levanc@example.com" },
-    { id: 4, name: "Phạm Thị D", email: "phamthid@example.com" },
-    { id: 5, name: "Hoàng Văn E", email: "hoangvane@example.com" },
-  ];
-
-  // Fetch notifications when component mounts or pagination changes
+  // Fetch notifications when component mounts or pagination/search changes
   useEffect(() => {
     fetchNotifications(pagination.current, pagination.pageSize, searchKeyword);
-  }, [pagination.current, pagination.pageSize]);
+  }, [pagination.current, pagination.pageSize, searchKeyword]);
+
+  // Fetch users khi component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   // Function to fetch notifications from API
   const fetchNotifications = async (page, pageSize, keyword = "") => {
     try {
       setLoading(true);
       
-      // Replace this mock implementation with actual API call
-      // const response = await NotificationAPI.getAllNotifications(page, pageSize, keyword);
-      
-      // Mock response for development
-      setTimeout(() => {
-        // Simulate API response
-        const mockResponse = {
-          data: {
-            statusCode: 200,
-            message: "Get list notification successfully",
-            data: {
-              data: [
-                {
-                  id: 32,
-                  title: "Thông báo mới về ứng dụng",
-                  titleUnsign: "thong-bao-moi-ve-ung-dung",
-                  message: "Ứng dụng đã được cập nhật version 2.0, vui lòng cập nhật để sử dụng các tính năng mới",
-                  href: "https://example.com/app",
-                  createdDate: "2025-02-27T22:38:51.4977797",
-                },
-                {
-                  id: 31,
-                  title: "Khuyến mãi đặc biệt",
-                  titleUnsign: "khuyen-mai-dac-biet",
-                  message: "Giảm 50% tất cả sản phẩm nhân dịp sinh nhật cửa hàng",
-                  href: null,
-                  createdDate: "2025-02-25T10:15:20.4977797",
-                }
-              ],
-              metaData: {
-                totalCount: 2,
-                pageSize: 10,
-                currentPage: 1,
-                totalPages: 1,
-                hasNext: false,
-                hasPrevious: false,
-              },
-            },
-          }
-        };
-        
-        // Filter by search term if provided
-        let filteredData = [...mockResponse.data.data.data];
-        if (keyword) {
-          const keywordLower = keyword.toLowerCase();
-          filteredData = filteredData.filter(
-            item => item.title.toLowerCase().includes(keywordLower) || 
-                   item.message.toLowerCase().includes(keywordLower)
-          );
-        }
-        
-        setNotifications(filteredData);
+      const response = await NotificationAPI.getAllNotifications(page, pageSize, keyword);
+      // Kiểm tra response và set data
+      if (response?.statusCode === 200 && response?.data) {
+        const { data, metaData } = response.data;
+        setNotifications(data || []);
         setPagination({
-          current: mockResponse.data.data.metaData.currentPage,
-          pageSize: mockResponse.data.data.metaData.pageSize,
-          total: mockResponse.data.data.metaData.totalCount,
+          current: metaData.currentPage,
+          pageSize: metaData.pageSize,
+          total: metaData.totalCount
         });
-        
-        setLoading(false);
-      }, 1000);
-      
+      } else {
+        message.error("Không thể tải danh sách thông báo");
+        setNotifications([]);
+        setPagination({
+          current: 1,
+          pageSize: 10,
+          total: 0
+        });
+      }
+
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      console.error("Lỗi khi tải danh sách thông báo:", error);
       message.error("Không thể tải danh sách thông báo");
+      setNotifications([]);
+      setPagination({
+        current: 1,
+        pageSize: 10,
+        total: 0
+      });
+    } finally {
       setLoading(false);
     }
   };
 
-  // Function to show edit modal
-  const showEditModal = (notification) => {
-    setCurrentNotification(notification);
-    setIsEditModalVisible(true);
-  };
-
-  // Function to handle add notification
-  const handleAddNotification = async (newNotification) => {
+  // Function để lấy danh sách users
+  const fetchUsers = async () => {
     try {
-      setLoading(true);
-      
-      // Replace with actual API call
-      // const response = await NotificationAPI.createNotification(newNotification);
-      
-      // Mock implementation for development
-      setTimeout(() => {
-        message.success("Thêm thông báo thành công");
-        // Refresh list
-        fetchNotifications(pagination.current, pagination.pageSize, searchKeyword);
-        setIsAddModalVisible(false);
-        setLoading(false);
-      }, 1000);
-      
+      const response = await NotificationAPI.getAllUsers(1, 100); // Lấy 100 users
+      if (response?.statusCode === 200 && response?.data?.data) {
+        // Transform data từ API để phù hợp với format cần thiết
+        const transformedUsers = response.data.data.map(user => ({
+          id: user.id,
+          name: user.fullName || 'Không có tên',
+          email: user.email || 'Không có email'
+        }));
+        setUsers(transformedUsers);
+      }
     } catch (error) {
-      console.error("Error creating notification:", error);
-      message.error("Không thể thêm thông báo");
-      setLoading(false);
+      console.error("Error fetching users:", error);
+      message.error("Không thể tải danh sách người dùng");
     }
   };
 
-  // Function to handle update notification
-  const handleUpdateNotification = async (updatedNotification) => {
-    try {
-      setLoading(true);
-      
-      // Replace with actual API call
-      // const response = await NotificationAPI.updateNotification(updatedNotification);
-      
-      // Mock implementation for development
-      setTimeout(() => {
-        message.success("Cập nhật thông báo thành công");
-        // Refresh list
-        fetchNotifications(pagination.current, pagination.pageSize, searchKeyword);
-        setIsEditModalVisible(false);
-        setLoading(false);
-      }, 1000);
-      
-    } catch (error) {
-      console.error("Error updating notification:", error);
-      message.error("Không thể cập nhật thông báo");
-      setLoading(false);
-    }
-  };
-
-  // Function to handle delete notification
-  const handleDeleteNotification = async (notificationId) => {
-    try {
-      setLoading(true);
-      
-      // Replace with actual API call
-      // await NotificationAPI.deleteNotification(notificationId);
-      
-      // Mock implementation for development
-      setTimeout(() => {
-        setNotifications(prevNotifications => 
-          prevNotifications.filter(notification => notification.id !== notificationId)
-        );
-        message.success("Xóa thông báo thành công");
-        setLoading(false);
-      }, 1000);
-      
-    } catch (error) {
-      console.error("Error deleting notification:", error);
-      message.error("Không thể xóa thông báo");
-      setLoading(false);
-    }
-  };
-
-  // Function to show send to specific user modal
-  const showSendToUserModal = (notification) => {
-    setCurrentNotification(notification);
-    setSelectedUsers([]);
-    setIsSendToUserModalVisible(true);
-  };
-
-  // Function to show send to all users modal
-  const showSendToAllModal = (notification) => {
-    setCurrentNotification(notification);
-    setIsSendToAllModalVisible(true);
-  };
 
   // Function to handle sending notification to specific users
-  const handleSendToUser = async () => {
+  const handleSendToUser = async (values) => {
     try {
-      if (selectedUsers.length === 0) {
-        message.warning("Vui lòng chọn ít nhất một người dùng");
+      setLoading(true);
+      
+      if (!values.userIds || values.userIds.length === 0) {
+        message.error('Vui lòng chọn ít nhất một người dùng!');
         return;
       }
 
-      setLoading(true);
+      await NotificationAPI.sendToUsers({
+        title: values.title,
+        message: values.message,
+        userIds: values.userIds
+      });
       
-      // Replace with actual API call
-      // await NotificationAPI.sendToUsers(currentNotification.id, selectedUsers);
+      message.success('Gửi thông báo thành công');
+      setIsSendToUserModalVisible(false);
+      setSelectedUsers([]);
       
-      // Mock implementation for development
-      setTimeout(() => {
-        message.success(`Đã gửi thông báo đến ${selectedUsers.length} người dùng`);
-        setIsSendToUserModalVisible(false);
-        setCurrentNotification(null);
-        setSelectedUsers([]);
-        setLoading(false);
-      }, 1000);
+      // Tự động refresh danh sách thông báo
+      await fetchNotifications(1, pagination.pageSize, "");
       
     } catch (error) {
-      console.error("Error sending notification to users:", error);
-      message.error("Không thể gửi thông báo đến người dùng");
+      console.error("Error sending notification:", error);
+      message.error('Không thể gửi thông báo: ' + (error.message || 'Đã có lỗi xảy ra'));
+    } finally {
       setLoading(false);
     }
   };
 
   // Function to handle sending notification to all users
-  const handleSendToAll = async () => {
+  const handleSendToAll = async (values) => {
     try {
       setLoading(true);
       
-      // Replace with actual API call
-      // await NotificationAPI.sendToAllUsers(currentNotification.id);
+      const response = await NotificationAPI.sendToAllUsers({
+        title: values.title,
+        message: values.message
+      });
       
-      // Mock implementation for development
-      setTimeout(() => {
-        message.success("Đã gửi thông báo đến tất cả người dùng");
+      if (response.statusCode === 200) {
+        message.success('Gửi thông báo thành công');
         setIsSendToAllModalVisible(false);
-        setCurrentNotification(null);
-        setLoading(false);
-      }, 1000);
+        
+        // Tự động refresh danh sách thông báo
+        await fetchNotifications(1, pagination.pageSize, "");
+      } else {
+        message.error(response.message || 'Không thể gửi thông báo');
+      }
       
     } catch (error) {
       console.error("Error sending notification to all users:", error);
-      message.error("Không thể gửi thông báo đến tất cả người dùng");
+      message.error('Không thể gửi thông báo');
+    } finally {
       setLoading(false);
     }
-  };
-
-  // Handle close send to user modal
-  const handleCloseSendToUserModal = () => {
-    setIsSendToUserModalVisible(false);
-    setCurrentNotification(null);
-    setSelectedUsers([]);
-  };
-
-  // Handle close send to all modal
-  const handleCloseSendToAllModal = () => {
-    setIsSendToAllModalVisible(false);
-    setCurrentNotification(null);
   };
 
   // Handle table pagination change
@@ -286,14 +170,29 @@ const NotificationManagement = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Quản lý thông báo</h2>
-        <div>
+        <div className="flex gap-2">
           <Button
             type="primary"
-            onClick={() => setIsAddModalVisible(true)}
+            onClick={() => {
+              setCurrentNotification(null);
+              setIsSendToUserModalVisible(true);
+            }}
             className="h-9 rounded"
-            icon={<PlusOutlined />}
+            icon={<UserOutlined />}
           >
-            Thêm thông báo mới
+            Thêm thông báo cho người dùng
+          </Button>
+
+          <Button
+            type="primary"
+            onClick={() => {
+              setCurrentNotification(null);
+              setIsSendToAllModalVisible(true);
+            }}
+            className="h-9 rounded"
+            icon={<GlobalOutlined />}
+          >
+            Thêm thông báo cho tất cả người dùng
           </Button>
         </div>
       </div>
@@ -322,24 +221,19 @@ const NotificationManagement = () => {
       <NotificationTable
         notifications={notifications}
         loading={loading}
-        onEdit={showEditModal}
-        onDelete={handleDeleteNotification}
-        onSendToUser={showSendToUserModal}
-        onSendToAll={showSendToAllModal}
+        // onDelete={handleDeleteNotification}
         pagination={pagination}
         onChange={handleTableChange}
       />
 
-      <NotificationAdd
-        isOpen={isAddModalVisible}
-        onClose={() => setIsAddModalVisible(false)}
-        onAddNotification={handleAddNotification}
-      />
-
-      {/* Use the separated SendToUserModal component */}
+      {/* Modal gửi cho người dùng cụ thể */}
       <SendToUserModal
         isOpen={isSendToUserModalVisible}
-        onClose={handleCloseSendToUserModal}
+        onClose={() => {
+          setIsSendToUserModalVisible(false);
+          setSelectedUsers([]);
+          setCurrentNotification(null);
+        }}
         onSendToUser={handleSendToUser}
         notification={currentNotification}
         users={users}
@@ -348,10 +242,13 @@ const NotificationManagement = () => {
         loading={loading}
       />
 
-      {/* Use the separated SendToAllModal component */}
+      {/* Modal gửi cho tất cả người dùng */}
       <SendToAllModal
         isOpen={isSendToAllModalVisible}
-        onClose={handleCloseSendToAllModal}
+        onClose={() => {
+          setIsSendToAllModalVisible(false);
+          setCurrentNotification(null);
+        }}
         onSendToAll={handleSendToAll}
         notification={currentNotification}
         loading={loading}
