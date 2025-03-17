@@ -87,5 +87,14 @@ const BlogAPI = {
       console.error("Error deleting blog category:", error);
     }
   },
+  uploadToFirebase: async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return axiosInstance.post("/firebase/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 };
 export default BlogAPI;

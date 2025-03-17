@@ -1,65 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import BodyTable from "./BodyPartComponent/BodyTable";
 import BodyAdd from "./BodyPartComponent/BodyAdd";
 import BodyEdit from "./BodyPartComponent/BodyEdit";
+import BodyPartAPI from "../../../service/api/bodyPart";
 
 const BodyPart = () => {
-  // Dữ liệu mẫu cho các bộ phận cơ thể
-  const [bodyParts, setBodyParts] = useState([
-    {
-      id: 8,
-      bodyPartName: "Khuôn mặt",
-      description: "Vùng da chính trên mặt, cần chăm sóc với sữa rửa mặt, kem dưỡng."
-    },
-    {
-      id: 9,
-      bodyPartName: "Mắt",
-      description: "Vùng mắt nhạy cảm, thường được chăm sóc bằng kem dưỡng mắt, phấn mắt."
-    },
-    {
-      id: 10,
-      bodyPartName: "Môi",
-      description: "Bộ phận quan trọng giúp tạo điểm nhấn trên khuôn mặt, dùng son môi, dưỡng môi."
-    },
-    {
-      id: 11,
-      bodyPartName: "Lông mày",
-      description: "Giúp tạo hình gương mặt, thường được trang điểm bằng chì kẻ mày."
-    },
-    {
-      id: 12,
-      bodyPartName: "Lông mi",
-      description: "Tạo điểm nhấn cho đôi mắt, thường được chăm sóc bằng mascara, dưỡng mi."
-    },
-    {
-      id: 13,
-      bodyPartName: "Cổ",
-      description: "Vùng da nối liền với khuôn mặt, cần dưỡng ẩm và chống lão hóa."
-    },
-    {
-      id: 14,
-      bodyPartName: "Tay",
-      description: "Bao gồm bàn tay và ngón tay, thường được chăm sóc bằng kem dưỡng tay."
-    },
-    {
-      id: 15,
-      bodyPartName: "Móng tay",
-      description: "Bộ phận có thể trang trí bằng sơn móng, gel nail."
-    },
-    {
-      id: 16,
-      bodyPartName: "Chân",
-      description: "Bao gồm bàn chân và bắp chân, thường dùng kem dưỡng da chân."
-    },
-    {
-      id: 17,
-      bodyPartName: "Móng chân",
-      description: "Thường được trang trí với sơn móng chân, dưỡng móng."
-    }
-  ]);
-
+  const [bodyParts, setBodyParts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // States for modal visibility
@@ -71,21 +19,45 @@ const BodyPart = () => {
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 15,
-    totalPages: 2,
-    hasNext: true,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
     hasPrevious: false
   });
 
-  // Giả lập việc tải dữ liệu
-  const fetchBodyParts = () => {
+  // Fetch body parts from API
+  const fetchBodyParts = async () => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
+    try {
+      const response = await BodyPartAPI.getBodyParts(pagination.current, pagination.pageSize);
+
+      if (response && response.data) {
+        // Update to match the actual API response structure
+        setBodyParts(response.data.data);
+
+        const metaData = response.data.metaData;
+        setPagination({
+          ...pagination,
+          current: metaData.currentPage,
+          pageSize: metaData.pageSize,
+          total: metaData.totalCount,
+          totalPages: metaData.totalPages,
+          hasNext: metaData.hasNext,
+          hasPrevious: metaData.hasPrevious
+        });
+      }
+    } catch (error) {
+      message.error("Không thể tải dữ liệu bộ phận cơ thể");
+      console.error("Error fetching body parts:", error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
+
+  // Load data on component mount and when pagination changes
+  useEffect(() => {
+    fetchBodyParts();
+  }, [pagination.current, pagination.pageSize]);
 
   // Function to show edit modal
   const showEditModal = (bodyPart) => {
@@ -94,47 +66,57 @@ const BodyPart = () => {
   };
 
   // Function to handle add body part
-  const handleAddBodyPart = (newBodyPart) => {
+  const handleAddBodyPart = async (newBodyPart) => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      setBodyParts([...bodyParts, newBodyPart]);
+    try {
+      await BodyPartAPI.AddBodyPart(newBodyPart);
       message.success("Thêm bộ phận cơ thể thành công");
+      fetchBodyParts(); // Reload data after adding
+    } catch (error) {
+      message.error("Không thể thêm bộ phận cơ thể");
+      console.error("Error adding body part:", error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   // Function to handle update body part
-  const handleUpdateBodyPart = (updatedBodyPart) => {
+  const handleUpdateBodyPart = async (updatedBodyPart) => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      const updatedBodyParts = bodyParts.map(bodyPart => 
-        bodyPart.id === updatedBodyPart.id ? updatedBodyPart : bodyPart
-      );
-      setBodyParts(updatedBodyParts);
+    try {
+      await BodyPartAPI.UpdateBodyPart(updatedBodyPart);
       message.success("Cập nhật bộ phận cơ thể thành công");
+      fetchBodyParts(); // Reload data after updating
+    } catch (error) {
+      message.error("Không thể cập nhật bộ phận cơ thể");
+      console.error("Error updating body part:", error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   // Function to handle delete body part
-  const handleDeleteBodyPart = (id) => {
+  const handleDeleteBodyPart = async (id) => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      setBodyParts(bodyParts.filter(bodyPart => bodyPart.id !== id));
+    try {
+      await BodyPartAPI.DeleteBodyPart(id);
       message.success("Xóa bộ phận cơ thể thành công");
+      fetchBodyParts(); // Reload data after deleting
+    } catch (error) {
+      message.error("Không thể xóa bộ phận cơ thể");
+      console.error("Error deleting body part:", error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   // Handle pagination changes
-  const handleTableChange = (pagination) => {
-    setPagination(pagination);
+  const handleTableChange = (paginationData) => {
+    setPagination({
+      ...pagination,
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    });
   };
 
   return (

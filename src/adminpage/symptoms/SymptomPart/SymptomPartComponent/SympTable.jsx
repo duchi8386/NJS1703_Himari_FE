@@ -59,7 +59,7 @@ const SympTable = ({ symptoms, loading, onEdit, onDelete, pagination, onChange, 
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-2">
       <Table
         columns={columns}
         dataSource={symptoms}
@@ -68,8 +68,11 @@ const SympTable = ({ symptoms, loading, onEdit, onDelete, pagination, onChange, 
         className="bg-white rounded-lg shadow"
         pagination={{
           ...pagination,
-          showSizeChanger: true,
-          showTotal: (total) => `Tổng ${total} triệu chứng`,
+          showTotal: (total, range) => 
+            `Hiển thị ${range[0]}-${range[1]} trên tổng số ${total} triệu chứng`,
+          position: ['bottomRight'],
+
+          pageSizeOptions: ['10', '20', '50', '100'],
         }}
         onChange={onChange}
       />

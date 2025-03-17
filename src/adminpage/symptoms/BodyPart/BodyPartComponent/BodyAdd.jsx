@@ -11,20 +11,19 @@ const BodyAdd = ({ isOpen, onClose, onAddBodyPart }) => {
     form.validateFields()
       .then(values => {
         setLoading(true);
-        
+
         // Create new body part object
         const newBodyPart = {
-          id: Date.now(), // Sử dụng timestamp làm id tạm thời
           bodyPartName: values.bodyPartName,
           description: values.description
         };
 
-        // Giả lập API call
-        setTimeout(() => {
-          onAddBodyPart(newBodyPart);
-          handleCancel();
-          setLoading(false);
-        }, 500);
+        // Call the API through parent component
+        onAddBodyPart(newBodyPart)
+          .finally(() => {
+            handleCancel();
+            setLoading(false);
+          });
       })
       .catch(info => {
         console.log('Validate Failed:', info);

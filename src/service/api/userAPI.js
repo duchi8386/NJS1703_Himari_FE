@@ -12,7 +12,7 @@ const userAPI = {
 
   updateUser: async (userData) => {
     // The userData should follow the required format
-    // {id, email, fullName, phoneNumber, address, avatarUrl}
+    // {id, email, fullName, phoneNumber, province, district, ward, addressBonus, avatarUrl}
     return axiosInstance.put(`/users`, userData);
   },
 

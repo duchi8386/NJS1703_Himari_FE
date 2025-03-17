@@ -13,13 +13,19 @@ import {
   Radio,
   Slider,
   Space,
-  Tag
+  Tag,
+  Card
 } from "antd";
 import { 
   CloseCircleOutlined, 
   CheckCircleOutlined, 
   SyncOutlined, 
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  UserOutlined,
+  PhoneOutlined,
+  MailOutlined,
+  EnvironmentOutlined,
+  FileTextOutlined
 } from "@ant-design/icons";
 
 const { TextArea } = Input;
@@ -203,11 +209,18 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
 
   return (
     <Modal
-      title={<Title level={4}>Chỉnh sửa đơn hàng #{order?.orderCode}</Title>}
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',paddingRight: '24px' }}>
+          <Title level={4} style={{ margin: 0 }}>Đơn hàng #{order?.orderCode}</Title>
+          <Text type="secondary" style={{ fontSize: '14px' }}>
+            Thanh toán qua: <Tag color="blue">Payos</Tag>
+          </Text>
+        </div>
+      }
       open={isOpen}
       onCancel={onClose}
       footer={[
-        <Button key="cancel" onClick={onClose}>
+        <Button key="cancel" onClick={onClose} size="large">
           Hủy
         </Button>,
         <Button 
@@ -215,138 +228,152 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
           type="primary" 
           loading={loading}
           onClick={handleSubmit}
+          size="large"
         >
           Lưu thay đổi
         </Button>
       ]}
       maskClosable={false}
-      width={700} // Giảm độ rộng của modal
+      width={800}
+      bodyStyle={{ padding: '24px' }}
     >
-      <Form form={form} layout="vertical">
-        <Title level={5}>Thông tin đơn hàng</Title>
-        
-        <Row gutter={[16, 16]}>
-          <Col span={14}> {/* Phần trạng thái đơn hàng */}
-            <Form.Item
-              label="Trạng thái đơn hàng"
-              required
-            >
-              <div>
-                <Slider
-                  value={orderStatus}
-                  onChange={handleStatusChange}
-                  min={0}
-                  max={3}
-                  step={1}
-                  marks={customMarks}
-                  disabled={canceled}
-                  tooltip={{
-                    formatter: (value) => orderStatuses.find(s => s.value === value)?.label
-                  }}
-                  trackStyle={sliderTrackStyle}
-                  handleStyle={sliderHandleStyle}
-                />
-                
-                <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
-                  <span>Trạng thái:</span>
-                  <span style={{ marginLeft: 8 }}>
-                    {renderStatusTag(sliderValueToStatus(orderStatus))}
-                  </span>
+      <Form form={form} layout="vertical" size="large">
+        <Card 
+          title={<Title level={5} style={{ margin: 0 }}>Trạng thái đơn hàng</Title>}
+          style={{ marginBottom: 24 }}
+          bodyStyle={{ padding: '16px' }}
+        >
+          <Row gutter={[24, 24]}>
+            <Col span={18}>
+              <Form.Item label="Tiến trình đơn hàng" required>
+                <div>
+                  <Slider
+                    value={orderStatus}
+                    onChange={handleStatusChange}
+                    min={0}
+                    max={3}
+                    step={1}
+                    marks={customMarks}
+                    disabled={canceled}
+                    tooltip={{
+                      formatter: (value) => orderStatuses.find(s => s.value === value)?.label
+                    }}
+                    trackStyle={sliderTrackStyle}
+                    handleStyle={sliderHandleStyle}
+                    style={{ marginBottom: 24 }}
+                  />
+                  
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Text strong>Trạng thái hiện tại:</Text>
+                    <span style={{ marginLeft: 12 }}>
+                      {renderStatusTag(sliderValueToStatus(orderStatus))}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Form.Item>
-          </Col>
-          
-          <Col span={10}> {/* Nút hủy đơn */}
-            <Form.Item label=" " colon={false}>
-              <Button 
-                danger 
-                icon={<CloseCircleOutlined />} 
-                onClick={handleCancel}
-                style={{ width: '100%' }}
-              >
-                Hủy đơn hàng
-              </Button>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item
-          name="paymentStatus"
-          label="Trạng thái thanh toán"
-          rules={[{ required: true, message: "Vui lòng chọn trạng thái thanh toán" }]}
-        >
-          <Radio.Group buttonStyle="solid" onChange={handlePaymentStatusChange}>
-            <Space>
-              {paymentStatuses.map(status => (
-                <Radio.Button 
-                  key={status.value} 
-                  value={status.value} 
-                  style={currentPaymentStatus === status.value ? status.activeStyle : {}}
+              </Form.Item>
+            </Col>
+            
+            <Col span={6}>
+              <Form.Item label=" " colon={false}>
+                <Button 
+                  danger 
+                  icon={<CloseCircleOutlined />} 
+                  onClick={handleCancel}
+                  style={{ width: '100%', height: '40px' }}
                 >
-                  <Space>
-                    {status.icon}
-                    {status.label}
-                  </Space>
-                </Radio.Button>
-              ))}
-            </Space>
-          </Radio.Group>
-        </Form.Item>
+                  Hủy đơn hàng
+                </Button>
+              </Form.Item>
+            </Col>
+          </Row>
 
-        <Divider />
-        <Title level={5}>Thông tin khách hàng</Title>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="customerName"
-              label="Tên khách hàng"
-              rules={[{ required: true, message: "Vui lòng nhập tên khách hàng" }]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="phone"
-              label="Số điện thoại"
-              rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
-            >
-              <Input />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Form.Item
-          name="email"
-          label="Email"
+          <Form.Item
+            name="paymentStatus"
+            label="Trạng thái thanh toán"
+            rules={[{ required: true, message: "Vui lòng chọn trạng thái thanh toán" }]}
+          >
+            <Radio.Group buttonStyle="solid" onChange={handlePaymentStatusChange}>
+              <Space size="large">
+                {paymentStatuses.map(status => (
+                  <Radio.Button 
+                    key={status.value} 
+                    value={status.value} 
+                    style={currentPaymentStatus === status.value ? {...status.activeStyle, height: '40px', padding: '0 16px'} : {height: '40px', padding: '0 16px'}}
+                  >
+                    <Space>
+                      {status.icon}
+                      {status.label}
+                    </Space>
+                  </Radio.Button>
+                ))}
+              </Space>
+            </Radio.Group>
+          </Form.Item>
+        </Card>
+
+        <Card 
+          title={<Title level={5} style={{ margin: 0 }}>Thông tin khách hàng</Title>}
+          style={{ marginBottom: 24 }}
+          bodyStyle={{ padding: '16px' }}
         >
-          <Input />
-        </Form.Item>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                name="customerName"
+                label="Tên khách hàng"
+                rules={[{ required: true, message: "Vui lòng nhập tên khách hàng" }]}
+              >
+                <Input prefix={<UserOutlined />} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="phone"
+                label="Số điện thoại"
+                rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+              >
+                <Input prefix={<PhoneOutlined />} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item
+            name="email"
+            label="Email"
+          >
+            <Input prefix={<MailOutlined />} />
+          </Form.Item>
+        </Card>
 
-        <Divider />
-        <Title level={5}>Địa chỉ giao hàng</Title>
-        <Form.Item
-          name="address"
-          label="Địa chỉ"
-          rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
+        <Card 
+          title={<Title level={5} style={{ margin: 0 }}>Địa chỉ giao hàng</Title>}
+          style={{ marginBottom: 24 }}
+          bodyStyle={{ padding: '16px' }}
         >
-          <Input />
-        </Form.Item>
+          <Form.Item
+            name="address"
+            label="Địa chỉ"
+            rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
+          >
+            <Input prefix={<EnvironmentOutlined />} />
+          </Form.Item>
 
-        <Form.Item
-          name="note"
-          label="Ghi chú"
-        >
-          <TextArea rows={3} />
-        </Form.Item>
+          <Form.Item
+            name="note"
+            label="Ghi chú"
+          >
+            <div style={{ position: 'relative' }}>
+              <FileTextOutlined style={{ position: 'absolute', left: '10px', top: '12px', color: '#bfbfbf', zIndex: 1 }} />
+              <TextArea rows={3} style={{ paddingLeft: '30px' }} />
+            </div>
+          </Form.Item>
+        </Card>
 
-        <Text type="warning">
-          Lưu ý: Không thể chỉnh sửa danh sách sản phẩm và giá trị đơn hàng.
-        </Text>
-        <br/>
-        <Text type="secondary">
-          Phương thức thanh toán: Payos
-        </Text>
+        <div style={{ padding: '12px', backgroundColor: '#fffbe6', borderRadius: '4px', marginTop: '16px' }}>
+          <Text type="warning" style={{ display: 'block', marginBottom: '4px' }}>
+            <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
+            Lưu ý: Không thể chỉnh sửa danh sách sản phẩm và giá trị đơn hàng.
+          </Text>
+        </div>
       </Form>
     </Modal>
   );

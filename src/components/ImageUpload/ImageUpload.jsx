@@ -14,11 +14,11 @@ const ImageUpload = ({ onChange, value, maxFileSize = 5, acceptedFileTypes = ['i
   useEffect(() => {
     // Only set fileList if value is a string (valid URL)
     if (typeof value === 'string' && value) {
-      setFileList([{ 
-        uid: '-1', 
-        name: 'current-image.jpg', 
-        status: 'done', 
-        url: value 
+      setFileList([{
+        uid: '-1',
+        name: 'current-image.jpg',
+        status: 'done',
+        url: value
       }]);
     } else if (!value) {
       // Reset fileList if value is falsy
@@ -58,10 +58,10 @@ const ImageUpload = ({ onChange, value, maxFileSize = 5, acceptedFileTypes = ['i
       message.error('Có lỗi khi cắt ảnh, vui lòng thử lại');
       return;
     }
-    
+
     // Create a new File from the blob
     const croppedFile = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-    
+
     // Update file list with new cropped image
     const newFileList = [{
       uid: '-1',
@@ -70,10 +70,10 @@ const ImageUpload = ({ onChange, value, maxFileSize = 5, acceptedFileTypes = ['i
       url: croppedImageUrl,
       originFileObj: croppedFile
     }];
-    
+
     setFileList(newFileList);
     setShowCropper(false);
-    
+
     // Call onChange prop to pass the cropped file back to the parent component
     if (onChange) {
       onChange(croppedFile);
@@ -115,11 +115,11 @@ const ImageUpload = ({ onChange, value, maxFileSize = 5, acceptedFileTypes = ['i
           <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
         )}
       </Upload>
-      
+
       <ImageCropper
         visible={showCropper}
         imageUrl={previewImage}
-        aspectRatio={4/5}
+        aspectRatio={4 / 5}
         onCancel={handleCancel}
         onCrop={handleCropComplete}
       />

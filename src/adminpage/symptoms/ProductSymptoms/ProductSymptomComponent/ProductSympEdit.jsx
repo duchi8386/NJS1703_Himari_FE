@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Select, message } from "antd";
+import { Modal, Form, Select, message, Spin } from "antd";
 
 const { Option } = Select;
 
-const ProductSympEdit = ({ isOpen, onClose, onUpdateProductSymptom, productSymptom, products, symptoms }) => {
+const ProductSympEdit = ({
+  isOpen,
+  onClose,
+  onUpdateProductSymptom,
+  productSymptom,
+  products,
+  symptoms,
+  productsLoading,
+  symptomsLoading
+}) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
@@ -16,41 +25,31 @@ const ProductSympEdit = ({ isOpen, onClose, onUpdateProductSymptom, productSympt
     }
   }, [isOpen, productSymptom, form]);
 
-  const handleUpdate = () => {
-    form.validateFields()
-      .then(values => {
-        setLoading(true);
-        
-        // Find selected product and symptom to get their names
-        const selectedProduct = products.find(p => p.id === values.productId);
-        const selectedSymptom = symptoms.find(s => s.id === values.partSymptomId);
-        
-        if (!selectedProduct || !selectedSymptom) {
-          message.error("Không tìm thấy thông tin sản phẩm hoặc triệu chứng");
-          setLoading(false);
-          return;
-        }
-        
-        // Create updated product-symptom link
-        const updatedProductSymptom = {
-          ...productSymptom,
-          partSymptomId: values.partSymptomId,
-          productId: values.productId,
-          partSymptomName: selectedSymptom.name,
-          productName: selectedProduct.name,
-          updatedDate: new Date().toISOString()
-        };
+  const handleUpdate = async () => {
+    try {
+      const values = await form.validateFields();
+      setLoading(true);
 
-        // Giả lập API call
-        setTimeout(() => {
-          onUpdateProductSymptom(updatedProductSymptom);
-          onClose();
-          setLoading(false);
-        }, 500);
-      })
-      .catch(info => {
-        console.log('Validate Failed:', info);
-      });
+      if (!productSymptom) {
+        message.error("Không có dữ liệu để cập nhật");
+        setLoading(false);
+        return;
+      }
+
+      // Create updated product-symptom link
+      const updatedProductSymptom = {
+        id: productSymptom.id,
+        partSymptomId: values.partSymptomId,
+        productId: values.productId,
+      };
+
+      await onUpdateProductSymptom(updatedProductSymptom);
+
+    } catch (info) {
+      console.log('Validate Failed:', info);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,53 +59,58 @@ const ProductSympEdit = ({ isOpen, onClose, onUpdateProductSymptom, productSympt
       onCancel={onClose}
       okText="Cập nhật"
       onOk={handleUpdate}
-      okButtonProps={{ loading: loading }}
+      okButtonProps={{ loading: loading || productsLoading || symptomsLoading }}
+      cancelButtonProps={{ disabled: loading || productsLoading || symptomsLoading }}
       maskClosable={false}
       width={600}
     >
-      <Form form={form} layout="vertical">
-        <Form.Item
-          name="productId"
-          label="Sản phẩm"
-          rules={[{ required: true, message: "Vui lòng chọn sản phẩm" }]}
-        >
-          <Select
-            placeholder="Chọn sản phẩm"
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
+      <Spin spinning={productsLoading || symptomsLoading}>
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="productId"
+            label="Sản phẩm"
+            rules={[{ required: true, message: "Vui lòng chọn sản phẩm" }]}
           >
-            {products.map(product => (
-              <Option key={product.id} value={product.id}>
-                {product.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+            <Select
+              placeholder={productsLoading ? "Đang tải..." : "Chọn sản phẩm"}
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              disabled={productsLoading}
+            >
+              {products.map(product => (
+                <Option key={product.id} value={product.id}>
+                  {product.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
-        <Form.Item
-          name="partSymptomId"
-          label="Triệu chứng"
-          rules={[{ required: true, message: "Vui lòng chọn triệu chứng" }]}
-        >
-          <Select
-            placeholder="Chọn triệu chứng"
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
+          <Form.Item
+            name="partSymptomId"
+            label="Triệu chứng"
+            rules={[{ required: true, message: "Vui lòng chọn triệu chứng" }]}
           >
-            {symptoms.map(symptom => (
-              <Option key={symptom.id} value={symptom.id}>
-                {symptom.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      </Form>
+            <Select
+              placeholder={symptomsLoading ? "Đang tải..." : "Chọn triệu chứng"}
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+              disabled={symptomsLoading}
+            >
+              {symptoms.map(symptom => (
+                <Option key={symptom.id} value={symptom.id}>
+                  {symptom.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Spin>
     </Modal>
   );
 };

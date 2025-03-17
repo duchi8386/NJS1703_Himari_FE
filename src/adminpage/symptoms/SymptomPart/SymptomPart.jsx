@@ -4,63 +4,10 @@ import { PlusOutlined } from "@ant-design/icons";
 import SympTable from "./SymptomPartComponent/SympTable";
 import SympAdd from "./SymptomPartComponent/SympAdd";
 import SympEdit from "./SymptomPartComponent/SympEdit";
+import partSymptomAPI from "../../../service/api/partSymptom";
 
 const SymptomPart = () => {
-  // Dữ liệu mẫu cho triệu chứng
-  const [symptoms, setSymptoms] = useState([
-    {
-      id: 7,
-      name: "Mụn trứng cá",
-      bodyPartId: 8
-    },
-    {
-      id: 8,
-      name: "Sạm da",
-      bodyPartId: 8
-    },
-    {
-      id: 9,
-      name: "Nám, tàn nhang",
-      bodyPartId: 8
-    },
-    {
-      id: 10,
-      name: "Nếp nhăn",
-      bodyPartId: 8
-    },
-    {
-      id: 11,
-      name: "Quầng thâm",
-      bodyPartId: 9
-    },
-    {
-      id: 12,
-      name: "Bọng mắt",
-      bodyPartId: 9
-    },
-    {
-      id: 13,
-      name: "Nếp nhăn khóe mắt",
-      bodyPartId: 9
-    },
-    {
-      id: 14,
-      name: "Môi khô, nứt nẻ",
-      bodyPartId: 10
-    },
-    {
-      id: 15,
-      name: "Thâm môi",
-      bodyPartId: 10
-    },
-    {
-      id: 16,
-      name: "Lông mày thưa",
-      bodyPartId: 11
-    }
-  ]);
-  
-  // Dữ liệu mẫu cho các bộ phận cơ thể
+  const [symptoms, setSymptoms] = useState([]);
   const [bodyParts, setBodyParts] = useState([
     { id: 8, name: "Mặt" },
     { id: 9, name: "Mắt" },
@@ -73,30 +20,48 @@ const SymptomPart = () => {
   ]);
 
   const [loading, setLoading] = useState(false);
-
-  // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentSymptom, setCurrentSymptom] = useState(null);
 
-  // Pagination state
+  // Updated pagination state with better defaults
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 32,
-    totalPages: 4,
-    hasNext: true,
-    hasPrevious: false
+    total: 0,
+    showSizeChanger: true,
+    pageSizeOptions: ['10', '20', '50', '100'],
   });
 
-  // Giả lập việc tải dữ liệu
-  const fetchSymptoms = () => {
+  // Fetch symptoms data using the API with pagination
+  const fetchSymptoms = async (page = pagination.current, pageSize = pagination.pageSize) => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
+    try {
+      // API expects the page number directly (not zero-based)
+      const response = await partSymptomAPI.getPartSymptoms(page, pageSize);
+
+      if (response?.data?.data) {
+        // Extract the symptom items and metadata from the response
+        const { data, metaData } = response.data;
+
+        setSymptoms(data);
+
+        // Update pagination with the metadata from the API
+        setPagination({
+          ...pagination,
+          current: metaData.currentPage,
+          pageSize: metaData.pageSize,
+          total: metaData.totalCount,
+          // Keep other pagination options like showSizeChanger
+        });
+      } else {
+        message.error("Định dạng dữ liệu không hợp lệ");
+      }
+    } catch (error) {
+      message.error("Không thể tải dữ liệu triệu chứng: " + error.message);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   useEffect(() => {
@@ -109,54 +74,72 @@ const SymptomPart = () => {
     setIsEditModalVisible(true);
   };
 
-  // Function to handle add symptom
-  const handleAddSymptom = (newSymptom) => {
+  // Function to handle add symptom using API
+  const handleAddSymptom = async (newSymptom) => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      setSymptoms([...symptoms, newSymptom]);
+    try {
+      await partSymptomAPI.addPartSymptom(newSymptom);
       message.success("Thêm triệu chứng thành công");
+      fetchSymptoms(pagination.current, pagination.pageSize);
+      return Promise.resolve();
+    } catch (error) {
+      message.error("Không thể thêm triệu chứng: " + error.message);
+      return Promise.reject(error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
-  // Function to handle update symptom
-  const handleUpdateSymptom = (updatedSymptom) => {
+  // Function to handle update symptom using API
+  const handleUpdateSymptom = async (updatedSymptom) => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      const updatedSymptoms = symptoms.map(symptom => 
-        symptom.id === updatedSymptom.id ? updatedSymptom : symptom
-      );
-      setSymptoms(updatedSymptoms);
+    try {
+      await partSymptomAPI.updatePartSymptom(updatedSymptom);
       message.success("Cập nhật triệu chứng thành công");
+      fetchSymptoms(pagination.current, pagination.pageSize);
+      return Promise.resolve();
+    } catch (error) {
+      message.error("Không thể cập nhật triệu chứng: " + error.message);
+      return Promise.reject(error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
-  // Function to handle delete symptom
-  const handleDeleteSymptom = (id) => {
+  // Function to handle delete symptom using API
+  const handleDeleteSymptom = async (id) => {
     setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      setSymptoms(symptoms.filter(symptom => symptom.id !== id));
+    try {
+      await partSymptomAPI.deletePartSymptom(id);
       message.success("Xóa triệu chứng thành công");
+      // After deletion, we may need to adjust the current page
+      // If we're on the last page and delete the last item, go to previous page
+      const newPage =
+        symptoms.length === 1 && pagination.current > 1
+          ? pagination.current - 1
+          : pagination.current;
+
+      fetchSymptoms(newPage, pagination.pageSize);
+    } catch (error) {
+      message.error("Không thể xóa triệu chứng: " + error.message);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   // Handle pagination changes
-  const handleTableChange = (pagination) => {
-    setPagination(pagination);
+  const handleTableChange = (newPagination, filters, sorter) => {
+    // Extract the new pagination values
+    const { current, pageSize } = newPagination;
+
+    // Fetch data with the new pagination parameters
+    fetchSymptoms(current, pageSize);
   };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Quản lý triệu chứng</h2>
+        <h2 className="text-2xl font-bold">Quản lý Triệu chứng cơ thể</h2>
         <div>
           <Button
             type="primary"

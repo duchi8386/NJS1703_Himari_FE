@@ -1,216 +1,215 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import ProductSympTable from "./ProductSymptomComponent/ProductSympTable";
 import ProductSympAdd from "./ProductSymptomComponent/ProductSympAdd";
 import ProductSympEdit from "./ProductSymptomComponent/ProductSympEdit";
+import ProductSymptomAPI from "../../../service/api/productSymptomAPI";
+import ProductAPI from "../../../service/api/productAPI";
+import partSymptomAPI from "../../../service/api/partSymptom";
 
 const ProductSymptoms = () => {
-  // Dữ liệu mẫu cho liên kết sản phẩm-triệu chứng
-  const [productSymptoms, setProductSymptoms] = useState([
-    {
-      id: 4,
-      partSymptomId: 7,
-      productId: 22,
-      partSymptomName: "Mụn trứng cá",
-      productName: "Sữa rửa mặt CeraVe",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 5,
-      partSymptomId: 8,
-      productId: 22,
-      partSymptomName: "Sạm da",
-      productName: "Sữa rửa mặt CeraVe",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 6,
-      partSymptomId: 7,
-      productId: 23,
-      partSymptomName: "Mụn trứng cá",
-      productName: "Tẩy tế bào chết Vedette",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 7,
-      partSymptomId: 8,
-      productId: 23,
-      partSymptomName: "Sạm da",
-      productName: "Tẩy tế bào chết Vedette",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 8,
-      partSymptomId: 9,
-      productId: 23,
-      partSymptomName: "Nám, tàn nhang",
-      productName: "Tẩy tế bào chết Vedette",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 9,
-      partSymptomId: 22,
-      productId: 24,
-      partSymptomName: "Khô da tay",
-      productName: "Kem dưỡng ẩm Clinique",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 10,
-      partSymptomId: 26,
-      productId: 24,
-      partSymptomName: "Da chân khô",
-      productName: "Kem dưỡng ẩm Clinique",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 11,
-      partSymptomId: 30,
-      productId: 24,
-      partSymptomName: "Khô da toàn thân",
-      productName: "Kem dưỡng ẩm Clinique",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 12,
-      partSymptomId: 22,
-      productId: 25,
-      partSymptomName: "Khô da tay",
-      productName: "Kem dưỡng ẩm Kiehl's",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
-    },
-    {
-      id: 13,
-      partSymptomId: 26,
-      productId: 25,
-      partSymptomName: "Da chân khô",
-      productName: "Kem dưỡng ẩm Kiehl's",
-      createdDate: "2025-03-05T14:49:50.78",
-      updatedDate: null,
-      isDeleted: false
+  // State declarations
+  const [state, setState] = useState({
+    productSymptoms: [],
+    products: [],
+    symptoms: [],
+    loading: false,
+    productsLoading: false,
+    symptomsLoading: false,
+    isAddModalVisible: false,
+    isEditModalVisible: false,
+    currentProductSymptom: null,
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      total: 0,
+      totalPages: 1,
+      hasNext: false,
+      hasPrevious: false
     }
-  ]);
-
-  // Dữ liệu mẫu cho sản phẩm (sẽ dùng trong Add và Edit)
-  const [products, setProducts] = useState([
-    { id: 22, name: "Sữa rửa mặt CeraVe" },
-    { id: 23, name: "Tẩy tế bào chết Vedette" },
-    { id: 24, name: "Kem dưỡng ẩm Clinique" },
-    { id: 25, name: "Kem dưỡng ẩm Kiehl's" },
-    { id: 26, name: "Kem chống nắng La Roche-Posay" },
-    { id: 27, name: "Son dưỡng môi Laneige" },
-    { id: 28, name: "Serum Vitamin C Klairs" },
-    { id: 29, name: "Mặt nạ dưỡng ẩm Mediheal" }
-  ]);
-
-  // Dữ liệu mẫu cho triệu chứng (sẽ dùng trong Add và Edit)
-  const [symptoms, setSymptoms] = useState([
-    { id: 7, name: "Mụn trứng cá", bodyPartId: 8 },
-    { id: 8, name: "Sạm da", bodyPartId: 8 },
-    { id: 9, name: "Nám, tàn nhang", bodyPartId: 8 },
-    { id: 10, name: "Nếp nhăn", bodyPartId: 8 },
-    { id: 11, name: "Quầng thâm", bodyPartId: 9 },
-    { id: 12, name: "Bọng mắt", bodyPartId: 9 },
-    { id: 22, name: "Khô da tay", bodyPartId: 14 },
-    { id: 26, name: "Da chân khô", bodyPartId: 16 },
-    { id: 30, name: "Khô da toàn thân", bodyPartId: 15 }
-  ]);
-
-  const [loading, setLoading] = useState(false);
-
-  // States for modal visibility
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [currentProductSymptom, setCurrentProductSymptom] = useState(null);
-
-  // Pagination state
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 52,
-    totalPages: 6,
-    hasNext: true,
-    hasPrevious: false
   });
 
-  // Giả lập việc tải dữ liệu
-  const fetchProductSymptoms = () => {
-    setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+  // Destructure state for cleaner code
+  const {
+    productSymptoms, products, symptoms,
+    loading, productsLoading, symptomsLoading,
+    isAddModalVisible, isEditModalVisible, currentProductSymptom,
+    pagination
+  } = state;
+
+  // Update state helper function
+  const updateState = (newState) => {
+    setState(prevState => ({ ...prevState, ...newState }));
   };
 
-  // Function to show edit modal
-  const showEditModal = (productSymptom) => {
-    setCurrentProductSymptom(productSymptom);
-    setIsEditModalVisible(true);
-  };
-
-  // Function to handle add product-symptom link
-  const handleAddProductSymptom = (newProductSymptom) => {
-    setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      setProductSymptoms([...productSymptoms, newProductSymptom]);
-      message.success("Thêm liên kết sản phẩm-triệu chứng thành công");
-      setLoading(false);
-    }, 500);
-  };
-
-  // Function to handle update product-symptom link
-  const handleUpdateProductSymptom = (updatedProductSymptom) => {
-    setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      const updatedItems = productSymptoms.map(item => 
-        item.id === updatedProductSymptom.id ? updatedProductSymptom : item
+  // Fetch product symptoms with pagination parameters
+  const fetchProductSymptoms = useCallback(async () => {
+    updateState({ loading: true });
+    try {
+      // Pass pagination parameters to the API call
+      const response = await ProductSymptomAPI.getProductSymptom(
+        pagination.current,
+        pagination.pageSize
       );
-      setProductSymptoms(updatedItems);
-      message.success("Cập nhật liên kết sản phẩm-triệu chứng thành công");
-      setLoading(false);
-    }, 500);
+
+      if (response && response.data) {
+        const { data, metaData } = response.data;
+
+        updateState({
+          productSymptoms: data,
+          pagination: {
+            current: metaData.currentPage,
+            pageSize: metaData.pageSize,
+            total: metaData.totalCount,
+            totalPages: metaData.totalPages,
+            hasNext: metaData.hasNext,
+            hasPrevious: metaData.hasPrevious
+          }
+        });
+      } else {
+        message.error("Không thể lấy dữ liệu liên kết sản phẩm-triệu chứng");
+      }
+    } catch (error) {
+      console.error("Error fetching product symptoms:", error);
+      message.error("Lỗi khi tải dữ liệu: " + (error.message || "Không xác định"));
+    } finally {
+      updateState({ loading: false });
+    }
+  }, [pagination.current, pagination.pageSize]);
+
+  // Fetch products with memoization
+  const fetchProducts = useCallback(async () => {
+    updateState({ productsLoading: true });
+    try {
+      const response = await ProductAPI.getProducts(1, 50);
+      // console.log("Products response:", response);
+      if (response?.data?.data) {
+        const productList = response.data.data.data.map(item => ({
+          id: item.id,
+          name: item.productName
+        }));
+        updateState({ products: productList });
+      } else {
+        message.error("Không thể lấy dữ liệu sản phẩm");
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      message.error("Lỗi khi tải dữ liệu sản phẩm: " + (error.message || "Không xác định"));
+    } finally {
+      updateState({ productsLoading: false });
+    }
+  }, []);
+
+  // Fetch symptoms with memoization
+  const fetchSymptoms = useCallback(async () => {
+    updateState({ symptomsLoading: true });
+    try {
+      const response = await partSymptomAPI.getPartSymptoms(1, 100);
+      // console.log("Symptoms response:", response);
+      if (response?.data) {
+        const symptomList = response.data.data.map(item => ({
+          id: item.id,
+          name: item.name,
+          bodyPartId: item.bodyPartId
+        }));
+        updateState({ symptoms: symptomList });
+      } else {
+        message.error("Không thể lấy dữ liệu triệu chứng");
+      }
+    } catch (error) {
+      console.error("Error fetching symptoms:", error);
+      message.error("Lỗi khi tải dữ liệu triệu chứng: " + (error.message || "Không xác định"));
+    } finally {
+      updateState({ symptomsLoading: false });
+    }
+  }, []);
+
+  // Error handler for API calls
+  const handleApiError = (error, defaultMessage) => {
+    console.error(defaultMessage, error);
+    message.error(`${defaultMessage}: ${error.message || "Không xác định"}`);
   };
 
-  // Function to handle delete product-symptom link
-  const handleDeleteProductSymptom = (id) => {
-    setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      setProductSymptoms(productSymptoms.filter(item => item.id !== id));
+  // CRUD Operations
+  const handleAddProductSymptom = async (newProductSymptom) => {
+    updateState({ loading: true });
+    try {
+      const response = await ProductSymptomAPI.addProductSymptom(newProductSymptom);
+      if (response) {
+        message.success("Thêm liên kết sản phẩm-triệu chứng thành công");
+        updateState({ isAddModalVisible: false });
+        fetchProductSymptoms();
+      }
+    } catch (error) {
+      handleApiError(error, "Lỗi khi thêm liên kết");
+    } finally {
+      updateState({ loading: false });
+    }
+  };
+
+  const handleUpdateProductSymptom = async (updatedProductSymptom) => {
+    updateState({ loading: true });
+    try {
+      const response = await ProductSymptomAPI.updateProductSymptom(updatedProductSymptom);
+      if (response) {
+        message.success("Cập nhật liên kết sản phẩm-triệu chứng thành công");
+        updateState({ isEditModalVisible: false });
+        fetchProductSymptoms();
+      }
+    } catch (error) {
+      handleApiError(error, "Lỗi khi cập nhật liên kết");
+    } finally {
+      updateState({ loading: false });
+    }
+  };
+
+  const handleDeleteProductSymptom = async (id) => {
+    updateState({ loading: true });
+    try {
+      await ProductSymptomAPI.deleteProductSymptom(id);
       message.success("Xóa liên kết sản phẩm-triệu chứng thành công");
-      setLoading(false);
-    }, 500);
+      fetchProductSymptoms();
+    } catch (error) {
+      handleApiError(error, "Lỗi khi xóa liên kết");
+    } finally {
+      updateState({ loading: false });
+    }
   };
 
-  // Handle pagination changes
-  const handleTableChange = (pagination) => {
-    setPagination(pagination);
+  // UI Event Handlers
+  const handleTableChange = (newPagination) => {
+    // Update pagination state first, which will trigger a re-fetch via useEffect
+    updateState({
+      pagination: {
+        ...pagination,
+        current: newPagination.current,
+        pageSize: newPagination.pageSize
+      }
+    });
   };
+
+  const showEditModal = (productSymptom) => {
+    updateState({
+      currentProductSymptom: productSymptom,
+      isEditModalVisible: true
+    });
+  };
+
+  // Initial data loading
+  useEffect(() => {
+    fetchProductSymptoms();
+  }, [fetchProductSymptoms]);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchSymptoms();
+  }, [fetchProducts, fetchSymptoms]);
+
+  // Make sure to refetch data when pagination changes
+  useEffect(() => {
+    fetchProductSymptoms();
+  }, [pagination.current, pagination.pageSize]);
 
   return (
     <div>
@@ -219,9 +218,11 @@ const ProductSymptoms = () => {
         <div>
           <Button
             type="primary"
-            onClick={() => setIsAddModalVisible(true)}
+            onClick={() => updateState({ isAddModalVisible: true })}
             className="h-9 rounded"
             icon={<PlusOutlined />}
+            loading={productsLoading || symptomsLoading}
+            disabled={productsLoading || symptomsLoading}
           >
             Thêm liên kết mới
           </Button>
@@ -239,19 +240,23 @@ const ProductSymptoms = () => {
 
       <ProductSympAdd
         isOpen={isAddModalVisible}
-        onClose={() => setIsAddModalVisible(false)}
+        onClose={() => updateState({ isAddModalVisible: false })}
         onAddProductSymptom={handleAddProductSymptom}
         products={products}
         symptoms={symptoms}
+        productsLoading={productsLoading}
+        symptomsLoading={symptomsLoading}
       />
 
       <ProductSympEdit
         isOpen={isEditModalVisible}
-        onClose={() => setIsEditModalVisible(false)}
+        onClose={() => updateState({ isEditModalVisible: false })}
         onUpdateProductSymptom={handleUpdateProductSymptom}
         productSymptom={currentProductSymptom}
         products={products}
         symptoms={symptoms}
+        productsLoading={productsLoading}
+        symptomsLoading={symptomsLoading}
       />
     </div>
   );

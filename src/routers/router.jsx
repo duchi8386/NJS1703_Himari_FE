@@ -13,6 +13,7 @@ import { useAuth } from "../context/AuthContext";
 import SymptomPart from "../adminpage/symptoms/SymptomPart/SymptomPart";
 import ProductSymptoms from "../adminpage/symptoms/ProductSymptoms/ProductSymptoms";
 import BodyPart from "../adminpage/symptoms/BodyPart/BodyPart";
+import NotificationManagement from "../adminpage/notification/NotificationManagement";
 
 // Component bảo vệ route admin
 const ProtectedRoute = ({ children }) => {
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
       {
         path:"body-parts",
         element: <BodyPart/>
+      },
+      {
+        path:"notification",
+        element: <NotificationManagement/>
       }      
     ],
   },

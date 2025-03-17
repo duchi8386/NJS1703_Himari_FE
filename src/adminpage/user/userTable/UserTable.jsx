@@ -6,7 +6,7 @@ import EditUser from '../editUser/EditUser';
 const UserTable = ({ users, loading, pagination, onTableChange, onDelete, onEdit }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  
+
   const columns = [
     {
       title: 'ID',
@@ -60,15 +60,15 @@ const UserTable = ({ users, loading, pagination, onTableChange, onDelete, onEdit
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
             Sửa
           </Button>
-          <Button 
-            danger 
+          <Button
+            danger
             icon={<DeleteOutlined />}
             onClick={() => showDeleteConfirm(record.id)}
           >
@@ -106,8 +106,8 @@ const UserTable = ({ users, loading, pagination, onTableChange, onDelete, onEdit
   return (
     <div className="p-6">
       <div className="bg-white rounded-lg shadow">
-        <Table 
-          columns={columns} 
+        <Table
+          columns={columns}
           dataSource={users}
           rowKey="id"
           loading={loading}

@@ -13,6 +13,7 @@ import {
   ReadOutlined,
   ShopOutlined,
   GiftOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import { FaHandDots, FaPerson, FaBoxArchive } from "react-icons/fa6";
 import Logo from "../../assets/img/Logo.png";
@@ -86,7 +87,6 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     },
     {
       key: "symptoms",
-      icon: <GiftOutlined />,
       label: "Triệu chứng",
       children: [
         {
@@ -105,6 +105,11 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
           label: <Link to="/admin/body-parts">Quản lý vùng cơ thể</Link>,
         },
       ],
+    },
+    {
+      key: "/admin/notification",
+      icon: <BellOutlined/>,
+      label: <Link to="/admin/notification">Quản lý thống báo</Link>,
     },
     {
       key: "logout",

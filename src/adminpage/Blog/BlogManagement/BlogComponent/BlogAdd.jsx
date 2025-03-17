@@ -1,21 +1,23 @@
 import React, { useState, useMemo } from 'react';
-import { Modal, Form, Input, Select, Upload, Button, message } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Select, Button, message } from 'antd';
 import { useQuill } from 'react-quilljs';
 import 'quill/dist/quill.snow.css';
+import BlogAPI from '../../../../service/api/blogAPI';
+import ImageUploadBlog from '../../../../components/ImageUploadBlog/ImageUploadBlog';
 
 const { Option } = Select;
 
-const BlogAdd = ({ 
-  isOpen, 
-  onClose, 
-  onAddBlog, 
-  categories = [] 
+const BlogAdd = ({
+  isOpen,
+  onClose,
+  onSuccess, // Changed from onAddBlog to onSuccess callback
+  categories = []
 }) => {
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
   const [blogContent, setBlogContent] = useState('');
-  
+  const [uploading, setUploading] = useState(false);
+  const [blogImage, setBlogImage] = useState(null);
+
   // React Quill setup
   const { quill, quillRef } = useQuill({
     theme: 'snow',
@@ -39,58 +41,95 @@ const BlogAdd = ({
       });
     }
   }, [quill]);
-  
-  const handleAdd = () => {
-    form.validateFields()
-      .then(values => {
-        // Check if quill editor has content
-        if (!blogContent || blogContent === '<p><br></p>') {
-          message.error('Blog content is required');
+
+  // Reset form when modal closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      form.resetFields();
+      setBlogContent('');
+      setBlogImage(null);
+      if (quill) {
+        quill.setText('');
+      }
+    }
+  }, [isOpen, form, quill]);
+
+  const handleImageChange = (file) => {
+    setBlogImage(file);
+  };
+
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Check if quill editor has content
+      if (!blogContent || blogContent === '<p><br></p>') {
+        message.error('Blog content is required');
+        return;
+      }
+
+      setUploading(true);
+
+      // Handle image upload if there's a file
+      let finalImageUrl = '';
+      if (blogImage) {
+        try {
+          const response = await BlogAPI.uploadToFirebase(blogImage);
+          if (response && response.data) {
+            finalImageUrl = response.data.data;
+            message.success('Image uploaded successfully');
+          } else {
+            message.error('Failed to upload image');
+            setUploading(false);
+            return;
+          }
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          message.error('Failed to upload image');
+          setUploading(false);
           return;
         }
+      }
 
-        // Handle image - in a real application, you would upload to a server first
-        const imageUrl = fileList.length > 0 ? 
-          URL.createObjectURL(fileList[0]) : 
-          'https://source.unsplash.com/random/800x400/?blog';
+      // Get the current user ID from localStorage
+      const userId = localStorage.getItem('userId') || 1; // Default to 1 if not available
 
-        // Create new blog object with the structure needed for the API
-        const newBlog = {
-          title: values.title,
-          category: values.category, // This will be used to find the categoryId in the parent component
-          content: blogContent,
-          image: imageUrl,
-          status: values.status || 'Draft'
-        };
-        
-        onAddBlog(newBlog);
-      })
-      .catch(info => {
-        console.log('Validate Failed:', info);
-      });
+      // Create new blog object with the correct structure for API
+      const blogData = {
+        title: values.title,
+        blogCategoryId: values.category,
+        content: blogContent,
+        image: finalImageUrl,
+        userId: parseInt(userId),
+      };
+
+      try {
+        // Directly call the API here
+        await BlogAPI.AddBlog(blogData);
+        message.success('Blog added successfully');
+        setUploading(false); // Reset loading state before closing the modal
+        handleCancel(); // Reset and close the form
+        onSuccess(); // Notify parent to refresh the list
+      } catch (apiError) {
+        console.error("API error:", apiError);
+        message.error('Failed to add blog');
+        setUploading(false);
+      }
+    } catch (info) {
+      console.log('Validate Failed:', info);
+      setUploading(false);
+    }
   };
-  
+
   const handleCancel = () => {
     form.resetFields();
-    setFileList([]);
     if (quill) {
       quill.setText('');
     }
     setBlogContent('');
+    setBlogImage(null);
+    setUploading(false); // Also ensure uploading is reset when canceling
     onClose();
-  };
-  
-  const uploadProps = {
-    onRemove: () => {
-      setFileList([]);
-    },
-    beforeUpload: (file) => {
-      setFileList([file]);
-      return false;
-    },
-    fileList,
-    listType: "picture",
-    maxCount: 1
   };
 
   return (
@@ -102,6 +141,7 @@ const BlogAdd = ({
       onOk={handleAdd}
       maskClosable={false}
       width={800}
+      confirmLoading={uploading}
     >
       <Form
         form={form}
@@ -115,7 +155,7 @@ const BlogAdd = ({
         >
           <Input placeholder="Enter blog title" />
         </Form.Item>
-        
+
         <Form.Item
           name="category"
           label="Category"
@@ -123,13 +163,13 @@ const BlogAdd = ({
         >
           <Select placeholder="Select category">
             {Array.isArray(categories) ? categories.map(category => (
-              <Option key={category.id || category._id} value={category.name}>
+              <Option key={category.id || category._id} value={category.id || category._id}>
                 {category.name}
               </Option>
             )) : <Option value="default">No categories available</Option>}
           </Select>
         </Form.Item>
-        
+
         <Form.Item
           label="Content"
           rules={[{ required: true, message: 'Please enter blog content' }]}
@@ -138,17 +178,18 @@ const BlogAdd = ({
             <div ref={quillRef} style={{ height: 250 }} />
           </div>
         </Form.Item>
-        
+
         <Form.Item
           name="featured_image"
           label="Featured Image"
         >
-          <Upload {...uploadProps}>
-            <Button icon={<UploadOutlined />}>Select Image</Button>
-          </Upload>
+          <ImageUploadBlog
+            onChange={handleImageChange}
+            maxFileSize={2}
+            value=""
+            acceptedFileTypes={['image/jpeg', 'image/png']}
+          />
         </Form.Item>
-        
-
       </Form>
     </Modal>
   );

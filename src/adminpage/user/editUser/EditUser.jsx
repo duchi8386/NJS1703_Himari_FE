@@ -10,8 +10,11 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
         id: userData.id,
         email: userData.email,
         fullName: userData.fullName || userData.username,
-        phoneNumber: userData.phoneNumber || userData.phone,
-        address: userData.address || '',
+        phoneNumber: userData.phoneNumber || '',
+        province: userData.province || '',
+        district: userData.district || '',
+        ward: userData.ward || '',
+        addressBonus: userData.addressBonus || '',
         avatarUrl: userData.avatarUrl || '',
         role: userData.role,
         status: userData.status,
@@ -96,11 +99,41 @@ const EditUser = ({ isOpen, onClose, onSubmit, userData }) => {
         </Form.Item>
 
         <Form.Item
-          name="address"
-          label={<span className="text-gray-700">Địa chỉ</span>}
+          name="province"
+          label={<span className="text-gray-700">Tỉnh/Thành phố</span>}
         >
           <Input
-            placeholder="Nhập địa chỉ"
+            placeholder="Nhập tỉnh/thành phố"
+            className="rounded-md"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="district"
+          label={<span className="text-gray-700">Quận/Huyện</span>}
+        >
+          <Input
+            placeholder="Nhập quận/huyện"
+            className="rounded-md"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="ward"
+          label={<span className="text-gray-700">Phường/Xã</span>}
+        >
+          <Input
+            placeholder="Nhập phường/xã"
+            className="rounded-md"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="addressBonus"
+          label={<span className="text-gray-700">Địa chỉ chi tiết</span>}
+        >
+          <Input
+            placeholder="Nhập địa chỉ chi tiết"
             className="rounded-md"
           />
         </Form.Item>
