@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { Button, message, Space, Input, DatePicker, Select, Row, Col, Card, Statistic } from "antd";
-import { FilterOutlined, ReloadOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { FilterOutlined, ReloadOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined, SyncOutlined, LoadingOutlined } from "@ant-design/icons";
 import OrderTable from "./OrderComponent/OderTable";
 import OrderDetail from "./OrderComponent/OrderDetail";
 import OrderEdit from "./OrderComponent/OrderEdit";
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
+import OrderAPI from "../../service/api/orderApi";
+import { DeliveryStatus, PaymentStatus } from '../../utils/orderEnums';
 
 // Thiết lập locale cho dayjs
 dayjs.locale('vi');
@@ -15,117 +17,16 @@ const { Search } = Input;
 const { Option } = Select;
 
 const OrderManagement = () => {
-  // Dữ liệu mẫu cho các đơn hàng
-  const [orders, setOrders] = useState([
-    {
-      id: 1,
-      orderCode: "ORD-001234",
-      customerName: "Nguyễn Văn A",
-      phone: "0987654321",
-      email: "nguyenvana@gmail.com",
-      address: "123 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
-      orderDate: "2025-03-08T14:15:30",
-      totalAmount: 1250000,
-      shippingFee: 30000,
-      discount: 50000,
-      finalAmount: 1230000,
-      paymentMethod: "COD",
-      status: "Processing",
-      isPaid: false,
-      note: "Giao vào buổi chiều",
-      items: [
-        {
-          id: 1,
-          productId: 22,
-          productName: "Sữa rửa mặt CeraVe",
-          image: "https://example.com/image1.jpg",
-          price: 350000,
-          quantity: 2,
-          subtotal: 700000
-        },
-        {
-          id: 2,
-          productId: 23,
-          productName: "Tẩy tế bào chết Vedette",
-          image: "https://example.com/image2.jpg",
-          price: 550000,
-          quantity: 1,
-          subtotal: 550000
-        }
-      ]
-    },
-    {
-      id: 2,
-      orderCode: "ORD-001235",
-      customerName: "Trần Thị B",
-      phone: "0912345678",
-      email: "tranthib@gmail.com",
-      address: "456 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
-      orderDate: "2025-03-07T09:30:15",
-      totalAmount: 820000,
-      shippingFee: 30000,
-      discount: 0,
-      finalAmount: 850000,
-      paymentMethod: "Banking",
-      status: "Completed",
-      isPaid: true,
-      note: "",
-      items: [
-        {
-          id: 3,
-          productId: 24,
-          productName: "Kem dưỡng ẩm Clinique",
-          image: "https://example.com/image3.jpg",
-          price: 820000,
-          quantity: 1,
-          subtotal: 820000
-        }
-      ]
-    },
-    {
-      id: 3,
-      orderCode: "ORD-001236",
-      customerName: "Lê Văn C",
-      phone: "0978123456",
-      email: "levanc@gmail.com",
-      address: "789 Đường Điện Biên Phủ, Phường Đa Kao, Quận 1, TP. Hồ Chí Minh",
-      orderDate: "2025-03-06T16:45:00",
-      totalAmount: 1100000,
-      shippingFee: 30000,
-      discount: 100000,
-      finalAmount: 1030000,
-      paymentMethod: "Momo",
-      status: "Canceled",
-      isPaid: false,
-      note: "Khách hàng đã hủy",
-      items: [
-        {
-          id: 4,
-          productId: 25,
-          productName: "Kem dưỡng ẩm Kiehl's",
-          image: "https://example.com/image4.jpg",
-          price: 750000,
-          quantity: 1,
-          subtotal: 750000
-        },
-        {
-          id: 5,
-          productId: 27,
-          productName: "Son dưỡng môi Laneige",
-          image: "https://example.com/image5.jpg",
-          price: 350000,
-          quantity: 1,
-          subtotal: 350000
-        }
-      ]
-    }
-  ]);
+  // Thay đổi state orders thành rỗng ban đầu
+  const [orders, setOrders] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [dateRange, setDateRange] = useState([]);
   const [statusFilter, setStatusFilter] = useState(null);
   const [currentOrder, setCurrentOrder] = useState(null);
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState(null);
+  const [deliveryStatusFilter, setDeliveryStatusFilter] = useState(null);
   
   // States for modal visibility
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -141,29 +42,64 @@ const OrderManagement = () => {
   // Thống kê đơn hàng
   const orderStats = {
     total: orders.length,
-    processing: orders.filter(order => order.status === "Processing").length,
-    completed: orders.filter(order => order.status === "Completed").length,
-    canceled: orders.filter(order => order.status === "Canceled").length
+    notStarted: orders.filter(order => order.deliveryStatus === DeliveryStatus.NOT_STARTED).length,
+    preparing: orders.filter(order => order.deliveryStatus === DeliveryStatus.PREPARING).length,
+    delivering: orders.filter(order => order.deliveryStatus === DeliveryStatus.DELIVERING).length,
+    delivered: orders.filter(order => order.deliveryStatus === DeliveryStatus.DELIVERED).length,
+    cancelled: orders.filter(order => order.deliveryStatus === DeliveryStatus.CANCELLED).length,
   };
 
-  // Giả lập việc tải dữ liệu
-  const fetchOrders = () => {
-    setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
+  // Cập nhật hàm fetchOrders để gọi API
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await OrderAPI.getsOrders(
+        pagination.current,
+        pagination.pageSize,
+        searchText
+      );
+      
+      setOrders(response.data.data);
+      setPagination({
+        ...pagination,
+        current: response.data.metaData.currentPage,
+        pageSize: response.data.metaData.pageSize,
+        total: response.data.metaData.totalCount
+      });
+    } catch (error) {
+      message.error("Không thể tải danh sách đơn hàng");
+      console.error("Error:", error);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
+  // Thêm useEffect để theo dõi các thay đổi về filter
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [pagination.current, pagination.pageSize, searchText]);
 
   // Function to handle order view
-  const handleViewOrder = (order) => {
-    setCurrentOrder(order);
-    setIsDetailModalVisible(true);
+  const handleViewOrder = async (order) => {
+    try {
+      console.log("Viewing order:", order);
+      setLoading(true);
+      const response = await OrderAPI.getOrderById(order.id);
+      console.log("API Response:", response);
+      
+      if (response.data) {
+        console.log("Setting current order:", response.data);
+        setCurrentOrder(response.data);
+        setIsDetailModalVisible(true);
+      } else {
+        message.error("Không thể tải thông tin chi tiết đơn hàng");
+      }
+    } catch (error) {
+      console.error("Error fetching order detail:", error);
+      message.error("Đã có lỗi xảy ra khi tải thông tin đơn hàng");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to handle order edit
@@ -220,6 +156,18 @@ const OrderManagement = () => {
     // Thêm logic lọc theo trạng thái thực tế ở đây khi có API
   };
 
+  // Handle delivery status filter change
+  const handleDeliveryStatusFilterChange = (value) => {
+    setDeliveryStatusFilter(value);
+    // Thêm logic lọc theo trạng thái giao hàng
+  };
+
+  // Handle payment status filter change
+  const handlePaymentStatusFilterChange = (value) => {
+    setPaymentStatusFilter(value);
+    // Thêm logic lọc theo trạng thái thanh toán
+  };
+
   // Handle pagination changes
   const handleTableChange = (pagination) => {
     setPagination(pagination);
@@ -229,7 +177,8 @@ const OrderManagement = () => {
   const handleResetFilters = () => {
     setSearchText('');
     setDateRange([]);
-    setStatusFilter(null);
+    setDeliveryStatusFilter(null);
+    setPaymentStatusFilter(null);
     fetchOrders();
   };
 
@@ -241,41 +190,63 @@ const OrderManagement = () => {
 
       {/* Statistics Cards */}
       <Row gutter={16} className="mb-6">
-        <Col span={6}>
+        <Col span={4}>
           <Card>
             <Statistic 
               title="Tổng đơn hàng"
               value={orderStats.total}
-              prefix={<ShoppingOutlined />}
+              prefix={<ShoppingOutlined style={{ color: '#1890ff' }} />}
+              valueStyle={{ color: '#1890ff', fontWeight: 'bold' }}
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col span={4}>
           <Card>
             <Statistic 
-              title="Đang xử lý"
-              value={orderStats.processing}
+              title="Chưa bắt đầu"
+              value={orderStats.notStarted}
+              prefix={<ClockCircleOutlined style={{ color: '#d9d9d9' }} />}
+              valueStyle={{ color: '#d9d9d9' }}
+            />
+          </Card>
+        </Col>
+        <Col span={4}>
+          <Card>
+            <Statistic 
+              title="Đang chuẩn bị"
+              value={orderStats.preparing}
+              prefix={<SyncOutlined spin style={{ color: '#faad14' }} />}
+              valueStyle={{ color: '#faad14' }}
+            />
+          </Card>
+        </Col>
+        <Col span={4}>
+          <Card>
+            <Statistic 
+              title="Đang giao hàng"
+              value={orderStats.delivering}
+              prefix={<LoadingOutlined style={{ color: '#1890ff' }} />}
               valueStyle={{ color: '#1890ff' }}
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col span={4}>
           <Card>
             <Statistic 
-              title="Hoàn thành"
-              value={orderStats.completed}
+              title="Đã giao hàng"
+              value={orderStats.delivered}
+              prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
               valueStyle={{ color: '#52c41a' }}
-              prefix={<CheckCircleOutlined />}
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col span={4}>
           <Card>
             <Statistic 
               title="Đã hủy"
-              value={orderStats.canceled}
+              value={orderStats.cancelled}
+              prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
               valueStyle={{ color: '#ff4d4f' }}
-              prefix={<CloseCircleOutlined />}
             />
           </Card>
         </Col>
@@ -298,15 +269,47 @@ const OrderManagement = () => {
           onChange={handleDateRangeChange}
         />
         <Select
-          placeholder="Trạng thái"
+          placeholder="Trạng thái giao hàng"
           allowClear
           style={{ width: 150 }}
           value={statusFilter}
           onChange={handleStatusFilterChange}
         >
-          <Option value="Processing">Đang xử lý</Option>
-          <Option value="Completed">Hoàn thành</Option>
-          <Option value="Canceled">Đã hủy</Option>
+          <Option value={DeliveryStatus.PENDING}>
+            {DeliveryStatus.getStatusName(DeliveryStatus.PENDING)}
+          </Option>
+          <Option value={DeliveryStatus.DELIVERING}>
+            {DeliveryStatus.getStatusName(DeliveryStatus.DELIVERING)}
+          </Option>
+          <Option value={DeliveryStatus.DELIVERED}>
+            {DeliveryStatus.getStatusName(DeliveryStatus.DELIVERED)}
+          </Option>
+          <Option value={DeliveryStatus.CANCELLED}>
+            {DeliveryStatus.getStatusName(DeliveryStatus.CANCELLED)}
+          </Option>
+        </Select>
+        <Select
+          placeholder="Trạng thái thanh toán"
+          allowClear
+          style={{ width: 150 }}
+          value={paymentStatusFilter}
+          onChange={handlePaymentStatusFilterChange}
+        >
+          <Option value={PaymentStatus.PENDING}>
+            {PaymentStatus.getStatusName(PaymentStatus.PENDING)}
+          </Option>
+          <Option value={PaymentStatus.PAID}>
+            {PaymentStatus.getStatusName(PaymentStatus.PAID)}
+          </Option>
+          <Option value={PaymentStatus.CONFIRMED}>
+            {PaymentStatus.getStatusName(PaymentStatus.CONFIRMED)}
+          </Option>
+          <Option value={PaymentStatus.FAILED}>
+            {PaymentStatus.getStatusName(PaymentStatus.FAILED)}
+          </Option>
+          <Option value={PaymentStatus.REFUNDED}>
+            {PaymentStatus.getStatusName(PaymentStatus.REFUNDED)}
+          </Option>
         </Select>
         <Button 
           icon={<ReloadOutlined />} 

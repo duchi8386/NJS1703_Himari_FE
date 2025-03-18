@@ -18,14 +18,14 @@ import {
   MailOutlined, 
   HomeOutlined,
   ClockCircleOutlined,
-  DollarCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
   CloseCircleOutlined,
-  StopOutlined
+  LoadingOutlined
 } from "@ant-design/icons";
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
+import { DeliveryStatus, PaymentStatus } from "../../../utils/orderEnums";
 
 // Thiết lập locale cho dayjs
 dayjs.locale('vi');
@@ -33,6 +33,8 @@ dayjs.locale('vi');
 const { Title, Text } = Typography;
 
 const OrderDetail = ({ isOpen, onClose, order }) => {
+  console.log("OrderDetail props:", { isOpen, order }); // Thêm log để debug
+  
   if (!order) {
     return null;
   }
@@ -55,43 +57,58 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
     }
   };
 
-  // Render status tag
-  const renderStatusTag = (status) => {
-    let color = '';
-    let icon = null;
-    let text = '';
-
-    switch(status) {
-      case 'Processing':
-        color = 'processing';
-        icon = <SyncOutlined spin />;
-        text = 'Đang xử lý';
-        break;
-      case 'Completed':
-        color = 'success';
-        icon = <CheckCircleOutlined />;
-        text = 'Hoàn thành';
-        break;
-      case 'Canceled':
-        color = 'error';
-        icon = <CloseCircleOutlined />;
-        text = 'Đã hủy';
-        break;
-      default:
-        color = 'default';
-        text = status;
-    }
+  // Render delivery status tag
+  const renderDeliveryStatusTag = (status) => {
+    const statusName = DeliveryStatus.getStatusName(status);
+    const statusColor = DeliveryStatus.getStatusColor(status);
+    
+    const getStatusIcon = (status) => {
+      switch (status) {
+        case DeliveryStatus.NOT_STARTED:
+          return <ClockCircleOutlined />;
+        case DeliveryStatus.PREPARING:
+          return <SyncOutlined spin />;
+        case DeliveryStatus.DELIVERING:
+          return <LoadingOutlined />;
+        case DeliveryStatus.DELIVERED:
+          return <CheckCircleOutlined />;
+        case DeliveryStatus.CANCELLED:
+          return <CloseCircleOutlined />;
+        default:
+          return null;
+      }
+    };
 
     return (
-      <Tag color={color} icon={icon}>
-        {text}
+      <Tag color={statusColor} icon={getStatusIcon(status)}>
+        {statusName}
       </Tag>
     );
   };
 
-  // Hiển thị phương thức thanh toán Payos
-  const renderPaymentMethod = () => {
-    return 'Thanh toán qua Payos';
+  // Render payment status tag
+  const renderPaymentStatusTag = (status) => {
+    const statusName = PaymentStatus.getStatusName(status);
+    const statusColor = PaymentStatus.getStatusColor(status);
+    
+    const getPaymentIcon = (status) => {
+      switch (status) {
+        case PaymentStatus.PENDING:
+          return <ClockCircleOutlined />;
+        case PaymentStatus.SUCCESS:
+          return <CheckCircleOutlined />;
+        case PaymentStatus.FAILED:
+          return <CloseCircleOutlined />;
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <Tag color={statusColor} icon={getPaymentIcon(status)}>
+        {statusName}
+      </Tag>
+    );
   };
 
   // Columns cho bảng sản phẩm
@@ -103,10 +120,10 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
       render: (text, record) => (
         <Space>
           <img 
-            src={record.image   }
+            src={record.imageUrl}
             alt={text}
             style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4 }}
-            onError={(e) => { e.target.src = "  " }}
+            onError={(e) => { e.target.src = "placeholder_image_url" }}
           />
           <div>
             <div>{text}</div>
@@ -130,9 +147,8 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
     },
     {
       title: 'Tổng tiền',
-      dataIndex: 'subtotal',
       key: 'subtotal',
-      render: (subtotal) => <Text strong>{formatCurrency(subtotal)}</Text>,
+      render: (_, record) => <Text strong>{formatCurrency(record.price * record.quantity)}</Text>,
       width: 150,
     },
   ];
@@ -154,17 +170,13 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
           <Card>
             <Descriptions title="Thông tin đơn hàng" bordered column={2}>
               <Descriptions.Item label="Mã đơn hàng">{order.orderCode}</Descriptions.Item>
-              <Descriptions.Item label="Ngày đặt">{formatDate(order.orderDate)}</Descriptions.Item>
-              <Descriptions.Item label="Trạng thái">{renderStatusTag(order.status)}</Descriptions.Item>
-              <Descriptions.Item label="Thanh toán">
-                <Tag color={order.isPaid ? "green" : "orange"} icon={order.isPaid ? <DollarCircleOutlined /> : <StopOutlined />}>
-                  {order.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
-                </Tag>
+              <Descriptions.Item label="Ngày đặt">{formatDate(order.createdDate)}</Descriptions.Item>
+              <Descriptions.Item label="Trạng thái giao hàng">
+                {renderDeliveryStatusTag(order.deliveryStatus)}
               </Descriptions.Item>
-              <Descriptions.Item label="Phương thức thanh toán" span={2}>
-                {renderPaymentMethod()}
+              <Descriptions.Item label="Trạng thái thanh toán">
+                {renderPaymentStatusTag(order.paymentStatus)}
               </Descriptions.Item>
-              
             </Descriptions>
           </Card>
         </Col>
@@ -174,9 +186,8 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
             <div className="mb-4">
               <Title level={5}><UserOutlined /> Thông tin khách hàng</Title>
               <div className="px-4">
-                <p><strong>{order.customerName}</strong></p>
-                <p><PhoneOutlined className="mr-2" /> {order.phone}</p>
-                {order.email && <p><MailOutlined className="mr-2" /> {order.email}</p>}
+                <p><strong>{order.fullName}</strong></p>
+                <p><PhoneOutlined className="mr-2" /> {order.phoneNumber}</p>
               </div>
             </div>
 
@@ -193,10 +204,10 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
           <Card>
             <Title level={5}>Danh sách sản phẩm</Title>
             <Table 
-              dataSource={order.items}
+              dataSource={order.orderDetails}
               columns={columns}
               pagination={false}
-              rowKey="id"
+              rowKey="productId"
             />
 
             <Divider />
@@ -204,23 +215,13 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
             <div className="flex justify-end">
               <div style={{ width: 300 }}>
                 <div className="flex justify-between mb-2">
-                  <Text>Tổng tiền sản phẩm:</Text>
-                  <Text strong>{formatCurrency(order.totalAmount)}</Text>
+                  <Text className="text-md  font-bold">Tổng sản phẩm:</Text>
+                  <Text >{order.orderDetails.reduce((total, item) => total + item.quantity, 0)} sản phẩm</Text>
                 </div>
-                <div className="flex justify-between mb-2">
-                  <Text>Phí vận chuyển:</Text>
-                  <Text>{formatCurrency(order.shippingFee || 0)}</Text>
-                </div>
-                {order.discount > 0 && (
-                  <div className="flex justify-between mb-2">
-                    <Text>Giảm giá:</Text>
-                    <Text>-{formatCurrency(order.discount)}</Text>
-                  </div>
-                )}
-                <Divider />
+                <Divider style={{ margin: '12px 0' }} />
                 <div className="flex justify-between">
-                  <Title level={5}>Thành tiền:</Title>
-                  <Title level={5} type="danger">{formatCurrency(order.finalAmount || order.totalAmount)}</Title>
+                  <Text className="text-md font-bold">Tổng tiền:</Text>
+                  <Text>{formatCurrency(order.orderPrice)}</Text>
                 </div>
               </div>
             </div>
