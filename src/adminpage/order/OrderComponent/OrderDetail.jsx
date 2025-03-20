@@ -215,8 +215,12 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
             <div className="flex justify-end">
               <div style={{ width: 300 }}>
                 <div className="flex justify-between mb-2">
-                  <Text className="text-md  font-bold">Tổng sản phẩm:</Text>
-                  <Text >{order.orderDetails.reduce((total, item) => total + item.quantity, 0)} sản phẩm</Text>
+                  <Text className="text-md font-bold">Tổng sản phẩm:</Text>
+                  <Text>
+                    {order.orderDetails && Array.isArray(order.orderDetails) 
+                      ? order.orderDetails.reduce((total, item) => total + item.quantity, 0) 
+                      : 0} sản phẩm
+                  </Text>
                 </div>
                 <Divider style={{ margin: '12px 0' }} />
                 <div className="flex justify-between">

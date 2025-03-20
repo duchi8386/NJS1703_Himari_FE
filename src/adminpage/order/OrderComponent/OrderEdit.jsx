@@ -14,7 +14,8 @@ import {
   Slider,
   Space,
   Tag,
-  Card
+  Card,
+  Table
 } from "antd";
 import { 
   CloseCircleOutlined, 
@@ -23,10 +24,17 @@ import {
   ExclamationCircleOutlined,
   UserOutlined,
   PhoneOutlined,
-  MailOutlined,
   EnvironmentOutlined,
   FileTextOutlined
 } from "@ant-design/icons";
+import { DeliveryStatus, PaymentStatus } from "../../../utils/orderEnums";
+import OrderAPI from "../../../service/api/orderApi";
+import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
+import { message } from "antd";
+
+// Thiết lập locale cho dayjs
+dayjs.locale('vi');
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -38,6 +46,7 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
   const [orderStatus, setOrderStatus] = useState(0);
   const [canceled, setCanceled] = useState(false);
   const [currentPaymentStatus, setCurrentPaymentStatus] = useState('processing');
+  const [orderDetail, setOrderDetail] = useState(null);
 
   // Định nghĩa các trạng thái đơn hàng (rút gọn các label)
   const orderStatuses = [
@@ -47,31 +56,7 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
     { value: 3, label: "Đã giao", code: "Delivered" }
   ];
 
-  // Định nghĩa các trạng thái thanh toán - chỉ giữ 3 trạng thái
-  const paymentStatuses = [
-    { 
-      value: "processing", 
-      label: "Đang xử lý", 
-      color: "processing", 
-      icon: <SyncOutlined spin />, 
-      activeStyle: { backgroundColor: '#1677ff', color: 'white' }
-    },
-    { 
-      value: "completed", 
-      label: "Hoàn thành", 
-      color: "success", 
-      icon: <CheckCircleOutlined />, 
-      activeStyle: { backgroundColor: '#52c41a', color: 'white' }
-    },
-    { 
-      value: "failed", 
-      label: "Thất bại", 
-      color: "error", 
-      icon: <ExclamationCircleOutlined />, 
-      activeStyle: { backgroundColor: '#ff4d4f', color: 'white' }
-    }
-  ];
-
+  
   // Chuyển đổi từ mã trạng thái sang giá trị slider
   const statusToSliderValue = (status) => {
     switch (status) {
@@ -88,58 +73,100 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
 
   // Chuyển đổi từ giá trị slider sang mã trạng thái
   const sliderValueToStatus = (value) => {
-    if (canceled) return "Canceled";
+    if (canceled) return DeliveryStatus.CANCELLED;
     switch (value) {
-      case 0: return "NotPrepared";
-      case 1: return "Preparing";
-      case 2: return "Shipping";
-      case 3: return "Delivered";
-      default: return "NotPrepared";
+      case 0: return DeliveryStatus.NOT_STARTED;
+      case 1: return DeliveryStatus.PREPARING;
+      case 2: return DeliveryStatus.DELIVERING;
+      case 3: return DeliveryStatus.DELIVERED;
+      default: return DeliveryStatus.NOT_STARTED;
     }
   };
 
   // Component để hiển thị tag cho trạng thái đơn hàng
   const renderStatusTag = (status) => {
-    const statusConfig = {
-      "NotPrepared": { color: "default", text: "Chờ xử lý" },
-      "Preparing": { color: "processing", text: "Đang chuẩn bị" },
-      "Shipping": { color: "warning", text: "Đang giao" },
-      "Delivered": { color: "success", text: "Đã giao" },
-      "Canceled": { color: "error", text: "Đã hủy" }
-    };
-
-    const config = statusConfig[status] || { color: "default", text: status };
-
     return (
-      <Tag color={config.color}>
-        {config.text}
+      <Tag color={DeliveryStatus.getStatusColor(status)}>
+        {DeliveryStatus.getStatusName(status)}
       </Tag>
     );
   };
 
+  // Thêm hàm formatDate vào component
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      return dayjs(dateString).format('DD/MM/YYYY HH:mm');
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
+  // Thêm hàm formatCurrency vào component
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "N/A";
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
   useEffect(() => {
     if (isOpen && order) {
-      // Đặt trạng thái đơn hàng
-      const sliderValue = statusToSliderValue(order.status);
-      setOrderStatus(sliderValue);
-      setCanceled(order.status === "Canceled");
+      // Gọi API để lấy dữ liệu chi tiết đơn hàng
+      setLoading(true);
+      OrderAPI.getOrderById(order.id)
+        .then(response => {
+          if (response.data) {
+            setOrderDetail(response.data);
+            console.log("Order detail from API:", response.data);
+            
+            // Sử dụng enum từ file orderEnums.js
+            let statusValue = 0;
+            
+            // Ánh xạ deliveryStatus từ order sang giá trị slider
+            switch (Number(response.data.deliveryStatus)) {
+              case DeliveryStatus.NOT_STARTED:
+                statusValue = 0;
+                break;
+              case DeliveryStatus.PREPARING:
+                statusValue = 1;
+                break;
+              case DeliveryStatus.DELIVERING:
+                statusValue = 2;
+                break;
+              case DeliveryStatus.DELIVERED:
+                statusValue = 3;
+                break;
+              case DeliveryStatus.CANCELLED:
+                setCanceled(true);
+                statusValue = 0;
+                break;
+              default:
+                statusValue = 0;
+            }
+            
+            setOrderStatus(statusValue);
+            setCanceled(Number(response.data.deliveryStatus) === DeliveryStatus.CANCELLED);
 
-      // Convert boolean isPaid to string payment status
-      let paymentStatus = "processing";
-      if (order.isPaid === true) {
-        paymentStatus = "completed";
-      }
-      
-      setCurrentPaymentStatus(paymentStatus);
+            // Lấy trạng thái thanh toán
+            let paymentStatus = response.data.paymentStatus || PaymentStatus.PENDING;
+            setCurrentPaymentStatus(paymentStatus);
 
-      form.setFieldsValue({
-        paymentStatus: paymentStatus,
-        customerName: order.customerName,
-        phone: order.phone,
-        email: order.email || '',
-        address: order.address || '',
-        note: order.note || ''
-      });
+            form.setFieldsValue({
+              paymentStatus: paymentStatus,
+              address: response.data.address || '',
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching order details:", error);
+          message.error("Không thể tải thông tin chi tiết đơn hàng");
+        })
+        .finally(() => setLoading(false));
+    } else {
+      // Reset state khi đóng modal
+      setOrderDetail(null);
     }
   }, [isOpen, order, form]);
 
@@ -155,40 +182,36 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
   const handleCancel = () => {
     setCanceled(true);
   };
-  
-  const handlePaymentStatusChange = (e) => {
-    setCurrentPaymentStatus(e.target.value);
-  };
 
   const handleSubmit = () => {
     form.validateFields()
       .then(values => {
         setLoading(true);
         
-        // Tạo đối tượng đơn hàng cập nhật
-        const status = sliderValueToStatus(orderStatus);
-        
-        // Convert string payment status to boolean isPaid
-        const isPaid = values.paymentStatus === "completed";
-        
-        const updatedOrder = {
-          ...order,
-          status: status,
-          isPaid: isPaid,
-          paymentStatus: values.paymentStatus, // Lưu trữ trạng thái thanh toán chi tiết
-          customerName: values.customerName,
-          phone: values.phone,
-          email: values.email,
+        // Chỉ cập nhật địa chỉ và trạng thái đơn hàng
+        const updateData = {
           address: values.address,
-          note: values.note
+          deliveryStatus: sliderValueToStatus(orderStatus),
         };
-
-        // Giả lập API call
-        setTimeout(() => {
-          onSuccess(updatedOrder);
-          onClose();
-          setLoading(false);
-        }, 500);
+        
+        // Gọi API cập nhật đơn hàng
+        OrderAPI.updateOrder(order.id, updateData)
+          .then(response => {
+            const fullUpdatedOrder = {
+              ...orderDetail, // Dữ liệu chi tiết từ API
+              ...updateData,   // Dữ liệu đã cập nhật
+              id: order.id,    // Đảm bảo ID vẫn giữ nguyên
+            };
+            
+            // Gọi callback thành công với đơn hàng đã cập nhật
+            onSuccess(fullUpdatedOrder);
+          })
+          .catch(error => {
+            message.error("Cập nhật đơn hàng thất bại: " + error.message);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       })
       .catch(info => {
         console.log('Validate Failed:', info);
@@ -211,9 +234,9 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
     <Modal
       title={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',paddingRight: '24px' }}>
-          <Title level={4} style={{ margin: 0 }}>Đơn hàng #{order?.orderCode}</Title>
+          <Title level={4} style={{ margin: 0 }}>Đơn hàng #{orderDetail?.orderCode || order?.orderCode}</Title>
           <Text type="secondary" style={{ fontSize: '14px' }}>
-            Thanh toán qua: <Tag color="blue">Payos</Tag>
+            Ngày đặt: {formatDate(orderDetail?.createdDate || order?.createdDate)}
           </Text>
         </div>
       }
@@ -287,27 +310,13 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
             </Col>
           </Row>
 
-          <Form.Item
-            name="paymentStatus"
-            label="Trạng thái thanh toán"
-            rules={[{ required: true, message: "Vui lòng chọn trạng thái thanh toán" }]}
-          >
-            <Radio.Group buttonStyle="solid" onChange={handlePaymentStatusChange}>
-              <Space size="large">
-                {paymentStatuses.map(status => (
-                  <Radio.Button 
-                    key={status.value} 
-                    value={status.value} 
-                    style={currentPaymentStatus === status.value ? {...status.activeStyle, height: '40px', padding: '0 16px'} : {height: '40px', padding: '0 16px'}}
-                  >
-                    <Space>
-                      {status.icon}
-                      {status.label}
-                    </Space>
-                  </Radio.Button>
-                ))}
-              </Space>
-            </Radio.Group>
+          <Form.Item>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <Text type="secondary">Trạng thái thanh toán:</Text>
+              <Tag color={PaymentStatus.getStatusColor(order?.paymentStatus)}>
+                {PaymentStatus.getStatusName(order?.paymentStatus)}
+              </Tag>
+            </div>
           </Form.Item>
         </Card>
 
@@ -318,30 +327,20 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
         >
           <Row gutter={24}>
             <Col span={12}>
-              <Form.Item
-                name="customerName"
-                label="Tên khách hàng"
-                rules={[{ required: true, message: "Vui lòng nhập tên khách hàng" }]}
-              >
-                <Input prefix={<UserOutlined />} />
-              </Form.Item>
+              <div className="mb-4">
+                <UserOutlined style={{ marginRight: 8 , fontSize: '16px'}} />
+                <Text  className="font-bold">Tên khách hàng:</Text>
+                <div><Text strong>{orderDetail?.fullName || order?.fullName}</Text></div>
+              </div>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="phone"
-                label="Số điện thoại"
-                rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
-              >
-                <Input prefix={<PhoneOutlined />} />
-              </Form.Item>
+              <div className="mb-4">
+                <PhoneOutlined style={{ marginRight: 8 , fontSize: '16px'}} />
+                <Text className="font-bold" >Số điện thoại:</Text>
+                <div><Text strong>{orderDetail?.phoneNumber || order?.phoneNumber}</Text></div>
+              </div>
             </Col>
           </Row>
-          <Form.Item
-            name="email"
-            label="Email"
-          >
-            <Input prefix={<MailOutlined />} />
-          </Form.Item>
         </Card>
 
         <Card 
@@ -356,22 +355,74 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
           >
             <Input prefix={<EnvironmentOutlined />} />
           </Form.Item>
-
-          <Form.Item
-            name="note"
-            label="Ghi chú"
-          >
-            <div style={{ position: 'relative' }}>
-              <FileTextOutlined style={{ position: 'absolute', left: '10px', top: '12px', color: '#bfbfbf', zIndex: 1 }} />
-              <TextArea rows={3} style={{ paddingLeft: '30px' }} />
+        </Card>
+        
+        <Card 
+          title={<Title level={5} style={{ margin: 0 }}>Thông tin đơn hàng</Title>}
+          style={{ marginBottom: 24 }}
+          bodyStyle={{ padding: '16px' }}
+        >
+          <Table 
+            dataSource={orderDetail?.orderDetails || []}
+            columns={[
+              {
+                title: 'Sản phẩm',
+                dataIndex: 'productName',
+                key: 'productName',
+                render: (text, record) => {
+                  console.log("Record in table:", record);
+                  const name = text || record.name || record.title || record.product?.name || "Không có tên";
+                  const image = record.image || record.imageUrl || record.product?.image || "";
+                  return (
+                    <Space>
+                      <img 
+                        src={image}
+                        alt={name}
+                        style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4 }}
+                        onError={(e) => { e.target.src = "placeholder_image_url" }}
+                      />
+                      <div>{name}</div>
+                    </Space>
+                  );
+                },
+              },
+              {
+                title: 'Giá',
+                dataIndex: 'price',
+                key: 'price',
+                render: (price) => formatCurrency(price),
+                width: 150,
+              },
+              {
+                title: 'Số lượng',
+                dataIndex: 'quantity',
+                key: 'quantity',
+                width: 100,
+                align: 'center',
+              }
+            ]}
+            loading={loading}
+            pagination={false}
+            rowKey="productId"
+            size="small"
+          />
+          
+          <Divider />
+          
+          <div className="flex justify-end">
+            <div style={{ width: 300 }}>
+              <div className="flex justify-between">
+                <Text className="text-md font-bold">Tổng tiền:</Text>
+                <Text>{formatCurrency(order?.orderPrice || 0)}</Text>
+              </div>
             </div>
-          </Form.Item>
+          </div>
         </Card>
 
         <div style={{ padding: '12px', backgroundColor: '#fffbe6', borderRadius: '4px', marginTop: '16px' }}>
           <Text type="warning" style={{ display: 'block', marginBottom: '4px' }}>
             <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
-            Lưu ý: Không thể chỉnh sửa danh sách sản phẩm và giá trị đơn hàng.
+            Lưu ý: Bạn chỉ có thể thay đổi địa chỉ giao hàng và trạng thái đơn hàng.
           </Text>
         </div>
       </Form>
