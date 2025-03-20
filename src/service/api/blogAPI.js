@@ -44,7 +44,7 @@ const BlogAPI = {
   },
   GetBlogCategories: async (pageIndex, pageSize) => {
     try {
-      const response = await axiosInstance.get("/blog-categories",{
+      const response = await axiosInstance.get("/blog-categories", {
         params: {
           "page-index": pageIndex,
           "page-size": pageSize,
@@ -57,7 +57,10 @@ const BlogAPI = {
   },
   AddBlogCategory: async (blogCategoryData) => {
     try {
-      const response = await axiosInstance.post("/blog-categories", blogCategoryData);
+      const response = await axiosInstance.post(
+        "/blog-categories",
+        blogCategoryData
+      );
       return response.data;
     } catch (error) {
       console.error("Error adding blog category:", error);
@@ -65,7 +68,10 @@ const BlogAPI = {
   },
   UpdateBlogCategory: async (blogCategoryData) => {
     try {
-      const response = await axiosInstance.put("/blog-categories", blogCategoryData);
+      const response = await axiosInstance.put(
+        "/blog-categories",
+        blogCategoryData
+      );
       return response.data;
     } catch (error) {
       console.error("Error updating blog category:", error);
@@ -73,7 +79,9 @@ const BlogAPI = {
   },
   GetBlogCategoriesById: async (blogCategoryId) => {
     try {
-      const response = await axiosInstance.get(`/blog-categories/${blogCategoryId}`);
+      const response = await axiosInstance.get(
+        `/blog-categories/${blogCategoryId}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error fetching blog category by ID:", error);
@@ -81,7 +89,9 @@ const BlogAPI = {
   },
   DeleteBlogCategory: async (blogCategoryId) => {
     try {
-      const response = await axiosInstance.delete(`/blog-categories/${blogCategoryId}`);
+      const response = await axiosInstance.delete(
+        `/blog-categories/${blogCategoryId}`
+      );
       return response.data;
     } catch (error) {
       console.error("Error deleting blog category:", error);
@@ -95,6 +105,18 @@ const BlogAPI = {
         "Content-Type": "multipart/form-data",
       },
     });
+  },
+  searchBlog: async (searchQuery) => {
+    try {
+      const response = await axiosInstance.get("/blogs", {
+        params: {
+          searchTerm: searchQuery,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error searching blog:", error);
+    }
   },
 };
 export default BlogAPI;

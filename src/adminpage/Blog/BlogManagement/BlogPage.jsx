@@ -11,6 +11,7 @@ const BlogPage = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -90,6 +91,31 @@ const BlogPage = () => {
     }
   };
 
+  // Function to handle search
+  const handleSearch = async (value) => {
+    setSearchQuery(value);
+    setLoading(true);
+    try {
+      if (value.trim() === '') {
+        // If search query is empty, fetch all blogs
+        fetchBlogs();
+        return;
+      }
+
+      const response = await BlogAPI.searchBlog(value);
+      if (response && response.data && response.data.data) {
+        setBlogs(response.data.data);
+      } else {
+        setBlogs([]);
+      }
+    } catch (error) {
+      message.error('Failed to search blogs');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -114,6 +140,8 @@ const BlogPage = () => {
         onEdit={showEditModal}
         onDelete={handleDeleteBlog}
         onView={showViewModal}
+        onSearch={handleSearch}
+        searchQuery={searchQuery}
       />
 
       <BlogAdd
