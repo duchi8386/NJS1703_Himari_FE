@@ -11,7 +11,8 @@ const BlogTable = ({
   onDelete,
   onView,
   onSearch,
-  searchQuery
+  searchQuery,
+  pagination
 }) => {
   const columns = [
     {
@@ -100,9 +101,13 @@ const BlogTable = ({
         loading={loading}
         className="bg-white rounded-lg shadow"
         pagination={{
-          pageSize: 10,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          onChange: pagination.onChange,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} blogs`
+          pageSizeOptions: ['5', '10', '20', '50'],
+          showTotal: (total) => `Tổng ${total} bài viết`
         }}
       />
     </div>

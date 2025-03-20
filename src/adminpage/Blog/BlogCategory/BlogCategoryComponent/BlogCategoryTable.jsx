@@ -1,12 +1,18 @@
 import React from 'react';
-import { Table, Button, Tag, Space, Popconfirm } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Popconfirm, Input } from 'antd';
+import { EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 
-const BlogCategoryTable = ({ 
-  categories, 
-  onEdit, 
+const { Search } = Input;
+
+const BlogCategoryTable = ({
+  categories,
+  onEdit,
   onDelete,
-  loading 
+  loading,
+  pagination,
+  onChange,
+  onSearch,
+  searchQuery
 }) => {
   const columns = [
     {
@@ -21,9 +27,9 @@ const BlogCategoryTable = ({
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button 
-            type="primary" 
-            icon={<EditOutlined />} 
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
             onClick={() => onEdit(record)}
           />
           <Popconfirm
@@ -32,9 +38,9 @@ const BlogCategoryTable = ({
             okText="Yes"
             cancelText="No"
           >
-            <Button 
-              danger 
-              icon={<DeleteOutlined />} 
+            <Button
+              danger
+              icon={<DeleteOutlined />}
               disabled={record.postCount > 0}
             />
           </Popconfirm>
@@ -47,17 +53,33 @@ const BlogCategoryTable = ({
 
   return (
     <div className="p-6">
-      <Table 
+      <div className="mb-4">
+        <Search
+          placeholder="Tìm kiếm blog..."
+          allowClear
+          enterButton={<SearchOutlined />}
+          size="large"
+          onSearch={onSearch}
+          defaultValue={searchQuery}
+          loading={loading}
+          className="max-w-md"
+        />
+      </div>
+      <Table
         columns={columns}
         dataSource={categories}
         rowKey="id"
+        loading={loading}
         className="bg-white rounded-lg shadow"
         pagination={{
-          pageSize: 10,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          onChange: (page, pageSize) => onChange({ current: page, pageSize }),
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} categories`
+          pageSizeOptions: ['5', '10', '20', '50'],
+          showTotal: (total) => `Tổng ${total} danh mục`
         }}
-        loading={loading}
       />
     </div>
   );

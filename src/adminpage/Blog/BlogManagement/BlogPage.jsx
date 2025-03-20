@@ -13,6 +13,13 @@ const BlogPage = () => {
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Add pagination states
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
+
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -23,17 +30,30 @@ const BlogPage = () => {
   useEffect(() => {
     fetchBlogs();
     fetchAllCategories();
-  }, []);
+  }, [pagination.current, pagination.pageSize]);
 
   // Function to fetch blogs
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const response = await BlogAPI.GetBlogs(1, 20);
-      // console.log("blogs data:", response);
+      let response;
+      if (searchQuery) {
+        response = await BlogAPI.searchBlog(searchQuery, pagination.current, pagination.pageSize);
+      } else {
+        response = await BlogAPI.GetBlogs(pagination.current, pagination.pageSize);
+      }
 
-      if (response && response.data && response.data.data) {
-        setBlogs(response.data.data);
+      if (response && response.data) {
+        setBlogs(response.data.data || []);
+
+        // Update total count for pagination using the metaData structure
+        if (response.data.metaData) {
+          setPagination(prev => ({
+            ...prev,
+            total: response.data.metaData.totalCount || 0,
+            current: response.data.metaData.currentPage || 1
+          }));
+        }
       } else {
         setBlogs([]);
         console.error("Unexpected API response structure:", response);
@@ -95,6 +115,12 @@ const BlogPage = () => {
   const handleSearch = async (value) => {
     setSearchQuery(value);
     setLoading(true);
+    // Reset to first page when searching
+    setPagination(prev => ({
+      ...prev,
+      current: 1
+    }));
+
     try {
       if (value.trim() === '') {
         // If search query is empty, fetch all blogs
@@ -103,10 +129,26 @@ const BlogPage = () => {
       }
 
       const response = await BlogAPI.searchBlog(value);
-      if (response && response.data && response.data.data) {
-        setBlogs(response.data.data);
+      if (response && response.data) {
+        setBlogs(response.data.data || []);
+
+        // Update pagination with metadata from search results
+        if (response.data.metaData) {
+          setPagination(prev => ({
+            ...prev,
+            total: response.data.metaData.totalCount || 0,
+            current: response.data.metaData.currentPage || 1
+          }));
+        } else {
+          // If no metadata, just use the array length
+          setPagination(prev => ({
+            ...prev,
+            total: response.data.data?.length || 0
+          }));
+        }
       } else {
         setBlogs([]);
+        setPagination(prev => ({ ...prev, total: 0 }));
       }
     } catch (error) {
       message.error('Failed to search blogs');
@@ -114,6 +156,15 @@ const BlogPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle pagination change
+  const handlePaginationChange = (page, pageSize) => {
+    setPagination(prev => ({
+      ...prev,
+      current: page,
+      pageSize: pageSize
+    }));
   };
 
   return (
@@ -142,6 +193,12 @@ const BlogPage = () => {
         onView={showViewModal}
         onSearch={handleSearch}
         searchQuery={searchQuery}
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          onChange: handlePaginationChange
+        }}
       />
 
       <BlogAdd

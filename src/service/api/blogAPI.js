@@ -106,16 +106,34 @@ const BlogAPI = {
       },
     });
   },
-  searchBlog: async (searchQuery) => {
+  searchBlog: async (searchQuery, pageIndex, pageSize) => {
     try {
       const response = await axiosInstance.get("/blogs", {
         params: {
           searchTerm: searchQuery,
+          "page-index": pageIndex,
+          "page-size": pageSize,
         },
       });
       return response.data;
     } catch (error) {
       console.error("Error searching blog:", error);
+      throw error;
+    }
+  },
+  searchBlogCategory: async (searchQuery, pageIndex, pageSize) => {
+    try {
+      const response = await axiosInstance.get("/blog-categories", {
+        params: {
+          searchTerm: searchQuery,
+          "page-index": pageIndex,
+          "page-size": pageSize,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error searching blog category:", error);
+      throw error;
     }
   },
 };

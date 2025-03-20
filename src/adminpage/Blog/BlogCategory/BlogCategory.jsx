@@ -14,21 +14,54 @@ const BlogCategory = () => {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false
+  });
 
-  // Fetch categories on component mount
+  // Fetch categories when pagination or search query changes
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [pagination.current, pagination.pageSize, searchQuery]);
 
   // Function to fetch categories
   const fetchCategories = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await BlogAPI.GetBlogCategories(1, 20);
-      // console.log(response);
-      setCategories(response.data.data || []);
+      let response;
+      if (searchQuery) {
+        response = await BlogAPI.searchBlogCategory(searchQuery, pagination.current, pagination.pageSize);
+      } else {
+        response = await BlogAPI.GetBlogCategories(pagination.current, pagination.pageSize);
+      }
+
+      if (response && response.data) {
+        setCategories(response.data.data || []);
+
+        // Update pagination based on metadata
+        if (response.data.metaData) {
+          setPagination(prev => ({
+            ...prev,
+            current: response.data.metaData.currentPage,
+            pageSize: response.data.metaData.pageSize,
+            total: response.data.metaData.totalCount,
+            totalPages: response.data.metaData.totalPages,
+            hasNext: response.data.metaData.hasNext,
+            hasPrevious: response.data.metaData.hasPrevious
+          }));
+        }
+      } else {
+        setCategories([]);
+        message.warning('No categories found');
+      }
     } catch (error) {
       message.error('Failed to fetch blog categories');
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -92,6 +125,25 @@ const BlogCategory = () => {
     }
   };
 
+  // Function to handle search
+  const handleSearch = (value) => {
+    setSearchQuery(value);
+    // Reset to first page when searching
+    setPagination(prev => ({
+      ...prev,
+      current: 1
+    }));
+  };
+
+  // Handle pagination change
+  const handleTableChange = (paginationData) => {
+    setPagination(prev => ({
+      ...prev,
+      current: paginationData.current,
+      pageSize: paginationData.pageSize,
+    }));
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -109,14 +161,18 @@ const BlogCategory = () => {
         </div>
       </div>
 
-      <BlogCategoryTable 
-        categories={categories} 
+      <BlogCategoryTable
+        categories={categories}
         onEdit={showEditModal}
         onDelete={handleDeleteCategory}
         loading={loading}
+        pagination={pagination}
+        onChange={handleTableChange}
+        onSearch={handleSearch}
+        searchQuery={searchQuery}
       />
-      
-      <BlogCategoryAdd 
+
+      <BlogCategoryAdd
         isOpen={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
         onAddCategory={handleAddCategory}
@@ -124,7 +180,7 @@ const BlogCategory = () => {
         loading={loading}
       />
 
-      <BlogCategoryEdit 
+      <BlogCategoryEdit
         isOpen={isEditModalVisible}
         onClose={() => setIsEditModalVisible(false)}
         onUpdateCategory={handleUpdateCategory}

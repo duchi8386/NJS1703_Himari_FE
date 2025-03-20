@@ -66,7 +66,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     {
       key: "blog",
       icon: <ReadOutlined />,
-      label: "Blog",
+      label: "Bài viết",
       children: [
         {
           key: "/admin/blogs",
