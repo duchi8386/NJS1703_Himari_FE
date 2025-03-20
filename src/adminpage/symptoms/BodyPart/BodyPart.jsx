@@ -9,6 +9,7 @@ import BodyPartAPI from "../../../service/api/bodyPart";
 const BodyPart = () => {
   const [bodyParts, setBodyParts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -29,7 +30,13 @@ const BodyPart = () => {
   const fetchBodyParts = async () => {
     setLoading(true);
     try {
-      const response = await BodyPartAPI.getBodyParts(pagination.current, pagination.pageSize);
+      let response;
+
+      if (searchQuery) {
+        response = await BodyPartAPI.searchBodyPart(searchQuery, pagination.current, pagination.pageSize);
+      } else {
+        response = await BodyPartAPI.getBodyParts(pagination.current, pagination.pageSize);
+      }
 
       if (response && response.data) {
         // Update to match the actual API response structure
@@ -54,10 +61,20 @@ const BodyPart = () => {
     }
   };
 
-  // Load data on component mount and when pagination changes
+  // Load data on component mount and when pagination or search query changes
   useEffect(() => {
     fetchBodyParts();
-  }, [pagination.current, pagination.pageSize]);
+  }, [pagination.current, pagination.pageSize, searchQuery]);
+
+  // Handle search
+  const handleSearch = (value) => {
+    setSearchQuery(value);
+    // Reset to first page when searching
+    setPagination({
+      ...pagination,
+      current: 1
+    });
+  };
 
   // Function to show edit modal
   const showEditModal = (bodyPart) => {
@@ -142,6 +159,7 @@ const BodyPart = () => {
         onDelete={handleDeleteBodyPart}
         pagination={pagination}
         onChange={handleTableChange}
+        onSearch={handleSearch}
       />
 
       <BodyAdd

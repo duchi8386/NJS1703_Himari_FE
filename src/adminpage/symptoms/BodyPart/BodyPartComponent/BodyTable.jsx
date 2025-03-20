@@ -1,8 +1,16 @@
 import React from "react";
-import { Table, Button, Space, Popconfirm } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Table, Button, Space, Popconfirm, Input } from "antd";
+import { EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 
-const BodyTable = ({ bodyParts, loading, onEdit, onDelete, pagination, onChange }) => {
+const BodyTable = ({
+  bodyParts,
+  loading,
+  onEdit,
+  onDelete,
+  pagination,
+  onChange,
+  onSearch
+}) => {
   const columns = [
     {
       title: "ID",
@@ -52,6 +60,16 @@ const BodyTable = ({ bodyParts, loading, onEdit, onDelete, pagination, onChange 
 
   return (
     <div className="p-6">
+      <div className="mb-4">
+        <Input.Search
+          placeholder="Tìm kiếm bộ phận cơ thể..."
+          allowClear
+          enterButton={<SearchOutlined />}
+          size="large"
+          onSearch={onSearch}
+          className="max-w-md"
+        />
+      </div>
       <Table
         columns={columns}
         dataSource={bodyParts}
