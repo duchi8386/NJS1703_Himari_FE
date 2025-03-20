@@ -65,6 +65,21 @@ const BrandAPI = {
       },
     });
   },
+  searchBrand: async (searchQuery, pageIndex, pageSize) => {
+    try {
+      const response = await axiosInstance.get("/brands", {
+        params: {
+          searchTerm: searchQuery,
+          "page-index": pageIndex,
+          "page-size": pageSize,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error searching brand:", error);
+      throw error;
+    }
+  },
 };
 
 export default BrandAPI;
