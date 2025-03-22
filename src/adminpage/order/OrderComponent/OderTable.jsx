@@ -135,16 +135,13 @@ const OrderTable = ({
       title: "Khách hàng",
       dataIndex: "fullName",
       key: "fullName",
-      sorter: (a, b) => a.customerName.localeCompare(b.customerName),
       width: 200,
     },
-
     {
       title: "Ngày đặt",
       dataIndex: "createdDate",
       key: "createdDate",
       render: (date) => formatDate(date),
-      sorter: (a, b) => new Date(a.orderDate) - new Date(b.orderDate),
       width: 150,
     },
     {
@@ -152,7 +149,6 @@ const OrderTable = ({
       dataIndex: "orderPrice",
       key: "orderPrice",
       render: (amount) => formatPrice(amount),
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
       width: 150,
     },
     {
@@ -160,14 +156,6 @@ const OrderTable = ({
       dataIndex: "deliveryStatus",
       key: "deliveryStatus",
       render: (status) => renderStatusTag(status),
-      filters: [
-        { text: "Chưa bắt đầu", value: DeliveryStatus.NOT_STARTED },
-        { text: "Đang chuẩn bị", value: DeliveryStatus.PREPARING },
-        { text: "Đang giao hàng", value: DeliveryStatus.DELIVERING },
-        { text: "Đã giao hàng", value: DeliveryStatus.DELIVERED },
-        { text: "Đã hủy", value: DeliveryStatus.CANCELLED },
-      ],
-      onFilter: (value, record) => record.deliveryStatus === value,
       width: 150,
     },
     {
@@ -175,12 +163,6 @@ const OrderTable = ({
       dataIndex: "paymentStatus",
       key: "paymentStatus",
       render: (status) => renderPaymentTag(status),
-      filters: [
-        { text: "Chờ thanh toán", value: PaymentStatus.PENDING },
-        { text: "Thành công", value: PaymentStatus.SUCCESS },
-        { text: "Thất bại", value: PaymentStatus.FAILED },
-      ],
-      onFilter: (value, record) => record.paymentStatus === value,
       width: 150,
     },
     {

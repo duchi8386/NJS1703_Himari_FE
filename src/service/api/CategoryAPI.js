@@ -1,11 +1,13 @@
 import axiosInstance from "../instance";
 
 const CategoryAPI = {
-  getAllCategory: async (page, pageSize = 10) => {
+  getAllCategory: async (page, pageSize = 10, filters = {}) => {
     return axiosInstance.get(`/categories`, {
       params: {
         "page-index": page,
         "page-size": pageSize,
+        "searchTerm": filters?.searchText || '',
+        "newest-first": filters?.newestFirst ?? true,
       },
     });
   },

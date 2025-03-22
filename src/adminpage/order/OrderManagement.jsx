@@ -1,5 +1,5 @@
 import  { useState, useEffect } from "react";
-import { Button, message, Space, Input, DatePicker, Select, Row, Col, Card, Statistic } from "antd";
+import { Button, message, Space, Input, DatePicker, Select, Row, Col, Card, Statistic, InputNumber } from "antd";
 import { FilterOutlined, ReloadOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined, SyncOutlined, LoadingOutlined } from "@ant-design/icons";
 import OrderTable from "./OrderComponent/OderTable";
 import OrderDetail from "./OrderComponent/OrderDetail";
@@ -22,11 +22,22 @@ const OrderManagement = () => {
 
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [dateRange, setDateRange] = useState([]);
   const [statusFilter, setStatusFilter] = useState(null);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [paymentStatusFilter, setPaymentStatusFilter] = useState(null);
   const [deliveryStatusFilter, setDeliveryStatusFilter] = useState(null);
+  
+  // Thêm state mới cho thống kê
+  const [orderStats, setOrderStats] = useState({
+    total: 0,
+    notStarted: 0,
+    preparing: 0,
+    delivering: 0,
+    delivered: 0,
+    cancelled: 0
+  });
   
   // States for modal visibility
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -39,45 +50,103 @@ const OrderManagement = () => {
     total: 3
   });
 
-  // Thống kê đơn hàng
-  const orderStats = {
-    total: orders.length,
-    notStarted: orders.filter(order => order.deliveryStatus === DeliveryStatus.NOT_STARTED).length,
-    preparing: orders.filter(order => order.deliveryStatus === DeliveryStatus.PREPARING).length,
-    delivering: orders.filter(order => order.deliveryStatus === DeliveryStatus.DELIVERING).length,
-    delivered: orders.filter(order => order.deliveryStatus === DeliveryStatus.DELIVERED).length,
-    cancelled: orders.filter(order => order.deliveryStatus === DeliveryStatus.CANCELLED).length,
+  // Thêm state để lưu trữ tháng và năm được chọn
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Tháng hiện tại
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Năm hiện tại
+
+  // Thêm state cho sắp xếp
+  const [newestFirst, setNewestFirst] = useState(true);
+
+  // Thêm hàm để lấy thống kê đơn hàng
+  const fetchOrderStatistics = async () => {
+    try {
+      const response = await OrderAPI.getOrderStatistics(selectedMonth, selectedYear);
+      
+      if (response?.statusCode === 200 && response?.data) {
+        setOrderStats({
+          total: response.data.totalOrder,
+          notStarted: response.data.notStartedOrder,
+          preparing: response.data.preparingOrder,
+          delivering: response.data.deliveringOrder,
+          delivered: response.data.deliveredOrder,
+          cancelled: response.data.cancelledOrder
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching order statistics:", error);
+      message.error("Không thể tải thống kê đơn hàng");
+    }
   };
 
-  // Cập nhật hàm fetchOrders để gọi API
+  // Cập nhật hàm fetchOrders để hỗ trợ các tham số filter
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      console.log("Fetching orders with params:", {
+        pageIndex: pagination.current,
+        pageSize: pagination.pageSize,
+        searchTerm: searchValue,
+        deliveryStatus: deliveryStatusFilter,
+        paymentStatus: paymentStatusFilter,
+        newestFirst
+      });
+
       const response = await OrderAPI.getsOrders(
         pagination.current,
         pagination.pageSize,
-        searchText
+        {
+          searchText: searchValue,
+          deliveryStatus: deliveryStatusFilter,
+          paymentStatus: paymentStatusFilter,
+          newestFirst
+        }
       );
       
-      setOrders(response.data.data);
-      setPagination({
-        ...pagination,
-        current: response.data.metaData.currentPage,
-        pageSize: response.data.metaData.pageSize,
-        total: response.data.metaData.totalCount
-      });
+      if (response?.data) {
+        console.log("Received orders:", response.data);
+        setOrders(response.data.data);
+        setPagination(prev => ({
+          ...prev,
+          total: response.data.metaData.totalCount
+        }));
+      }
     } catch (error) {
+      console.error("Error fetching orders:", error);
       message.error("Không thể tải danh sách đơn hàng");
-      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Thêm useEffect để theo dõi các thay đổi về filter
+  // Thêm useEffect để lấy thống kê đơn hàng
   useEffect(() => {
-    fetchOrders();
-  }, [pagination.current, pagination.pageSize, searchText]);
+    fetchOrderStatistics();
+  }, [selectedMonth, selectedYear]);
+
+  // Sửa lại useEffect
+  useEffect(() => {
+    console.log("Effect triggered with:", {
+      pageIndex: pagination.current,
+      pageSize: pagination.pageSize,
+      searchValue,
+      deliveryStatus: deliveryStatusFilter,
+      paymentStatus: paymentStatusFilter,
+      newestFirst
+    });
+    
+    const timeoutId = setTimeout(() => {
+      fetchOrders();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    pagination.current,
+    pagination.pageSize,
+    searchValue,
+    deliveryStatusFilter,
+    paymentStatusFilter,
+    newestFirst
+  ]);
 
   // Function to handle order view
   const handleViewOrder = async (order) => {
@@ -123,25 +192,26 @@ const OrderManagement = () => {
     }, 500);
   };
 
-  // Function to handle update order
-  const handleUpdateOrder = (updatedOrder) => {
-    setLoading(true);
-    
-    // Giả lập độ trễ mạng
-    setTimeout(() => {
-      const updatedOrders = orders.map(order => 
-        order.id === updatedOrder.id ? updatedOrder : order
-      );
-      setOrders(updatedOrders);
-      message.success("Cập nhật đơn hàng thành công");
-      setLoading(false);
-    }, 500);
+
+  // Cập nhật hàm xử lý filter trạng thái giao hàng
+  const handleDeliveryStatusFilterChange = (value) => {
+    console.log("Delivery status changed:", value); // Thêm log để debug
+    setDeliveryStatusFilter(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
   };
 
-  // Handle search
+  // Cập nhật hàm xử lý filter trạng thái thanh toán
+  const handlePaymentStatusFilterChange = (value) => {
+    console.log("Payment status changed:", value); // Thêm log để debug
+    setPaymentStatusFilter(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
+  };
+
+  // Sửa lại hàm handleSearch
   const handleSearch = (value) => {
-    setSearchText(value);
-    // Thêm logic tìm kiếm thực tế ở đây khi có API
+    console.log("Search value:", value);
+    setSearchValue(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
   };
 
   // Handle date range change
@@ -156,30 +226,60 @@ const OrderManagement = () => {
     // Thêm logic lọc theo trạng thái thực tế ở đây khi có API
   };
 
-  // Handle delivery status filter change
-  const handleDeliveryStatusFilterChange = (value) => {
-    setDeliveryStatusFilter(value);
-    // Thêm logic lọc theo trạng thái giao hàng
-  };
-
-  // Handle payment status filter change
-  const handlePaymentStatusFilterChange = (value) => {
-    setPaymentStatusFilter(value);
-    // Thêm logic lọc theo trạng thái thanh toán
-  };
-
   // Handle pagination changes
   const handleTableChange = (pagination) => {
     setPagination(pagination);
   };
 
-  // Handle reset filters
+  // Cập nhật hàm reset filters
   const handleResetFilters = () => {
     setSearchText('');
+    setSearchValue('');
     setDateRange([]);
     setDeliveryStatusFilter(null);
     setPaymentStatusFilter(null);
-    fetchOrders();
+    setNewestFirst(true);
+    setPagination(prev => ({
+      ...prev,
+      current: 1
+    }));
+  };
+
+  // Thêm hàm xử lý khi thay đổi tháng
+  const handleMonthChange = (value) => {
+    setSelectedMonth(value);
+  };
+
+  // Thêm hàm xử lý khi thay đổi năm (dùng với InputNumber)
+  const handleYearChange = (value) => {
+    if (value && value > 0) {
+      setSelectedYear(value);
+    }
+  };
+
+  // Hàm xử lý khi cập nhật thành công từ OrderEdit
+  const handleOrderEditSuccess = (updatedOrder) => {
+    // Cập nhật state mới với đơn hàng đã cập nhật
+    const updatedOrders = orders.map(order => 
+      order.id === updatedOrder.id ? updatedOrder : order
+    );
+    
+    setOrders(updatedOrders);
+    
+    // Cập nhật thống kê (nếu cần)
+    fetchOrderStatistics();
+    
+    // Đóng modal
+    setIsEditModalVisible(false);
+    
+    // Hiển thị thông báo thành công
+    message.success("Đơn hàng đã được cập nhật thành công");
+  };
+
+  // Thêm hàm xử lý thay đổi sắp xếp
+  const handleSortChange = (value) => {
+    setNewestFirst(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
   };
 
   return (
@@ -188,7 +288,31 @@ const OrderManagement = () => {
         <h2 className="text-2xl font-bold">Quản lý đơn hàng</h2>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Thêm phần chọn tháng và năm */}
+      <div className="mb-4 flex items-center">
+        <span className="mr-2 font-medium">Thống kê theo:</span>
+        <Select 
+          value={selectedMonth}
+          onChange={handleMonthChange}
+          style={{ width: 100, marginRight: 8 }}
+        >
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(month => (
+            <Option key={month} value={month}>Tháng {month}</Option>
+          ))}
+        </Select>
+        
+        <InputNumber
+          value={selectedYear}
+          onChange={handleYearChange}
+          style={{ width: 100 }}
+          min={2000}
+          max={2100}
+          placeholder="Năm"
+        />
+        
+      </div>
+
+      {/* Statistics Cards - Cập nhật sử dụng orderStats từ API */}
       <Row gutter={16} className="mb-6">
         <Col span={4}>
           <Card>
@@ -263,20 +387,19 @@ const OrderManagement = () => {
           onSearch={handleSearch}
           style={{ width: 250 }}
         />
-        <RangePicker 
-          placeholder={['Từ ngày', 'Đến ngày']}
-          value={dateRange}
-          onChange={handleDateRangeChange}
-        />
+
         <Select
           placeholder="Trạng thái giao hàng"
           allowClear
           style={{ width: 150 }}
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
+          value={deliveryStatusFilter}
+          onChange={handleDeliveryStatusFilterChange}
         >
-          <Option value={DeliveryStatus.PENDING}>
-            {DeliveryStatus.getStatusName(DeliveryStatus.PENDING)}
+          <Option value={DeliveryStatus.NOT_STARTED}>
+            {DeliveryStatus.getStatusName(DeliveryStatus.NOT_STARTED)}
+          </Option>
+          <Option value={DeliveryStatus.PREPARING}>
+            {DeliveryStatus.getStatusName(DeliveryStatus.PREPARING)}
           </Option>
           <Option value={DeliveryStatus.DELIVERING}>
             {DeliveryStatus.getStatusName(DeliveryStatus.DELIVERING)}
@@ -288,6 +411,7 @@ const OrderManagement = () => {
             {DeliveryStatus.getStatusName(DeliveryStatus.CANCELLED)}
           </Option>
         </Select>
+
         <Select
           placeholder="Trạng thái thanh toán"
           allowClear
@@ -298,19 +422,25 @@ const OrderManagement = () => {
           <Option value={PaymentStatus.PENDING}>
             {PaymentStatus.getStatusName(PaymentStatus.PENDING)}
           </Option>
-          <Option value={PaymentStatus.PAID}>
-            {PaymentStatus.getStatusName(PaymentStatus.PAID)}
-          </Option>
-          <Option value={PaymentStatus.CONFIRMED}>
-            {PaymentStatus.getStatusName(PaymentStatus.CONFIRMED)}
+          <Option value={PaymentStatus.SUCCESS}>
+            {PaymentStatus.getStatusName(PaymentStatus.SUCCESS)}
           </Option>
           <Option value={PaymentStatus.FAILED}>
             {PaymentStatus.getStatusName(PaymentStatus.FAILED)}
           </Option>
-          <Option value={PaymentStatus.REFUNDED}>
-            {PaymentStatus.getStatusName(PaymentStatus.REFUNDED)}
-          </Option>
         </Select>
+
+        {/* Thêm Select cho sắp xếp */}
+        <Select
+          placeholder="Sắp xếp theo"
+          style={{ width: 150 }}
+          value={newestFirst}
+          onChange={handleSortChange}
+        >
+          <Option value={true}>Mới nhất trước</Option>
+          <Option value={false}>Cũ nhất trước</Option>
+        </Select>
+
         <Button 
           icon={<ReloadOutlined />} 
           onClick={handleResetFilters}
@@ -339,7 +469,7 @@ const OrderManagement = () => {
       <OrderEdit
         isOpen={isEditModalVisible}
         onClose={() => setIsEditModalVisible(false)}
-        onSuccess={handleUpdateOrder}
+        onSuccess={handleOrderEditSuccess}
         order={currentOrder}
       />
     </div>
