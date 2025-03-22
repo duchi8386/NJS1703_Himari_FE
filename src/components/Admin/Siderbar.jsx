@@ -14,6 +14,7 @@ import {
   ShopOutlined,
   GiftOutlined,
   BellOutlined,
+  HeartOutlined,
 } from "@ant-design/icons";
 import { FaHandDots, FaPerson, FaBoxArchive } from "react-icons/fa6";
 import Logo from "../../assets/img/Logo.png";
@@ -87,6 +88,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     },
     {
       key: "symptoms",
+      icon:<HeartOutlined />,
       label: "Triệu chứng",
       children: [
         {

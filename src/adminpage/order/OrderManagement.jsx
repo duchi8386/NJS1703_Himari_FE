@@ -22,6 +22,7 @@ const OrderManagement = () => {
 
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [dateRange, setDateRange] = useState([]);
   const [statusFilter, setStatusFilter] = useState(null);
   const [currentOrder, setCurrentOrder] = useState(null);
@@ -84,7 +85,7 @@ const OrderManagement = () => {
       console.log("Fetching orders with params:", {
         pageIndex: pagination.current,
         pageSize: pagination.pageSize,
-        searchTerm: searchText,
+        searchTerm: searchValue,
         deliveryStatus: deliveryStatusFilter,
         paymentStatus: paymentStatusFilter,
         newestFirst
@@ -94,7 +95,7 @@ const OrderManagement = () => {
         pagination.current,
         pagination.pageSize,
         {
-          searchText,
+          searchText: searchValue,
           deliveryStatus: deliveryStatusFilter,
           paymentStatus: paymentStatusFilter,
           newestFirst
@@ -127,7 +128,7 @@ const OrderManagement = () => {
     console.log("Effect triggered with:", {
       pageIndex: pagination.current,
       pageSize: pagination.pageSize,
-      searchText,
+      searchValue,
       deliveryStatus: deliveryStatusFilter,
       paymentStatus: paymentStatusFilter,
       newestFirst
@@ -141,7 +142,7 @@ const OrderManagement = () => {
   }, [
     pagination.current,
     pagination.pageSize,
-    searchText,
+    searchValue,
     deliveryStatusFilter,
     paymentStatusFilter,
     newestFirst
@@ -209,9 +210,8 @@ const OrderManagement = () => {
   // Sửa lại hàm handleSearch
   const handleSearch = (value) => {
     console.log("Search value:", value);
-    setSearchText(value);
+    setSearchValue(value);
     setPagination(prev => ({ ...prev, current: 1 }));
-    fetchOrders(); // Gọi trực tiếp fetchOrders khi search
   };
 
   // Handle date range change
@@ -234,15 +234,15 @@ const OrderManagement = () => {
   // Cập nhật hàm reset filters
   const handleResetFilters = () => {
     setSearchText('');
+    setSearchValue('');
     setDateRange([]);
     setDeliveryStatusFilter(null);
     setPaymentStatusFilter(null);
-    setNewestFirst(true); // Reset về mặc định là mới nhất trước
+    setNewestFirst(true);
     setPagination(prev => ({
       ...prev,
       current: 1
     }));
-    // fetchOrders sẽ được gọi tự động thông qua useEffect
   };
 
   // Thêm hàm xử lý khi thay đổi tháng

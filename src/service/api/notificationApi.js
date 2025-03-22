@@ -2,13 +2,14 @@ import axiosInstance from "../instance";
 
 const NotificationAPI = {
   // Lấy danh sách thông báo với phân trang và tìm kiếm
-  getAllNotifications: async (pageIndex, pageSize, keyword = "") => {
+  getAllNotifications: async (pageIndex, pageSize,filters = {}) => {
     try {
       const response = await axiosInstance.get("/notifications/system", {
         params: {
           "page-index": pageIndex,
           "page-size": pageSize,
-          ...(keyword && { keyword })
+          "searchTerm": filters?.searchText || '',
+          "newest-first": filters?.newestFirst ?? true,
         },
       });
       return response.data;
