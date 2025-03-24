@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Button, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, message, Input, Space } from "antd";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import SympTable from "./SymptomPartComponent/SympTable";
 import SympAdd from "./SymptomPartComponent/SympAdd";
 import SympEdit from "./SymptomPartComponent/SympEdit";
 import partSymptomAPI from "../../../service/api/partSymptom";
+
+const { Search } = Input;
 
 const SymptomPart = () => {
   const [symptoms, setSymptoms] = useState([]);
@@ -33,26 +35,27 @@ const SymptomPart = () => {
     pageSizeOptions: ['10', '20', '50', '100'],
   });
 
+  // Thêm states cho search và sort
+  const [searchText, setSearchText] = useState('');
+  const [newestFirst, setNewestFirst] = useState(true);
+
   // Fetch symptoms data using the API with pagination
   const fetchSymptoms = async (page = pagination.current, pageSize = pagination.pageSize) => {
     setLoading(true);
     try {
-      // API expects the page number directly (not zero-based)
-      const response = await partSymptomAPI.getPartSymptoms(page, pageSize);
+      const response = await partSymptomAPI.getPartSymptoms(page, pageSize, {
+        searchText,
+        newestFirst
+      });
 
       if (response?.data?.data) {
-        // Extract the symptom items and metadata from the response
         const { data, metaData } = response.data;
-
         setSymptoms(data);
-
-        // Update pagination with the metadata from the API
         setPagination({
           ...pagination,
           current: metaData.currentPage,
           pageSize: metaData.pageSize,
           total: metaData.totalCount,
-          // Keep other pagination options like showSizeChanger
         });
       } else {
         message.error("Định dạng dữ liệu không hợp lệ");
@@ -136,6 +139,24 @@ const SymptomPart = () => {
     fetchSymptoms(current, pageSize);
   };
 
+  // Thêm hàm xử lý search
+  const handleSearch = (value) => {
+    setSearchText(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchSymptoms(1, pagination.pageSize);
+  };
+
+  // Thêm hàm reset filters
+  const handleResetFilters = () => {
+    setSearchText('');
+    setNewestFirst(true);
+    setPagination(prev => ({
+      ...prev,
+      current: 1
+    }));
+    fetchSymptoms(1, pagination.pageSize);
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -150,6 +171,27 @@ const SymptomPart = () => {
             Thêm triệu chứng mới
           </Button>
         </div>
+      </div>
+
+      {/* Thêm phần Filter Section */}
+      <div className="bg-white p-4 mb-6 rounded-lg shadow flex items-center space-x-4 flex-wrap">
+        <Search
+          placeholder="Tìm kiếm triệu chứng"
+          allowClear
+          enterButton
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onSearch={handleSearch}
+          style={{ width: 300 }}
+        />
+
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={handleResetFilters}
+          title="Làm mới"
+        >
+          Làm mới
+        </Button>
       </div>
 
       <SympTable

@@ -1,8 +1,8 @@
 import React from "react";
-import { Table, Button, Space, Popconfirm, Image } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Table, Button, Space, Popconfirm, Image, Input } from "antd";
+import { EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 
-const BrandTable = ({ brands, loading, onEdit, onDelete, pagination, onChange }) => {
+const BrandTable = ({ brands, loading, onEdit, onDelete, pagination, onChange, onSearch }) => {
   const columns = [
     {
       title: "ID",
@@ -68,6 +68,15 @@ const BrandTable = ({ brands, loading, onEdit, onDelete, pagination, onChange })
 
   return (
     <div className="p-6">
+      <div className="mb-4">
+        <Input
+          placeholder="Tìm kiếm thương hiệu..."
+          prefix={<SearchOutlined />}
+          onChange={(e) => onSearch(e.target.value)}
+          allowClear
+          className="w-64"
+        />
+      </div>
       <Table
         columns={columns}
         dataSource={brands}

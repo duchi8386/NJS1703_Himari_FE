@@ -20,13 +20,14 @@ const NotificationManagement = () => {
     pageSize: 10,
     total: 0,
   });
-  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchText, setSearchText] = useState('');
+  const [newestFirst, setNewestFirst] = useState(true);
   const [users, setUsers] = useState([]);
   
   // Fetch notifications when component mounts or pagination/search changes
   useEffect(() => {
-    fetchNotifications(pagination.current, pagination.pageSize, searchKeyword);
-  }, [pagination.current, pagination.pageSize, searchKeyword]);
+    fetchNotifications(pagination.current, pagination.pageSize);
+  }, [pagination.current, pagination.pageSize]);
 
   // Fetch users khi component mount
   useEffect(() => {
@@ -34,19 +35,25 @@ const NotificationManagement = () => {
   }, []);
 
   // Function to fetch notifications from API
-  const fetchNotifications = async (page, pageSize, keyword = "") => {
+  const fetchNotifications = async (page = pagination.current, pageSize = pagination.pageSize) => {
     try {
       setLoading(true);
       
-      const response = await NotificationAPI.getAllNotifications(page, pageSize, keyword);
-      // Kiểm tra response và set data
+      const response = await NotificationAPI.getAllNotifications(page, pageSize, {
+        searchText,
+        newestFirst
+      });
+      
       if (response?.statusCode === 200 && response?.data) {
         const { data, metaData } = response.data;
         setNotifications(data || []);
         setPagination({
+          ...pagination,
           current: metaData.currentPage,
           pageSize: metaData.pageSize,
-          total: metaData.totalCount
+          total: metaData.totalCount,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
         });
       } else {
         message.error("Không thể tải danh sách thông báo");
@@ -54,10 +61,11 @@ const NotificationManagement = () => {
         setPagination({
           current: 1,
           pageSize: 10,
-          total: 0
+          total: 0,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
         });
       }
-
     } catch (error) {
       console.error("Lỗi khi tải danh sách thông báo:", error);
       message.error("Không thể tải danh sách thông báo");
@@ -65,7 +73,9 @@ const NotificationManagement = () => {
       setPagination({
         current: 1,
         pageSize: 10,
-        total: 0
+        total: 0,
+        showSizeChanger: true,
+        pageSizeOptions: ['10', '20', '50', '100'],
       });
     } finally {
       setLoading(false);
@@ -113,7 +123,10 @@ const NotificationManagement = () => {
       setSelectedUsers([]);
       
       // Tự động refresh danh sách thông báo
-      await fetchNotifications(1, pagination.pageSize, "");
+      await fetchNotifications(1, pagination.pageSize, {
+        searchText,
+        newestFirst
+      });
       
     } catch (error) {
       console.error("Error sending notification:", error);
@@ -138,7 +151,10 @@ const NotificationManagement = () => {
         setIsSendToAllModalVisible(false);
         
         // Tự động refresh danh sách thông báo
-        await fetchNotifications(1, pagination.pageSize, "");
+        await fetchNotifications(1, pagination.pageSize, {
+          searchText,
+          newestFirst
+        });
       } else {
         message.error(response.message || 'Không thể gửi thông báo');
       }
@@ -152,18 +168,31 @@ const NotificationManagement = () => {
   };
 
   // Handle table pagination change
-  const handleTableChange = (newPagination) => {
+  const handleTableChange = (newPagination, filters, sorter) => {
     setPagination({
       ...pagination,
       current: newPagination.current,
       pageSize: newPagination.pageSize
     });
+    fetchNotifications(newPagination.current, newPagination.pageSize);
   };
 
   // Handle search
   const handleSearch = (value) => {
-    setSearchKeyword(value);
-    fetchNotifications(1, pagination.pageSize, value);
+    setSearchText(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchNotifications(1, pagination.pageSize, {
+      searchText: value,
+      newestFirst
+    });
+  };
+
+  // Thêm hàm handleResetFilters
+  const handleResetFilters = () => {
+    setSearchText('');
+    setNewestFirst(true);
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchNotifications(1, pagination.pageSize);
   };
 
   return (
@@ -197,22 +226,21 @@ const NotificationManagement = () => {
         </div>
       </div>
       
-      <div className="mb-6 flex gap-4">
+      <div className="bg-white p-4 mb-6 rounded-lg shadow flex items-center space-x-4 flex-wrap">
         <Input.Search
           placeholder="Tìm kiếm theo tiêu đề hoặc nội dung"
-          onSearch={handleSearch}
-          enterButton={<SearchOutlined />}
-          style={{ width: 350 }}
           allowClear
-          className="rounded"
+          enterButton
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onSearch={handleSearch}
+          style={{ width: 300 }}
         />
+
         <Button 
-          icon={<ReloadOutlined />}
-          onClick={() => {
-            setSearchKeyword("");
-            fetchNotifications(1, pagination.pageSize, "");
-          }}
-          className="rounded"
+          icon={<ReloadOutlined />} 
+          onClick={handleResetFilters}
+          title="Làm mới"
         >
           Làm mới
         </Button>

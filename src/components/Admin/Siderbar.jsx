@@ -14,6 +14,7 @@ import {
   ShopOutlined,
   GiftOutlined,
   BellOutlined,
+  HeartOutlined,
 } from "@ant-design/icons";
 import { FaHandDots, FaPerson, FaBoxArchive } from "react-icons/fa6";
 import Logo from "../../assets/img/Logo.png";
@@ -66,27 +67,28 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     {
       key: "blog",
       icon: <ReadOutlined />,
-      label: "Blog",
+      label: "Bài viết",
       children: [
         {
           key: "/admin/blogs",
           icon: <FileTextOutlined />,
-          label: <Link to="/admin/blogs">Quản lý Blogs</Link>,
+          label: <Link to="/admin/blogs">Quản lý bài viết</Link>,
         },
         {
           key: "/admin/blogs-category",
           icon: <FolderOutlined />,
-          label: <Link to="/admin/blogs-category">Quản lý danh mục Blogs</Link>,
+          label: <Link to="/admin/blogs-category">Quản lý danh mục bài viết</Link>,
         },
       ],
     },
     {
       key: "/admin/brands",
       icon: <ShopOutlined />,
-      label: <Link to="/admin/brands">Quản lý Brands</Link>,
+      label: <Link to="/admin/brands">Quản lý thương hiệu </Link>,
     },
     {
       key: "symptoms",
+      icon:<HeartOutlined />,
       label: "Triệu chứng",
       children: [
         {
@@ -108,7 +110,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     },
     {
       key: "/admin/notification",
-      icon: <BellOutlined/>,
+      icon: <BellOutlined />,
       label: <Link to="/admin/notification">Quản lý thống báo</Link>,
     },
     {
@@ -137,17 +139,15 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     >
       <div className="p-4">
         <div
-          className={`transition-all duration-300 ease-in-out ${
-            collapsed ? "w-12 h-12" : "w-full"
-          }`}
+          className={`transition-all duration-300 ease-in-out ${collapsed ? "w-12 h-12" : "w-full"
+            }`}
         >
           <div className="flex items-center gap-3">
             <img
               src={Logo}
               alt="Logo"
-              className={`object-contain ${
-                collapsed ? "w-12 h-12" : "h-12 w-12"
-              }`}
+              className={`object-contain ${collapsed ? "w-12 h-12" : "h-12 w-12"
+                }`}
             />
             {!collapsed && (
               <div className="flex font-bold items-center">

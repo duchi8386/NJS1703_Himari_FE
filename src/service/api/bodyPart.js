@@ -51,5 +51,20 @@ const BodyPartAPI = {
       throw error;
     }
   },
+  searchBodyPart: async (searchQuery, pageIndex, pageSize) => {
+    try {
+      const response = await axiosInstance.get("/body-parts", {
+        params: {
+          searchTerm: searchQuery,
+          "page-index": pageIndex,
+          "page-size": pageSize,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error searching body part:", error);
+      throw error;
+    }
+  },
 };
 export default BodyPartAPI;

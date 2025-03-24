@@ -1,13 +1,18 @@
 import React from 'react';
-import { Table, Button, Tag, Space, Popconfirm, Image } from 'antd';
-import { EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { Table, Button, Tag, Space, Popconfirm, Image, Input } from 'antd';
+import { EditOutlined, DeleteOutlined, EyeOutlined, SearchOutlined } from '@ant-design/icons';
 
-const BlogTable = ({ 
-  blogs, 
+const { Search } = Input;
+
+const BlogTable = ({
+  blogs,
   loading,
-  onEdit, 
+  onEdit,
   onDelete,
-  onView
+  onView,
+  onSearch,
+  searchQuery,
+  pagination
 }) => {
   const columns = [
     {
@@ -15,10 +20,10 @@ const BlogTable = ({
       dataIndex: 'image',
       key: 'image',
       render: (image) => (
-        <Image 
-          src={image} 
-          width={60} 
-          height={40} 
+        <Image
+          src={image}
+          width={60}
+          height={40}
           style={{ objectFit: 'cover' }}
           preview={false}
         />
@@ -47,14 +52,14 @@ const BlogTable = ({
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button 
-            type="default" 
-            icon={<EyeOutlined />} 
+          <Button
+            type="default"
+            icon={<EyeOutlined />}
             onClick={() => onView(record)}
           />
-          <Button 
-            type="primary" 
-            icon={<EditOutlined />} 
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
             onClick={() => onEdit(record)}
           />
           <Popconfirm
@@ -63,8 +68,8 @@ const BlogTable = ({
             okText="Yes"
             cancelText="No"
           >
-            <Button 
-              danger 
+            <Button
+              danger
               icon={<DeleteOutlined />}
             />
           </Popconfirm>
@@ -77,16 +82,32 @@ const BlogTable = ({
 
   return (
     <div className="p-6">
-      <Table 
+      <div className="mb-4">
+        <Search
+          placeholder="Tìm kiếm blog..."
+          allowClear
+          enterButton={<SearchOutlined />}
+          size="large"
+          onSearch={onSearch}
+          defaultValue={searchQuery}
+          loading={loading}
+          className="max-w-md"
+        />
+      </div>
+      <Table
         columns={columns}
         dataSource={blogs}
         rowKey="id"
         loading={loading}
         className="bg-white rounded-lg shadow"
         pagination={{
-          pageSize: 10,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
+          onChange: pagination.onChange,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} blogs`
+          pageSizeOptions: ['5', '10', '20', '50'],
+          showTotal: (total) => `Tổng ${total} bài viết`
         }}
       />
     </div>

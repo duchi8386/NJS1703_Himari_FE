@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Button, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, message, Input, Space } from "antd";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import CategoryTable from "./CategoryComponent/CategoryTable";
 import CategoryAdd from "./CategoryComponent/CategoryAdd";
 import CategoryEdit from "./CategoryComponent/CategoryEdit";
 import CategoryAPI from "../../service/api/CategoryAPI";
+
+const { Search } = Input;
 
 const CategoryPage = () => {
   const [categories, setCategories] = useState([]);
@@ -23,6 +25,10 @@ const CategoryPage = () => {
     total: 0,
   });
 
+  // Thêm states mới
+  const [searchText, setSearchText] = useState('');
+  const [newestFirst, setNewestFirst] = useState(true);
+
   // Fetch all categories when component mounts or pagination changes
   useEffect(() => {
     fetchCategories(pagination.current, pagination.pageSize);
@@ -32,13 +38,13 @@ const CategoryPage = () => {
   const fetchCategories = async (page, pageSize) => {
     try {
       setLoading(true);
-      const response = await CategoryAPI.getAllCategory(page, pageSize);
-      // console.log(response)
+      const response = await CategoryAPI.getAllCategory(page, pageSize, {
+        searchText,
+        newestFirst
+      });
+      
       if (response.data && response.data.data) {
-        // Correctly access the categories array
         setCategories(response.data.data.data || []);
-
-        // Correctly set pagination values from metaData
         setPagination({
           current: response.data.data.metaData?.currentPage || 1,
           pageSize: response.data.data.metaData?.pageSize || 10,
@@ -51,6 +57,21 @@ const CategoryPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Thêm hàm xử lý search
+  const handleSearch = (value) => {
+    setSearchText(value);
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchCategories(1, pagination.pageSize);
+  };
+
+  // Thêm hàm reset filters
+  const handleResetFilters = () => {
+    setSearchText('');
+    setNewestFirst(true);
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchCategories(1, pagination.pageSize);
   };
 
   // Function to show edit modal
@@ -144,6 +165,27 @@ const CategoryPage = () => {
             Thêm danh mục mới
           </Button>
         </div>
+      </div>
+
+      {/* Thêm phần Filter Section */}
+      <div className="bg-white p-4 mb-6 rounded-lg shadow flex items-center space-x-4 flex-wrap">
+        <Search
+          placeholder="Tìm kiếm theo tên danh mục"
+          allowClear
+          enterButton
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onSearch={handleSearch}
+          style={{ width: 300 }}
+        />
+
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={handleResetFilters}
+          title="Làm mới"
+        >
+          Làm mới
+        </Button>
       </div>
 
       <CategoryTable

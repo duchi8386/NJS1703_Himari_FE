@@ -9,6 +9,7 @@ import BrandAPI from "../../service/api/brandAPI";
 const BrandPage = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -24,17 +25,23 @@ const BrandPage = () => {
     hasPrevious: false
   });
 
-  // Fetch brands when component mounts or pagination changes
+  // Fetch brands when component mounts, pagination, or search term changes
   useEffect(() => {
     fetchBrands();
-  }, [pagination.current, pagination.pageSize]);
+  }, [pagination.current, pagination.pageSize, searchTerm]);
 
   const fetchBrands = async () => {
     try {
       setLoading(true);
-      const response = await BrandAPI.getBrands(pagination.current, pagination.pageSize);
+      let response;
 
-      if (response.statusCode === 200) {
+      if (searchTerm) {
+        response = await BrandAPI.searchBrand(searchTerm, pagination.current, pagination.pageSize);
+      } else {
+        response = await BrandAPI.getBrands(pagination.current, pagination.pageSize);
+      }
+
+      if (response && response.statusCode === 200) {
         setBrands(response.data.data);
 
         // Update pagination with metadata from API
@@ -55,6 +62,15 @@ const BrandPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function for handling search
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setPagination(prev => ({
+      ...prev,
+      current: 1 // Reset to first page when searching
+    }));
   };
 
   // Function to show edit modal
@@ -112,6 +128,7 @@ const BrandPage = () => {
         onDelete={handleDeleteBrand}
         pagination={pagination}
         onChange={handleTableChange}
+        onSearch={handleSearch}
       />
 
       <BrandAdd

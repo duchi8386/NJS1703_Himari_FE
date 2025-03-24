@@ -6,11 +6,12 @@ import {
   CheckCircleOutlined, 
   SyncOutlined,
   CloseCircleOutlined,
-  DollarCircleOutlined,
-  StopOutlined
+  ClockCircleOutlined,
+  LoadingOutlined
 } from "@ant-design/icons";
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
+import { DeliveryStatus, PaymentStatus } from "../../../utils/orderEnums";
 
 // Thiết lập locale cho dayjs
 dayjs.locale('vi');
@@ -36,28 +37,80 @@ const OrderTable = ({
 
   // Function to render status tag with appropriate color
   const renderStatusTag = (status) => {
-    const statusConfig = {
-      "Processing": { color: "processing", icon: <SyncOutlined spin />, text: "Đang xử lý" },
-      "Completed": { color: "success", icon: <CheckCircleOutlined />, text: "Hoàn thành" },
-      "Canceled": { color: "error", icon: <CloseCircleOutlined />, text: "Đã hủy" }
+    const statusName = DeliveryStatus.getStatusName(status);
+    const statusColor = DeliveryStatus.getStatusColor(status);
+    
+    const getStatusIcon = (status) => {
+      switch (status) {
+        case DeliveryStatus.NOT_STARTED:
+          return <ClockCircleOutlined />;
+        case DeliveryStatus.PREPARING:
+          return <SyncOutlined spin />;
+        case DeliveryStatus.DELIVERING:
+          return <LoadingOutlined />;
+        case DeliveryStatus.DELIVERED:
+          return <CheckCircleOutlined />;
+        case DeliveryStatus.CANCELLED:
+          return <CloseCircleOutlined />;
+        default:
+          return null;
+      }
     };
 
-    const config = statusConfig[status] || { color: "default", icon: null, text: status };
-
     return (
-      <Tag color={config.color} icon={config.icon}>
-        {config.text}
+      <Tag 
+        color={statusColor} 
+        icon={getStatusIcon(status)}
+        style={{ 
+          padding: '4px 12px',
+          borderRadius: '4px',
+          fontSize: '13px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          width: 'fit-content'
+        }}
+      >
+        {statusName}
       </Tag>
     );
   };
 
   // Function to render payment status tag
-  const renderPaymentTag = (isPaid) => {
-    if (isPaid) {
-      return <Tag color="green" icon={<DollarCircleOutlined />}>Đã thanh toán</Tag>;
-    } else {
-      return <Tag color="volcano" icon={<StopOutlined />}>Chưa thanh toán</Tag>;
-    }
+  const renderPaymentTag = (status) => {
+    const statusName = PaymentStatus.getStatusName(status);
+    const statusColor = PaymentStatus.getStatusColor(status);
+    
+    const getPaymentIcon = (status) => {
+      switch (status) {
+        case PaymentStatus.PENDING:
+          return <ClockCircleOutlined />;
+        case PaymentStatus.SUCCESS:
+          return <CheckCircleOutlined />;
+        case PaymentStatus.FAILED:
+          return <CloseCircleOutlined />;
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <Tag 
+        color={statusColor} 
+        icon={getPaymentIcon(status)}
+        style={{ 
+          padding: '4px 12px',
+          borderRadius: '4px',
+          fontSize: '13px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          width: 'fit-content'
+        }}
+      >
+        {statusName}
+      </Tag>
+    );
   };
 
   // Function to format price as VND
@@ -80,56 +133,36 @@ const OrderTable = ({
     },
     {
       title: "Khách hàng",
-      dataIndex: "customerName",
-      key: "customerName",
-      sorter: (a, b) => a.customerName.localeCompare(b.customerName),
+      dataIndex: "fullName",
+      key: "fullName",
       width: 200,
     },
     {
-      title: "SĐT",
-      dataIndex: "phone",
-      key: "phone",
-      width: 120,
-    },
-    {
       title: "Ngày đặt",
-      dataIndex: "orderDate",
-      key: "orderDate",
+      dataIndex: "createdDate",
+      key: "createdDate",
       render: (date) => formatDate(date),
-      sorter: (a, b) => new Date(a.orderDate) - new Date(b.orderDate),
       width: 150,
     },
     {
       title: "Tổng tiền",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
+      dataIndex: "orderPrice",
+      key: "orderPrice",
       render: (amount) => formatPrice(amount),
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
       width: 150,
     },
     {
       title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "deliveryStatus",
+      key: "deliveryStatus",
       render: (status) => renderStatusTag(status),
-      filters: [
-        { text: "Đang xử lý", value: "Processing" },
-        { text: "Hoàn thành", value: "Completed" },
-        { text: "Đã hủy", value: "Canceled" },
-      ],
-      onFilter: (value, record) => record.status === value,
       width: 150,
     },
     {
       title: "Thanh toán",
-      dataIndex: "isPaid",
-      key: "isPaid",
-      render: (isPaid) => renderPaymentTag(isPaid),
-      filters: [
-        { text: "Đã thanh toán", value: true },
-        { text: "Chưa thanh toán", value: false },
-      ],
-      onFilter: (value, record) => record.isPaid === value,
+      dataIndex: "paymentStatus",
+      key: "paymentStatus",
+      render: (status) => renderPaymentTag(status),
       width: 150,
     },
     {

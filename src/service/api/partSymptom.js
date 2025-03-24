@@ -1,12 +1,14 @@
 import axiosInstance from "../instance";
 
 const partSymptomAPI = {
-  getPartSymptoms: async (pageIndex, pageSize) => {
+  getPartSymptoms: async (pageIndex, pageSize, filters = {}) => {
     try {
       const response = await axiosInstance.get("/part-symptoms", {
         params: {
           "page-index": pageIndex,
           "page-size": pageSize,
+          "searchTerm": filters?.searchText || '',
+          "newest-first": filters?.newestFirst ?? true,
         },
       });
       return response.data;
