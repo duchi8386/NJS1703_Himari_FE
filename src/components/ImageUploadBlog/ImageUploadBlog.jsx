@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Button, message, Space, Image, Row, Col, Card, Typography } from 'antd';
-import { UploadOutlined, EyeOutlined, SwapOutlined } from '@ant-design/icons';
+import { Upload, Button, message, Space, Image, Typography } from 'antd';
+import { UploadOutlined, EyeOutlined } from '@ant-design/icons';
 import ImageCropper from '../ImageCropper/ImageCropper';
 import '../ImageUpload/ImageUpload.scss';
 import './ImageUploadBlog.scss';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const ImageUploadBlog = ({ onChange, value, maxFileSize = 2, acceptedFileTypes = ['image/jpeg', 'image/png'] }) => {
-    // Initialize state with proper URL checking
+    // Initialize state
     const [fileList, setFileList] = useState([]);
     const [previewImage, setPreviewImage] = useState('');
     const [showCropper, setShowCropper] = useState(false);
     const [previewVisible, setPreviewVisible] = useState(false);
-    const [originalImage, setOriginalImage] = useState('');
-    const [showComparison, setShowComparison] = useState(false);
+    const [newImageSelected, setNewImageSelected] = useState(false);
 
-    // Properly handle the value prop changes
+    // Handle value prop changes
     useEffect(() => {
-        console.log("Value changed in ImageUploadBlog:", value);
-        // Only set fileList if value is a string (valid URL)
         if (typeof value === 'string' && value) {
             setFileList([{
                 uid: '-1',
@@ -27,12 +24,10 @@ const ImageUploadBlog = ({ onChange, value, maxFileSize = 2, acceptedFileTypes =
                 status: 'done',
                 url: value
             }]);
-            setOriginalImage(value);
         } else if (!value) {
-            // Reset fileList if value is falsy
             setFileList([]);
-            setOriginalImage('');
         }
+        setNewImageSelected(false);
     }, [value]);
 
     const handleBeforeUpload = (file) => {
@@ -82,11 +77,7 @@ const ImageUploadBlog = ({ onChange, value, maxFileSize = 2, acceptedFileTypes =
 
         setFileList(newFileList);
         setShowCropper(false);
-
-        // If there was an original image, show the comparison
-        if (originalImage) {
-            setShowComparison(true);
-        }
+        setNewImageSelected(true);
 
         // Call onChange prop to pass the cropped file back to the parent component
         if (onChange) {
@@ -95,7 +86,10 @@ const ImageUploadBlog = ({ onChange, value, maxFileSize = 2, acceptedFileTypes =
     };
 
     const handlePreview = () => {
-        setPreviewVisible(true);
+        if (fileList.length > 0) {
+            setPreviewImage(fileList[0].url);
+            setPreviewVisible(true);
+        }
     };
 
     const handleCancel = () => {
@@ -103,16 +97,12 @@ const ImageUploadBlog = ({ onChange, value, maxFileSize = 2, acceptedFileTypes =
         setPreviewImage('');
     };
 
-    const toggleComparison = () => {
-        setShowComparison(!showComparison);
-    };
-
     const uploadProps = {
         fileList,
         beforeUpload: handleBeforeUpload,
         onRemove: () => {
             setFileList([]);
-            setShowComparison(false);
+            setNewImageSelected(false);
             if (onChange) {
                 onChange(null);
             }
@@ -122,171 +112,87 @@ const ImageUploadBlog = ({ onChange, value, maxFileSize = 2, acceptedFileTypes =
                 onSuccess("ok");
             }, 0);
         },
-        showUploadList: fileList.length > 0 && !showComparison ? {
-            showPreviewIcon: false,
-            showRemoveIcon: true,
-        } : false,
+        showUploadList: false, // Hide the default upload list
+    };
+
+    const handleUploadButtonClick = () => {
+        // Trigger hidden upload input
+        const uploadInput = document.querySelector('.image-upload-blog-container .ant-upload input');
+        if (uploadInput) {
+            uploadInput.click();
+        }
     };
 
     return (
         <div className="image-upload-blog-container">
             <Space direction="vertical" style={{ width: '100%' }}>
-                {!showComparison && (
+                {/* Simple upload button when no image */}
+                {fileList.length < 1 && (
                     <Upload
                         {...uploadProps}
                         listType="picture"
                     >
-                        {fileList.length < 1 && (
-                            <Button icon={<UploadOutlined />}>Chọn ảnh blog</Button>
-                        )}
+                        <Button icon={<UploadOutlined />}>
+                            Chọn ảnh blog
+                        </Button>
                     </Upload>
                 )}
 
-                {showComparison && (
-                    <div className="image-comparison">
-                        <div className="comparison-header">
-                            <Title level={5}>So sánh hình ảnh</Title>
-                            <Space>
-                                <Button
-                                    icon={<SwapOutlined />}
-                                    onClick={toggleComparison}
-                                >
-                                    Ẩn so sánh
-                                </Button>
-                            </Space>
-                        </div>
-
-                        <Row gutter={16} className="comparison-row">
-                            <Col span={12}>
-                                <Card
-                                    title="Ảnh hiện tại"
-                                    className="comparison-card original"
-                                    extra={
-                                        <Button
-                                            size="small"
-                                            type="text"
-                                            icon={<EyeOutlined />}
-                                            onClick={() => {
-                                                setPreviewImage(originalImage);
-                                                setPreviewVisible(true);
-                                            }}
-                                        />
-                                    }
-                                >
-                                    <div className="image-wrapper">
-                                        <img src={originalImage} alt="Original" />
-                                    </div>
-                                </Card>
-                            </Col>
-                            <Col span={12}>
-                                <Card
-                                    title="Ảnh mới (chưa lưu)"
-                                    className="comparison-card new"
-                                    extra={
-                                        <Button
-                                            size="small"
-                                            type="text"
-                                            icon={<EyeOutlined />}
-                                            onClick={() => {
-                                                setPreviewImage(fileList[0].url);
-                                                setPreviewVisible(true);
-                                            }}
-                                        />
-                                    }
-                                >
-                                    <div className="image-wrapper">
-                                        <img src={fileList[0].url} alt="New" />
-                                    </div>
-                                </Card>
-                            </Col>
-                        </Row>
-
-                        <div className="comparison-actions">
-                            <Button
-                                type="primary"
-                                onClick={() => {
-                                    setShowComparison(false);
-                                }}
-                            >
-                                Giữ ảnh mới
-                            </Button>
-                            <Button
-                                danger
-                                onClick={() => {
-                                    // Reset to original image
-                                    setFileList([{
-                                        uid: '-1',
-                                        name: 'current-blog-image.jpg',
-                                        status: 'done',
-                                        url: originalImage
-                                    }]);
-                                    setShowComparison(false);
-                                    if (onChange) {
-                                        onChange(null); // Signal no change to parent
-                                    }
-                                }}
-                            >
-                                Giữ ảnh cũ
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
-                {!showComparison && fileList.length > 0 && (
+                {/* Preview container when there's an image */}
+                {fileList.length > 0 && (
                     <div className="image-preview-container">
                         <div className="image-preview-wrapper">
                             <img
                                 src={fileList[0].url}
                                 alt="Preview"
                                 className="preview-image"
+                                style={{ maxHeight: '200px', objectFit: 'contain' }}
                             />
                             <div className="image-preview-overlay">
                                 <Space>
-                                    {/* <Button
+                                    <Button
                                         type="primary"
                                         icon={<EyeOutlined />}
                                         onClick={handlePreview}
                                     >
                                         Xem ảnh
-                                    </Button> */}
-
-                                    {originalImage && fileList[0].originFileObj && (
-                                        <Button
-                                            icon={<SwapOutlined />}
-                                            onClick={toggleComparison}
-                                        >
-                                            So sánh
-                                        </Button>
-                                    )}
+                                    </Button>
                                 </Space>
                             </div>
                         </div>
                         <div className="preview-caption">
-                            {fileList[0].originFileObj ? 'Ảnh đã chỉnh sửa (chưa lưu)' : 'Ảnh hiện tại'}
+                            {newImageSelected ? 'Ảnh đã chọn (chưa lưu)' : 'Ảnh hiện tại'}
+                        </div>
+
+                        {/* Controls for replacing or removing the image */}
+                        <div className="image-actions" style={{ marginTop: '10px' }}>
+                            <Space>
+                                <Button
+                                    icon={<UploadOutlined />}
+                                    onClick={handleUploadButtonClick}
+                                >
+                                    Chọn ảnh khác
+                                </Button>
+                                <Upload {...uploadProps}>
+                                    <Button
+                                        danger
+                                        onClick={() => {
+                                            setFileList([]);
+                                            setNewImageSelected(false);
+                                            if (onChange) {
+                                                onChange(null);
+                                            }
+                                        }}
+                                    >
+                                        Xóa ảnh
+                                    </Button>
+                                </Upload>
+                            </Space>
                         </div>
                     </div>
                 )}
 
-                {/* Always render upload button for blog image regardless of fileList */}
-                {!showComparison && (
-                    <div className={fileList.length > 0 ? 'additional-upload-button' : ''}>
-                        {fileList.length > 0 && (
-                            <Button
-                                icon={<UploadOutlined />}
-                                onClick={() => {
-                                    // Trigger hidden upload input
-                                    const uploadInput = document.querySelector('.image-upload-blog-container .ant-upload input');
-                                    if (uploadInput) {
-                                        uploadInput.click();
-                                    }
-                                }}
-                            >
-                                Chọn ảnh khác
-                            </Button>
-                        )}
-                    </div>
-                )}
-
+                {/* Hidden image preview component */}
                 <Image
                     width={200}
                     style={{ display: 'none' }}
@@ -294,13 +200,12 @@ const ImageUploadBlog = ({ onChange, value, maxFileSize = 2, acceptedFileTypes =
                     preview={{
                         visible: previewVisible,
                         onVisibleChange: (visible) => setPreviewVisible(visible),
-                        title: previewImage === originalImage ? 'Ảnh hiện tại' :
-                            (fileList.length > 0 && fileList[0].originFileObj ?
-                                'Ảnh đã chỉnh sửa (chưa lưu)' : 'Ảnh hiện tại'),
+                        title: newImageSelected ? 'Ảnh đã chọn (chưa lưu)' : 'Ảnh hiện tại',
                     }}
                 />
             </Space>
 
+            {/* Image cropper modal */}
             <ImageCropper
                 visible={showCropper}
                 imageUrl={previewImage}

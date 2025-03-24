@@ -1,61 +1,102 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Form, Input, Select, Button, message } from 'antd';
-import { useQuill } from 'react-quilljs';
-import 'quill/dist/quill.snow.css';
 import BlogAPI from '../../../../service/api/blogAPI';
 import ImageUploadBlog from '../../../../components/ImageUploadBlog/ImageUploadBlog';
+import 'quill/dist/quill.snow.css';
 
 const { Option } = Select;
+
+// Create a separate QuillEditor component to handle the dynamic import
+const QuillEditor = ({ onChange }) => {
+  const [quillLoaded, setQuillLoaded] = useState(false);
+  const [quill, setQuill] = useState(null);
+  const [quillRef, setQuillRef] = useState(null);
+
+  // Create a ref to hold the div element
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadQuill = async () => {
+      try {
+        // Dynamically import Quill
+        const ReactQuill = await import('quill');
+
+        if (!mounted) return;
+
+        // Initialize Quill directly
+        const quillInstance = new ReactQuill.default(containerRef.current, {
+          theme: 'snow',
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ color: [] }, { background: [] }],
+              [{ list: 'ordered' }, { list: 'bullet' }],
+              [{ align: [] }],
+              ['link', 'image'],
+              ['clean']
+            ],
+          },
+        });
+
+        setQuill(quillInstance);
+        setQuillLoaded(true);
+
+        // Set up the text-change handler
+        quillInstance.on('text-change', () => {
+          if (onChange) {
+            onChange(quillInstance.root.innerHTML);
+          }
+        });
+      } catch (error) {
+        console.error("Failed to load Quill editor:", error);
+      }
+    };
+
+    if (typeof window !== 'undefined' && !quillLoaded && containerRef.current) {
+      loadQuill();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [quillLoaded, onChange]);
+
+  return (
+    <div style={{ height: 300 }}>
+      <div ref={containerRef} style={{ height: 250 }} />
+    </div>
+  );
+};
 
 const BlogAdd = ({
   isOpen,
   onClose,
-  onSuccess, // Changed from onAddBlog to onSuccess callback
+  onSuccess,
   categories = []
 }) => {
   const [form] = Form.useForm();
   const [blogContent, setBlogContent] = useState('');
   const [uploading, setUploading] = useState(false);
   const [blogImage, setBlogImage] = useState(null);
-
-  // React Quill setup
-  const { quill, quillRef } = useQuill({
-    theme: 'snow',
-    modules: {
-      toolbar: [
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ color: [] }, { background: [] }],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        [{ align: [] }],
-        ['link', 'image'],
-        ['clean']
-      ],
-    },
-  });
-
-  // Track content changes when quill is ready
-  useMemo(() => {
-    if (quill) {
-      quill.on('text-change', () => {
-        setBlogContent(quill.root.innerHTML);
-      });
-    }
-  }, [quill]);
+  const [quillInstance, setQuillInstance] = useState(null);
 
   // Reset form when modal closes
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpen) {
       form.resetFields();
       setBlogContent('');
       setBlogImage(null);
-      if (quill) {
-        quill.setText('');
-      }
     }
-  }, [isOpen, form, quill]);
+  }, [isOpen, form]);
 
   const handleImageChange = (file) => {
     setBlogImage(file);
+  };
+
+  const handleContentChange = (content) => {
+    setBlogContent(content);
   };
 
   const handleAdd = async () => {
@@ -123,12 +164,9 @@ const BlogAdd = ({
 
   const handleCancel = () => {
     form.resetFields();
-    if (quill) {
-      quill.setText('');
-    }
     setBlogContent('');
     setBlogImage(null);
-    setUploading(false); // Also ensure uploading is reset when canceling
+    setUploading(false);
     onClose();
   };
 
@@ -174,9 +212,12 @@ const BlogAdd = ({
           label="Content"
           rules={[{ required: true, message: 'Please enter blog content' }]}
         >
-          <div style={{ height: 300 }}>
-            <div ref={quillRef} style={{ height: 250 }} />
-          </div>
+          {typeof window !== 'undefined' && (
+            <QuillEditor onChange={handleContentChange} />
+          )}
+          {typeof window === 'undefined' && (
+            <div>Editor loading...</div>
+          )}
         </Form.Item>
 
         <Form.Item
