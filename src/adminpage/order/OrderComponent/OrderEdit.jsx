@@ -156,6 +156,7 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
             form.setFieldsValue({
               paymentStatus: paymentStatus,
               address: response.data.address || '',
+              phoneNumber: response.data.phoneNumber || '',
             });
           }
         })
@@ -188,22 +189,20 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
       .then(values => {
         setLoading(true);
         
-        // Chỉ cập nhật địa chỉ và trạng thái đơn hàng
         const updateData = {
           address: values.address,
           deliveryStatus: sliderValueToStatus(orderStatus),
+          phoneNumber: values.phoneNumber,
         };
         
-        // Gọi API cập nhật đơn hàng
         OrderAPI.updateOrder(order.id, updateData)
           .then(response => {
             const fullUpdatedOrder = {
-              ...orderDetail, // Dữ liệu chi tiết từ API
-              ...updateData,   // Dữ liệu đã cập nhật
-              id: order.id,    // Đảm bảo ID vẫn giữ nguyên
+              ...orderDetail,
+              ...updateData,
+              id: order.id,
             };
             
-            // Gọi callback thành công với đơn hàng đã cập nhật
             onSuccess(fullUpdatedOrder);
           })
           .catch(error => {
@@ -329,16 +328,29 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
             <Col span={12}>
               <div className="mb-4">
                 <UserOutlined style={{ marginRight: 8 , fontSize: '16px'}} />
-                <Text  className="font-bold">Tên khách hàng:</Text>
+                <Text className="font-bold">Tên khách hàng:</Text>
                 <div><Text strong>{orderDetail?.fullName || order?.fullName}</Text></div>
               </div>
             </Col>
             <Col span={12}>
-              <div className="mb-4">
-                <PhoneOutlined style={{ marginRight: 8 , fontSize: '16px'}} />
-                <Text className="font-bold" >Số điện thoại:</Text>
-                <div><Text strong>{orderDetail?.phoneNumber || order?.phoneNumber}</Text></div>
-              </div>
+              <Form.Item
+                name="phoneNumber"
+                label={
+                  <span>
+                    <PhoneOutlined style={{ marginRight: 8, fontSize: '16px' }} />
+                    Số điện thoại
+                  </span>
+                }
+                rules={[
+                  { required: true, message: "Vui lòng nhập số điện thoại" },
+                  { 
+                    pattern: /^[0-9]{10}$/, 
+                    message: "Số điện thoại phải có 10 chữ số" 
+                  }
+                ]}
+              >
+                <Input />
+              </Form.Item>
             </Col>
           </Row>
         </Card>
@@ -422,7 +434,7 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
         <div style={{ padding: '12px', backgroundColor: '#fffbe6', borderRadius: '4px', marginTop: '16px' }}>
           <Text type="warning" style={{ display: 'block', marginBottom: '4px' }}>
             <ExclamationCircleOutlined style={{ marginRight: '8px' }} />
-            Lưu ý: Bạn chỉ có thể thay đổi địa chỉ giao hàng và trạng thái đơn hàng.
+            Lưu ý: Bạn chỉ có thể thay đổi địa chỉ giao hàng, số điện thoại và trạng thái đơn hàng.
           </Text>
         </div>
       </Form>

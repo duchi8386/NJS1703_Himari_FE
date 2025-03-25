@@ -47,7 +47,9 @@ const OrderAPI = {
             const response = await axiosInstance.put("/orders", {
                 "orderId": orderId,
                 "address": updateData.address,
-                "deliveryStatus": updateData.deliveryStatus
+                "deliveryStatus": updateData.deliveryStatus,
+                "phoneNumber": updateData.phoneNumber,
+
             });
             return response.data;
         } catch (error) {
