@@ -14,26 +14,43 @@ import SymptomPart from "../adminpage/symptoms/SymptomPart/SymptomPart";
 import ProductSymptoms from "../adminpage/symptoms/ProductSymptoms/ProductSymptoms";
 import BodyPart from "../adminpage/symptoms/BodyPart/BodyPart";
 import NotificationManagement from "../adminpage/notification/NotificationManagement";
+import { Spin } from "antd";
 
 // Component bảo vệ route admin
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-  const accessToken = localStorage.getItem("accessToken");
-  const userRole = localStorage.getItem("userRole");
+  const { user, loading } = useAuth();
 
-  // Kiểm tra cả token và role
-  if (!user || !accessToken || (userRole !== "3" && userRole !== "4")) {
+  if (loading) {
+    return (
+      <Spin
+        size="large"
+        className="flex justify-center items-center min-h-screen"
+      />
+    );
+  }
+
+  // Check if user exists and has valid role
+  if (!user || !user.role || (user.role !== "3" && user.role !== "4")) {
     return <Navigate to="/admin/login" replace />;
   }
+
   return children;
 };
 
 // Kiểm tra quyền ADMIN
 const AdminOnlyRoute = ({ children }) => {
-  const userRole = localStorage.getItem("userRole");
+  const { user, loading } = useAuth();
 
-  if (userRole !== "3") {
-    // Redirect STAFF to orders page
+  if (loading) {
+    return (
+      <Spin
+        size="large"
+        className="flex justify-center items-center min-h-screen"
+      />
+    );
+  }
+  // Check authentication and role
+  if (!user || user.role !== "3") {
     return <Navigate to="/admin/orders" replace />;
   }
   return children;

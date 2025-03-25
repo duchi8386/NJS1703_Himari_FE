@@ -1,37 +1,47 @@
-import axios from "axios";
+import { useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
+import { googleLogin } from "../authService";
+import { useAuth } from "../../context/AuthContext";
 
-const API_URL = "https://wizlab.io.vn:9999/api/v1/auth/login/google/oauth";
+export const useGoogleAuth = () => {
+  const { login } = useAuth();
 
-export const handleGoogleAuth = async (idToken) => {
-  try {
-    console.log("✅ ID Token:", idToken);
+  const handleGoogleAuth = useCallback(
+    async (idToken) => {
+      try {
+        console.log("✅ Processing Google Auth with ID Token");
 
-    const response = await axios.post(API_URL, idToken, {
-      headers: { "Content-Type": "application/json" },
-    });
+        const response = await googleLogin(idToken);
+        const { accessToken, refreshToken } = response.data.data;
+        const decodedToken = jwtDecode(accessToken);
 
-    const { accessToken, refreshToken } = response.data.data;
-    const decodedToken = jwtDecode(accessToken);
+        const role =
+          decodedToken[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ];
+        const userId = Number(decodedToken.UserId);
 
-    const role =
-      decodedToken[
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-      ];
-    const userId = Number(decodedToken.UserId);
+        console.log("✅ Auth Details:", { role, userId });
 
-    console.log("✅ Auth Details:", { role, userId });
+        // Let AuthContext handle the login
+        if (role === "3" || role === "4") {
+          await login(accessToken, refreshToken, userId, role);
+        }
 
-    // Return necessary data
-    return {
-      accessToken,
-      refreshToken,
-      role,
-      userId,
-      isAuthorized: role === "3" || role === "4",
-    };
-  } catch (error) {
-    console.error("❌ Google auth failed:", error);
-    throw error;
-  }
+        return {
+          accessToken,
+          refreshToken,
+          role,
+          userId,
+          isAuthorized: role === "3" || role === "4",
+        };
+      } catch (error) {
+        console.error("❌ Google auth failed:", error);
+        throw error;
+      }
+    },
+    [login]
+  );
+
+  return handleGoogleAuth;
 };
