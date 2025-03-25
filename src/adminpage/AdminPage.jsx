@@ -16,7 +16,7 @@ const AdminPage = () => {
     const accessToken = localStorage.getItem("accessToken");
     const userRole = localStorage.getItem("userRole");
 
-    if (!accessToken || (userRole !== "ADMIN" && userRole !== "STAFF")) {
+    if (!accessToken || (userRole !== "3" && userRole !== "4")) {
       navigate("/admin/login");
     }
   }, [navigate]);

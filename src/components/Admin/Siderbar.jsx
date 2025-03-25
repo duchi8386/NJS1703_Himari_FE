@@ -18,12 +18,14 @@ import {
 } from "@ant-design/icons";
 import { FaHandDots, FaPerson, FaBoxArchive } from "react-icons/fa6";
 import Logo from "../../assets/img/Logo.png";
+import { useEffect, useState } from "react";
 
 const { Sider } = Layout;
 
 const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
 
   const onLogout = () => {
     // Call the handleLogout function passed from parent
@@ -38,17 +40,8 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     navigate("/admin/login");
   };
 
-  const menuItems = [
-    {
-      key: "/admin",
-      icon: <DashboardOutlined />,
-      label: <Link to="/admin">Dashboard</Link>,
-    },
-    {
-      key: "/admin/users",
-      icon: <UserOutlined />,
-      label: <Link to="/admin/users">Quản lý người dùng</Link>,
-    },
+  // Base menu items that both ADMIN and STAFF can see
+  const baseMenuItems = [
     {
       key: "/admin/orders",
       icon: <ShoppingCartOutlined />,
@@ -113,6 +106,27 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
       icon: <BellOutlined />,
       label: <Link to="/admin/notification">Quản lý thống báo</Link>,
     },
+  ];
+
+  // Admin-only menu items
+  const adminMenuItems = [
+    {
+      key: "/admin",
+      icon: <DashboardOutlined />,
+      label: <Link to="/admin">Dashboard</Link>,
+    },
+    {
+      key: "/admin/users",
+      icon: <UserOutlined />,
+      label: <Link to="/admin/users">Quản lý người dùng</Link>,
+    },
+  ];
+
+  // Combine menu items based on role
+  const menuItems = [
+    ...(userRole === "ADMIN" ? adminMenuItems : []),
+    ...baseMenuItems,
+    // Always include logout
     {
       key: "logout",
       icon: <LogoutOutlined />,

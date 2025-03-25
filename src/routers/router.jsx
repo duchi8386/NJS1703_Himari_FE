@@ -17,13 +17,24 @@ import NotificationManagement from "../adminpage/notification/NotificationManage
 
 // Component bảo vệ route admin
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth(); // Sử dụng useAuth để kiểm tra trạng thái đăng nhập
+  const { user } = useAuth();
   const accessToken = localStorage.getItem("accessToken");
   const userRole = localStorage.getItem("userRole");
 
   // Kiểm tra cả token và role
-  if (!user || !accessToken || (userRole !== "ADMIN" && userRole !== "STAFF")) {
+  if (!user || !accessToken || (userRole !== "3" && userRole !== "4")) {
     return <Navigate to="/admin/login" replace />;
+  }
+  return children;
+};
+
+// Kiểm tra quyền ADMIN
+const AdminOnlyRoute = ({ children }) => {
+  const userRole = localStorage.getItem("userRole");
+
+  if (userRole !== "3") {
+    // Redirect STAFF to orders page
+    return <Navigate to="/admin/orders" replace />;
   }
   return children;
 };
@@ -47,27 +58,40 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Navigate to="/admin/dashboard" replace />,
+        element: (
+          <AdminOnlyRoute>
+            <Navigate to="/admin/dashboard" replace />
+          </AdminOnlyRoute>
+        ),
       },
       {
         path: "dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "products",
-        element: <ProductManagement />,
+        element: (
+          <AdminOnlyRoute>
+            <Dashboard />
+          </AdminOnlyRoute>
+        ),
       },
       {
         path: "users",
-        element: <UserManagement />,
+        element: (
+          <AdminOnlyRoute>
+            <UserManagement />
+          </AdminOnlyRoute>
+        ),
+      },
+      // Routes accessible by both ADMIN and STAFF
+      {
+        path: "category",
+        element: <Category />,
       },
       {
         path: "orders",
         element: <OrderManagement />,
       },
       {
-        path: "category",
-        element: <Category />,
+        path: "products",
+        element: <ProductManagement />,
       },
       {
         path: "blogs",
@@ -76,27 +100,27 @@ export const router = createBrowserRouter([
       {
         path: "blogs-category",
         element: <BlogCategory />,
-      },      
+      },
       {
         path: "brands",
         element: <BrandManagement />,
       },
       {
         path: "part-symptoms",
-        element: <SymptomPart/>,
+        element: <SymptomPart />,
       },
       {
         path: "product-symptoms",
-        element: <ProductSymptoms/>
+        element: <ProductSymptoms />,
       },
       {
-        path:"body-parts",
-        element: <BodyPart/>
+        path: "body-parts",
+        element: <BodyPart />,
       },
       {
-        path:"notification",
-        element: <NotificationManagement/>
-      }      
+        path: "notification",
+        element: <NotificationManagement />,
+      },
     ],
   },
 ]);

@@ -12,7 +12,6 @@ const LoginAdmin = () => {
   const navigate = useNavigate();
 
   const handleGoogleLoginSuccess = async (response) => {
-    
     try {
       // Lấy credential (idToken) từ response
       const idToken = response.credential;
@@ -27,18 +26,19 @@ const LoginAdmin = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      
-
       // Truy cập đúng cấu trúc của phản hồi
       const { accessToken, refreshToken } = backendResponse.data.data;
 
       // Giải mã token để lấy userId và role
       const decodedToken = jwtDecode(accessToken);
-      
+
       // Lấy role từ decodedToken
-      const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      const role =
+        decodedToken[
+          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        ];
       console.log("✅ Role:", role);
-      
+
       const userId = Number(decodedToken.UserId);
       console.log("✅ User ID:", userId);
       console.log("decodetoken", decodedToken);
@@ -49,7 +49,7 @@ const LoginAdmin = () => {
       localStorage.setItem("userId", userId);
 
       // Kiểm tra role
-      if (role === "ADMIN" || role === "STAFF") {
+      if (role === "3" || role === "4") {
         // Đăng nhập thành công, chuyển hướng đến trang chính
         login();
         navigate("/admin/dashboard");
