@@ -17,51 +17,13 @@ const LoginAdmin = () => {
   const handleGoogleLoginSuccess = async (response) => {
     try {
       const idToken = response.credential;
-      console.log("✅ ID Token:", idToken);
+      const { accessToken, refreshToken, role, userId, isAuthorized } =
+        await handleGoogleAuth(idToken);
 
-      // Gọi API login
-      const backendResponse = await axios.post(
-        "https://wizlab.io.vn:9999/api/v1/auth/login/google/oauth",
-        // { idToken } // ✅ Gửi idToken trong một object
-        idToken, // ✅ Gửi idToken trong một object
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      // Truy cập đúng cấu trúc của phản hồi
-      const { accessToken, refreshToken } = backendResponse.data.data;
-
-      // Giải mã token để lấy userId và role
-      const decodedToken = jwtDecode(accessToken);
-
-      // Lấy role từ decodedToken
-      const role =
-        decodedToken[
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-        ];
-      console.log("✅ Role:", role);
-
-      const userId = Number(decodedToken.UserId);
-      console.log("✅ User ID:", userId);
-      console.log("decodetoken", decodedToken);
-
-      // Lưu accessToken và role vào localStorage
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("userRole", role);
-      localStorage.setItem("userId", userId);
-
-      // Kiểm tra role
-      if (role === "3" || role === "4") {
-        // Đăng nhập thành công, chuyển hướng đến trang chính
-        login();
-        if (role === "3") {
-          navigate("/admin/dashboard");
-          message.success(`Đăng nhập thành công với vai trò Admin`);
-        } else {
-          navigate("/admin/orders");
-          message.success(`Đăng nhập thành công với vai trò Staff`);
-        }
-
+      if (isAuthorized) {
+        // Use AuthContext login to manage state
+        await login(accessToken, refreshToken, userId, role);
+        navigate("/admin/dashboard");
       } else {
         message.error("Bạn không có quyền truy cập vào trang quản trị");
       }
