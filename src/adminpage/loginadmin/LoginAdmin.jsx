@@ -35,7 +35,7 @@ const LoginAdmin = () => {
       // Lấy role từ decodedToken
       const role =
         decodedToken[
-          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         ];
       console.log("✅ Role:", role);
 
@@ -52,8 +52,14 @@ const LoginAdmin = () => {
       if (role === "3" || role === "4") {
         // Đăng nhập thành công, chuyển hướng đến trang chính
         login();
-        navigate("/admin/dashboard");
-        message.success(`Đăng nhập thành công với vai trò ${role}`);
+        if (role === "3") {
+          navigate("/admin/dashboard");
+          message.success(`Đăng nhập thành công với vai trò Admin`);
+        } else {
+          navigate("/admin/orders");
+          message.success(`Đăng nhập thành công với vai trò Staff`);
+        }
+
       } else {
         // Không đủ quyền truy cập
         localStorage.removeItem("accessToken");

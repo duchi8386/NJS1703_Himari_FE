@@ -81,7 +81,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     },
     {
       key: "symptoms",
-      icon:<HeartOutlined />,
+      icon: <HeartOutlined />,
       label: "Triệu chứng",
       children: [
         {
@@ -104,7 +104,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     {
       key: "/admin/notification",
       icon: <BellOutlined />,
-      label: <Link to="/admin/notification">Quản lý thống báo</Link>,
+      label: <Link to="/admin/notification">Quản lý thông báo</Link>,
     },
   ];
 
@@ -113,7 +113,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
     {
       key: "/admin",
       icon: <DashboardOutlined />,
-      label: <Link to="/admin">Dashboard</Link>,
+      label: <Link to="/admin/dashboard">Dashboard</Link>,
     },
     {
       key: "/admin/users",
@@ -124,7 +124,7 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
 
   // Combine menu items based on role
   const menuItems = [
-    ...(userRole === "ADMIN" ? adminMenuItems : []),
+    ...(userRole === "3" ? adminMenuItems : []),
     ...baseMenuItems,
     // Always include logout
     {
