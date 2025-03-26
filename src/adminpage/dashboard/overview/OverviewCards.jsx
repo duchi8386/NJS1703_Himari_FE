@@ -1,6 +1,6 @@
 import React from 'react'
 
-const OverviewCards = ({ data, overviewData }) => {
+const OverviewCards = ({ overviewData }) => {
     return (
         <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -79,7 +79,7 @@ const OverviewCards = ({ data, overviewData }) => {
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="text-sm opacity-80">Sản phẩm sắp hết</p>
-                            <p className="text-2xl font-bold mt-1">{overviewData?.lowStockProducts?.quantity || 0}</p>
+                            <p className="text-2xl font-bold mt-1">{overviewData?.lowStockProducts?.quantityProduct || 0}</p>
                             <div className="flex items-center mt-2">
                                 <span className={`flex items-center ${overviewData?.lowStockProducts?.isIncrease ? 'text-rose-300' : 'text-red-300'} text-sm`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,7 +93,7 @@ const OverviewCards = ({ data, overviewData }) => {
                         </div>
                         <div className="bg-rose-400 bg-opacity-40 p-3 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
                     </div>

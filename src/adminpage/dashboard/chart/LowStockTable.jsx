@@ -1,6 +1,34 @@
 import React from 'react';
 
-const LowStockTable = ({ data }) => {
+const LowStockTable = ({ data, isLoading }) => {
+    // If loading, show a spinner
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm sắp hết hàng</h2>
+                </div>
+                <div className="px-5 py-20 flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+            </div>
+        );
+    }
+
+    // If no data or empty array, show a message
+    if (!data || data.length === 0) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-800">Chi tiết sản phẩm sắp hết hàng</h2>
+                </div>
+                <div className="px-5 py-20 flex items-center justify-center text-gray-500">
+                    Không có sản phẩm nào sắp hết hàng
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100">
@@ -36,7 +64,6 @@ const LowStockTable = ({ data }) => {
                                                 <div className="text-sm font-medium text-gray-900">
                                                     {product.name}
                                                 </div>
-
                                             </div>
                                         </div>
                                     </td>

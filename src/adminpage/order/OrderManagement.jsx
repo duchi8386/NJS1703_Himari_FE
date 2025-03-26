@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Button, message, Space, Input, DatePicker, Select, Row, Col, Card, Statistic, InputNumber } from "antd";
 import { FilterOutlined, ReloadOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined, SyncOutlined, LoadingOutlined } from "@ant-design/icons";
 import OrderTable from "./OrderComponent/OderTable";
@@ -28,7 +28,7 @@ const OrderManagement = () => {
   const [currentOrder, setCurrentOrder] = useState(null);
   const [paymentStatusFilter, setPaymentStatusFilter] = useState(null);
   const [deliveryStatusFilter, setDeliveryStatusFilter] = useState(null);
-  
+
   // Thêm state mới cho thống kê
   const [orderStats, setOrderStats] = useState({
     total: 0,
@@ -38,7 +38,7 @@ const OrderManagement = () => {
     delivered: 0,
     cancelled: 0
   });
-  
+
   // States for modal visibility
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -61,7 +61,7 @@ const OrderManagement = () => {
   const fetchOrderStatistics = async () => {
     try {
       const response = await OrderAPI.getOrderStatistics(selectedMonth, selectedYear);
-      
+
       if (response?.statusCode === 200 && response?.data) {
         setOrderStats({
           total: response.data.totalOrder,
@@ -82,14 +82,14 @@ const OrderManagement = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      console.log("Fetching orders with params:", {
-        pageIndex: pagination.current,
-        pageSize: pagination.pageSize,
-        searchTerm: searchValue,
-        deliveryStatus: deliveryStatusFilter,
-        paymentStatus: paymentStatusFilter,
-        newestFirst
-      });
+      // console.log("Fetching orders with params:", {
+      //   pageIndex: pagination.current,
+      //   pageSize: pagination.pageSize,
+      //   searchTerm: searchValue,
+      //   deliveryStatus: deliveryStatusFilter,
+      //   paymentStatus: paymentStatusFilter,
+      //   newestFirst
+      // });
 
       const response = await OrderAPI.getsOrders(
         pagination.current,
@@ -101,9 +101,9 @@ const OrderManagement = () => {
           newestFirst
         }
       );
-      
+
       if (response?.data) {
-        console.log("Received orders:", response.data);
+        // console.log("Received orders:", response.data);
         setOrders(response.data.data);
         setPagination(prev => ({
           ...prev,
@@ -125,15 +125,15 @@ const OrderManagement = () => {
 
   // Sửa lại useEffect
   useEffect(() => {
-    console.log("Effect triggered with:", {
-      pageIndex: pagination.current,
-      pageSize: pagination.pageSize,
-      searchValue,
-      deliveryStatus: deliveryStatusFilter,
-      paymentStatus: paymentStatusFilter,
-      newestFirst
-    });
-    
+    // console.log("Effect triggered with:", {
+    //   pageIndex: pagination.current,
+    //   pageSize: pagination.pageSize,
+    //   searchValue,
+    //   deliveryStatus: deliveryStatusFilter,
+    //   paymentStatus: paymentStatusFilter,
+    //   newestFirst
+    // });
+
     const timeoutId = setTimeout(() => {
       fetchOrders();
     }, 300);
@@ -155,7 +155,7 @@ const OrderManagement = () => {
       setLoading(true);
       const response = await OrderAPI.getOrderById(order.id);
       console.log("API Response:", response);
-      
+
       if (response.data) {
         console.log("Setting current order:", response.data);
         setCurrentOrder(response.data);
@@ -180,11 +180,11 @@ const OrderManagement = () => {
   // Function to handle update order status
   const handleUpdateOrderStatus = (orderId, newStatus) => {
     setLoading(true);
-    
+
     // Giả lập độ trễ mạng
     setTimeout(() => {
-      const updatedOrders = orders.map(order => 
-        order.id === orderId ? {...order, status: newStatus} : order
+      const updatedOrders = orders.map(order =>
+        order.id === orderId ? { ...order, status: newStatus } : order
       );
       setOrders(updatedOrders);
       message.success(`Cập nhật trạng thái đơn hàng thành công`);
@@ -260,18 +260,18 @@ const OrderManagement = () => {
   // Hàm xử lý khi cập nhật thành công từ OrderEdit
   const handleOrderEditSuccess = (updatedOrder) => {
     // Cập nhật state mới với đơn hàng đã cập nhật
-    const updatedOrders = orders.map(order => 
+    const updatedOrders = orders.map(order =>
       order.id === updatedOrder.id ? updatedOrder : order
     );
-    
+
     setOrders(updatedOrders);
-    
+
     // Cập nhật thống kê (nếu cần)
     fetchOrderStatistics();
-    
+
     // Đóng modal
     setIsEditModalVisible(false);
-    
+
     // Hiển thị thông báo thành công
     message.success("Đơn hàng đã được cập nhật thành công");
   };
@@ -291,7 +291,7 @@ const OrderManagement = () => {
       {/* Thêm phần chọn tháng và năm */}
       <div className="mb-4 flex items-center">
         <span className="mr-2 font-medium">Thống kê theo:</span>
-        <Select 
+        <Select
           value={selectedMonth}
           onChange={handleMonthChange}
           style={{ width: 100, marginRight: 8 }}
@@ -300,7 +300,7 @@ const OrderManagement = () => {
             <Option key={month} value={month}>Tháng {month}</Option>
           ))}
         </Select>
-        
+
         <InputNumber
           value={selectedYear}
           onChange={handleYearChange}
@@ -309,14 +309,14 @@ const OrderManagement = () => {
           max={2100}
           placeholder="Năm"
         />
-        
+
       </div>
 
       {/* Statistics Cards - Cập nhật sử dụng orderStats từ API */}
       <Row gutter={16} className="mb-6">
         <Col span={4}>
           <Card>
-            <Statistic 
+            <Statistic
               title="Tổng đơn hàng"
               value={orderStats.total}
               prefix={<ShoppingOutlined style={{ color: '#1890ff' }} />}
@@ -326,7 +326,7 @@ const OrderManagement = () => {
         </Col>
         <Col span={4}>
           <Card>
-            <Statistic 
+            <Statistic
               title="Chưa bắt đầu"
               value={orderStats.notStarted}
               prefix={<ClockCircleOutlined style={{ color: '#d9d9d9' }} />}
@@ -336,7 +336,7 @@ const OrderManagement = () => {
         </Col>
         <Col span={4}>
           <Card>
-            <Statistic 
+            <Statistic
               title="Đang chuẩn bị"
               value={orderStats.preparing}
               prefix={<SyncOutlined spin style={{ color: '#faad14' }} />}
@@ -346,7 +346,7 @@ const OrderManagement = () => {
         </Col>
         <Col span={4}>
           <Card>
-            <Statistic 
+            <Statistic
               title="Đang giao hàng"
               value={orderStats.delivering}
               prefix={<LoadingOutlined style={{ color: '#1890ff' }} />}
@@ -356,7 +356,7 @@ const OrderManagement = () => {
         </Col>
         <Col span={4}>
           <Card>
-            <Statistic 
+            <Statistic
               title="Đã giao hàng"
               value={orderStats.delivered}
               prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
@@ -366,7 +366,7 @@ const OrderManagement = () => {
         </Col>
         <Col span={4}>
           <Card>
-            <Statistic 
+            <Statistic
               title="Đã hủy"
               value={orderStats.cancelled}
               prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
@@ -441,8 +441,8 @@ const OrderManagement = () => {
           <Option value={false}>Cũ nhất trước</Option>
         </Select>
 
-        <Button 
-          icon={<ReloadOutlined />} 
+        <Button
+          icon={<ReloadOutlined />}
           onClick={handleResetFilters}
           title="Làm mới"
         >

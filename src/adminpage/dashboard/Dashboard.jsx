@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 // Nhập dữ liệu từ file riêng
 import {
@@ -9,8 +9,6 @@ import {
   lowStockProductsData
 } from './datasample/data';
 import RevenueBarChart from './chart/RevenueBarChart';
-import RevenueTrendChart from './chart/RevenueTrendChart';
-import CategoryPieChart from './chart/CategoryPieChart';
 import TopProductsChart from './chart/TopProductsChart';
 import LowStockChart from './chart/LowStockChart';
 import LowStockTable from './chart/LowStockTable';
@@ -50,50 +48,171 @@ const Dashboard = () => {
     }
   });
 
-  const fetchOverviewData = async () => {
+  // Consolidate loading states into a single object
+  const [loadingStates, setLoadingStates] = useState({
+    revenue: true,
+    orderStatus: true,
+    lowStock: true,
+    topProducts: true,
+    overview: true
+  });
+
+  // Helper function to set loading state for a specific data type
+  const setLoadingState = (dataType, isLoading) => {
+    setLoadingStates(prev => ({ ...prev, [dataType]: isLoading }));
+  };
+
+  // Utility function for safe API calls
+  const fetchDataSafely = async (apiCall, onSuccess, dataType) => {
+    setLoadingState(dataType, true);
+    try {
+      const response = await apiCall();
+      if (response && response.data) {
+        onSuccess(response.data);
+      }
+      return response?.data;
+    } catch (error) {
+      console.error(`Error fetching ${dataType} data:`, error);
+      return null;
+    } finally {
+      setLoadingState(dataType, false);
+    }
+  };
+
+  const fetchOverviewData = useCallback(async () => {
+    setLoadingState('overview', true);
     try {
       // Using Promise.all to fetch all data in parallel
-      const [revenueResponse, newOrderResponse, newUserResponse] = await Promise.all([
+      const [revenueResponse, newOrderResponse, newUserResponse, newProductResponse] = await Promise.all([
         DashboardAPI.getRevenue(),
         DashboardAPI.getNewOrder(),
-        DashboardAPI.getNewUser()
+        DashboardAPI.getNewUser(),
+        DashboardAPI.getNewProduct()
       ]);
 
       // Update state with all fetched data
       setOverviewData({
-        revenue: revenueResponse.data || {
+        revenue: revenueResponse?.data || {
           revenue: "0.0M",
           percent: "0",
           isIncrease: true
         },
-        newOrder: newOrderResponse.data || {
+        newOrder: newOrderResponse?.data || {
           quantityOrder: 0,
           percent: 0,
           isIncrease: true
         },
-        newUser: newUserResponse.data || {
+        newUser: newUserResponse?.data || {
           quantityUser: 0,
           percent: 0,
           isIncrease: true
         },
-        lowStockProducts: {
-          quantity: data.lowStockProducts.length,
+        lowStockProducts: newProductResponse?.data || {
+          quantityProduct: 0,
           percent: 3,
           isIncrease: false
         }
       });
-
-      // console.log("Revenue data:", revenueResponse);
-      // console.log("New Order data:", newOrderResponse);
-      // console.log("New User data:", newUserResponse);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      console.error("Error fetching dashboard overview data:", error);
+    } finally {
+      setLoadingState('overview', false);
     }
-  }
+  }, []);
+
+  const fetchRevenueChartData = useCallback(async () => {
+    await fetchDataSafely(
+      DashboardAPI.revenueMonthChart,
+      (data) => {
+        const formattedData = data.map(item => ({
+          name: item.month,
+          revenue: item.revenue
+        }));
+
+        setData(prevData => ({
+          ...prevData,
+          revenue: formattedData
+        }));
+        // console.log("Revenue chart data:", formattedData);
+      },
+      'revenue'
+    );
+  }, []);
+
+  const fetchOrderStatusData = useCallback(async () => {
+    await fetchDataSafely(
+      DashboardAPI.revenuePercentChart,
+      (data) => {
+        const formattedData = data.map(item => ({
+          name: item.status,
+          value: item.revenue
+        }));
+
+        setData(prevData => ({
+          ...prevData,
+          orderStatus: formattedData
+        }));
+        // console.log("Order status chart data:", formattedData);
+      },
+      'orderStatus'
+    );
+  }, []);
+
+  const fetchLowStockData = useCallback(async () => {
+    await fetchDataSafely(
+      DashboardAPI.productLowQuantityChart,
+      (data) => {
+        const formattedData = data.map(item => ({
+          id: item.id,
+          name: item.productName,
+          quantity: item.quantity,
+          threshold: 10 // Default threshold
+        }));
+
+        setData(prevData => ({
+          ...prevData,
+          lowStockProducts: formattedData
+        }));
+        // console.log("Low stock products data:", formattedData);
+      },
+      'lowStock'
+    );
+  }, []);
+
+  const fetchTopProductsData = useCallback(async () => {
+    await fetchDataSafely(
+      () => DashboardAPI.productfeaturedChart(1, 5),
+      (responseData) => {
+        if (responseData.data) {
+          const formattedData = responseData.data
+            .map(item => ({
+              id: item.id,
+              name: item.productName,
+              revenue: item.price * (item.sold || 0)
+            }))
+            .sort((a, b) => b.revenue - a.revenue);
+
+          setData(prevData => ({
+            ...prevData,
+            topProducts: formattedData
+          }));
+          // console.log("Top products data:", formattedData);
+        }
+      },
+      'topProducts'
+    );
+  }, []);
 
   useEffect(() => {
-    fetchOverviewData();
-  }, []);
+    // Fetch all data in parallel
+    Promise.all([
+      fetchOverviewData(),
+      fetchRevenueChartData(),
+      fetchOrderStatusData(),
+      fetchLowStockData(),
+      fetchTopProductsData()
+    ]);
+  }, [fetchOverviewData, fetchRevenueChartData, fetchOrderStatusData, fetchLowStockData, fetchTopProductsData]);
 
   return (
     <div className="p-6 bg-gray-50">
@@ -105,33 +224,27 @@ const Dashboard = () => {
       </div>
 
       {/* Overview Cards */}
-      <OverviewCards data={data.lowStockProducts} overviewData={overviewData} />
+      <OverviewCards overviewData={overviewData} isLoading={loadingStates.overview} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Biểu đồ cột - Doanh thu theo thời gian */}
-        <RevenueBarChart data={data.revenue} />
-
-        {/* Biểu đồ đường - Xu hướng doanh thu */}
-        <RevenueTrendChart data={data.revenue} />
-
-        {/* Biểu đồ tròn - Tỷ lệ doanh thu theo danh mục */}
-        <CategoryPieChart data={data.category} />
+        <RevenueBarChart data={data.revenue} isLoading={loadingStates.revenue} />
 
         {/* Biểu đồ tròn - Tỷ lệ đơn hàng */}
-        <OrderStatusChart data={data.orderStatus} />
+        <OrderStatusChart data={data.orderStatus} isLoading={loadingStates.orderStatus} />
 
         {/* Biểu đồ cột - Top sản phẩm bán chạy */}
-        <TopProductsChart data={data.topProducts} />
+        <TopProductsChart data={data.topProducts} isLoading={loadingStates.topProducts} />
 
         {/* Biểu đồ - Sản phẩm sắp hết hàng */}
-        <LowStockChart data={data.lowStockProducts} />
+        <LowStockChart data={data.lowStockProducts} isLoading={loadingStates.lowStock} />
 
         {/* Bảng sản phẩm sắp hết hàng cho thông tin chi tiết */}
         <div className="lg:col-span-2">
-          <LowStockTable data={data.lowStockProducts} />
+          <LowStockTable data={data.lowStockProducts} isLoading={loadingStates.lowStock} />
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

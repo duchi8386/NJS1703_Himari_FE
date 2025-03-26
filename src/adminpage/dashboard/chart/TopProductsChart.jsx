@@ -1,7 +1,41 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const TopProductsChart = ({ data }) => {
+const TopProductsChart = ({ data, isLoading }) => {
+    // If loading, show a spinner
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-gray-800">Top 5 sản phẩm bán chạy</h2>
+                    <span className="bg-indigo-50 text-indigo-700 text-xs px-2 py-1 rounded-full font-medium">
+                        Tháng này
+                    </span>
+                </div>
+                <div className="px-5 pt-4 pb-6 flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+            </div>
+        );
+    }
+
+    // If no data or empty array, show a message
+    if (!data || data.length === 0) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-gray-800">Top 5 sản phẩm bán chạy</h2>
+                    <span className="bg-indigo-50 text-indigo-700 text-xs px-2 py-1 rounded-full font-medium">
+                        Tháng này
+                    </span>
+                </div>
+                <div className="px-5 py-20 flex items-center justify-center text-gray-500">
+                    Không có dữ liệu sản phẩm bán chạy
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">

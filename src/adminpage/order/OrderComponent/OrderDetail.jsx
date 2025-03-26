@@ -1,21 +1,21 @@
 import React from "react";
-import { 
-  Modal, 
-  Button, 
-  Typography, 
-  Descriptions, 
-  Tag, 
-  Table, 
-  Divider, 
-  Space, 
+import {
+  Modal,
+  Button,
+  Typography,
+  Descriptions,
+  Tag,
+  Table,
+  Divider,
+  Space,
   Row,
   Col,
   Card
 } from "antd";
-import { 
-  UserOutlined, 
-  PhoneOutlined, 
-  MailOutlined, 
+import {
+  UserOutlined,
+  PhoneOutlined,
+  MailOutlined,
   HomeOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
@@ -33,8 +33,8 @@ dayjs.locale('vi');
 const { Title, Text } = Typography;
 
 const OrderDetail = ({ isOpen, onClose, order }) => {
-  console.log("OrderDetail props:", { isOpen, order }); // Thêm log để debug
-  
+  // console.log("OrderDetail props:", { isOpen, order }); 
+
   if (!order) {
     return null;
   }
@@ -61,7 +61,7 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
   const renderDeliveryStatusTag = (status) => {
     const statusName = DeliveryStatus.getStatusName(status);
     const statusColor = DeliveryStatus.getStatusColor(status);
-    
+
     const getStatusIcon = (status) => {
       switch (status) {
         case DeliveryStatus.NOT_STARTED:
@@ -90,7 +90,7 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
   const renderPaymentStatusTag = (status) => {
     const statusName = PaymentStatus.getStatusName(status);
     const statusColor = PaymentStatus.getStatusColor(status);
-    
+
     const getPaymentIcon = (status) => {
       switch (status) {
         case PaymentStatus.PENDING:
@@ -119,7 +119,7 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
       key: 'productName',
       render: (text, record) => (
         <Space>
-          <img 
+          <img
             src={record.imageUrl}
             alt={text}
             style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4 }}
@@ -203,7 +203,7 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
         <Col span={24}>
           <Card>
             <Title level={5}>Danh sách sản phẩm</Title>
-            <Table 
+            <Table
               dataSource={order.orderDetails}
               columns={columns}
               pagination={false}
@@ -217,8 +217,8 @@ const OrderDetail = ({ isOpen, onClose, order }) => {
                 <div className="flex justify-between mb-2">
                   <Text className="text-md font-bold">Tổng sản phẩm:</Text>
                   <Text>
-                    {order.orderDetails && Array.isArray(order.orderDetails) 
-                      ? order.orderDetails.reduce((total, item) => total + item.quantity, 0) 
+                    {order.orderDetails && Array.isArray(order.orderDetails)
+                      ? order.orderDetails.reduce((total, item) => total + item.quantity, 0)
                       : 0} sản phẩm
                   </Text>
                 </div>

@@ -1,7 +1,35 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const LowStockChart = ({ data }) => {
+const LowStockChart = ({ data, isLoading }) => {
+    // If loading, show a spinner
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-gray-800">Sản phẩm sắp hết hàng</h2>
+                </div>
+                <div className="px-5 pt-4 pb-6 flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+            </div>
+        );
+    }
+
+    // If no data or empty array, show a message
+    if (!data || data.length === 0) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-gray-800">Sản phẩm sắp hết hàng</h2>
+                </div>
+                <div className="px-5 py-20 flex items-center justify-center text-gray-500">
+                    Không có sản phẩm nào sắp hết hàng
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
@@ -19,47 +47,32 @@ const LowStockChart = ({ data }) => {
                         margin={{ top: 15, right: 10, left: 0, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                        <XAxis type="number" axisLine={false} tickLine={false} />
+                        <XAxis
+                            type="number"
+                            axisLine={false}
+                            tickLine={false}
+                            domain={[0, 'dataMax']} // Auto-adjust to max data value
+                        />
                         <YAxis
                             dataKey="name"
                             type="category"
                             tick={{ fontSize: 12 }}
-                            width={100}
+                            width={150} // Increased width for longer product names
                             axisLine={false}
                             tickLine={false}
+                            tickFormatter={(value) => value.length > 20 ? `${value.substring(0, 18)}...` : value} // Truncate long names
                         />
                         <Tooltip
                             contentStyle={{ borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', border: 'none' }}
-                            formatter={(value, name) => [value, name === 'quantity' ? 'Số lượng hiện tại' : 'Ngưỡng tối thiểu']}
+                            formatter={(value) => [`${value} sản phẩm`, 'Số lượng hiện tại']}
                         />
-                        <Legend />
                         <Bar
                             dataKey="quantity"
                             name="Số lượng hiện tại"
                             fill="#fb7185"
                             radius={[0, 4, 4, 0]}
-                            barSize={12}
-                            stackId="a"
+                            barSize={16}
                         />
-                        <Bar
-                            dataKey="threshold"
-                            name="Ngưỡng tối thiểu"
-                            fill="#a5b4fc"
-                            radius={[0, 4, 4, 0]}
-                            barSize={12}
-                            opacity={0.4}
-                            stackId="b"
-                        />
-                        {data.map((item, index) => (
-                            <ReferenceLine
-                                key={index}
-                                y={item.name}
-                                stroke={item.quantity <= item.threshold / 2 ? "#ef4444" : "#f59e0b"}
-                                strokeWidth={1}
-                                strokeDasharray="3 3"
-                                isFront={true}
-                            />
-                        ))}
                     </BarChart>
                 </ResponsiveContainer>
             </div>

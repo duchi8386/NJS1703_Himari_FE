@@ -1,28 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const RevenueBarChart = ({ data }) => {
+const RevenueBarChart = ({ data, isLoading }) => {
     const [timeRange, setTimeRange] = useState('month'); // 'day', 'month', 'quarter', 'year'
 
-    useEffect(() => {
-        // Xử lý thay đổi khoảng thời gian tại đây
-        // Trong ứng dụng thực tế, bạn sẽ gọi API dựa trên timeRange
-        // fetchData(timeRange).then(data => setData(data));
-    }, [timeRange]);
+    // If loading, show a spinner
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-800">Doanh thu theo {timeRange === 'day' ? 'ngày' : timeRange === 'month' ? 'tháng' : timeRange === 'quarter' ? 'quý' : 'năm'}</h2>
+                </div>
+                <div className="px-5 pt-4 pb-6 flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+            </div>
+        );
+    }
+
+    // If no data or empty array, show a message
+    if (!data || data.length === 0) {
+        return (
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-800">Doanh thu theo {timeRange === 'day' ? 'ngày' : timeRange === 'month' ? 'tháng' : timeRange === 'quarter' ? 'quý' : 'năm'}</h2>
+                </div>
+                <div className="px-5 py-20 flex items-center justify-center text-gray-500">
+                    Không có dữ liệu doanh thu
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h2 className="text-lg font-semibold text-gray-800">Doanh thu theo {timeRange === 'day' ? 'ngày' : timeRange === 'month' ? 'tháng' : timeRange === 'quarter' ? 'quý' : 'năm'}</h2>
-                <select
-                    value={timeRange}
-                    onChange={(e) => setTimeRange(e.target.value)}
-                    className="text-sm px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                    <option value="day">Theo ngày</option>
-                    <option value="month">Theo tháng</option>
-                    <option value="quarter">Theo quý</option>
-                    <option value="year">Theo năm</option>
-                </select>
+                <h2 className="text-lg font-semibold text-gray-800">Doanh thu theo 6 tháng gần nhất </h2>
             </div>
             <div className="px-5 pt-4 pb-6">
                 <ResponsiveContainer width="100%" height={300}>

@@ -5,6 +5,7 @@ import ProductSympTable from "./ProductSymptomComponent/ProductSympTable";
 import ProductSympAdd from "./ProductSymptomComponent/ProductSympAdd";
 import ProductSympEdit from "./ProductSymptomComponent/ProductSympEdit";
 import ProductSymptomAPI from "../../../service/api/productSymptomAPI";
+import ProductAPI from "../../../service/api/productAPI";
 import partSymptomAPI from "../../../service/api/partSymptom";
 
 const ProductSymptoms = () => {
@@ -14,6 +15,7 @@ const ProductSymptoms = () => {
     products: [],
     symptoms: [],
     loading: false,
+    productsLoading: false,
     symptomsLoading: false,
     isAddModalVisible: false,
     isEditModalVisible: false,
@@ -31,7 +33,7 @@ const ProductSymptoms = () => {
   // Destructure state for cleaner code
   const {
     productSymptoms, products, symptoms,
-    loading, symptomsLoading,
+    loading, productsLoading, symptomsLoading,
     isAddModalVisible, isEditModalVisible, currentProductSymptom,
     pagination
   } = state;
@@ -54,12 +56,8 @@ const ProductSymptoms = () => {
       if (response && response.data) {
         const { data, metaData } = response.data;
 
-        // Trích xuất danh sách sản phẩm từ dữ liệu được trả về
-        const uniqueProducts = extractUniqueProducts(data);
-
         updateState({
           productSymptoms: data,
-          products: uniqueProducts,
           pagination: {
             current: metaData.currentPage,
             pageSize: metaData.pageSize,
@@ -80,30 +78,35 @@ const ProductSymptoms = () => {
     }
   }, [pagination.current, pagination.pageSize]);
 
-  // Hàm trích xuất danh sách sản phẩm duy nhất từ dữ liệu API
-  const extractUniqueProducts = (data) => {
-    if (!data || !data.length) return [];
-
-    const productMap = new Map();
-
-    data.forEach(item => {
-      if (!productMap.has(item.productId)) {
-        productMap.set(item.productId, {
-          id: item.productId,
+  // Fetch products with memoization
+  const fetchProducts = useCallback(async () => {
+    updateState({ productsLoading: true });
+    try {
+      const response = await ProductAPI.getProducts(1, 40);
+      // console.log("Products response:", response);
+      if (response?.data?.data) {
+        const productList = response.data.data.data.map(item => ({
+          id: item.id,
           name: item.productName
-        });
+        }));
+        updateState({ products: productList });
+      } else {
+        message.error("Không thể lấy dữ liệu sản phẩm");
       }
-    });
-
-    return Array.from(productMap.values());
-  };
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      message.error("Lỗi khi tải dữ liệu sản phẩm: " + (error.message || "Không xác định"));
+    } finally {
+      updateState({ productsLoading: false });
+    }
+  }, []);
 
   // Fetch symptoms with memoization
   const fetchSymptoms = useCallback(async () => {
     updateState({ symptomsLoading: true });
     try {
-      const response = await partSymptomAPI.getPartSymptoms(1, 30);
-      console.log(response);
+      const response = await partSymptomAPI.getPartSymptoms(1, 40);
+      // console.log("Symptoms response:", response);
       if (response?.data) {
         const symptomList = response.data.data.map(item => ({
           id: item.id,
@@ -176,6 +179,7 @@ const ProductSymptoms = () => {
 
   // UI Event Handlers
   const handleTableChange = (newPagination) => {
+    // Update pagination state first, which will trigger a re-fetch via useEffect
     updateState({
       pagination: {
         ...pagination,
@@ -198,8 +202,9 @@ const ProductSymptoms = () => {
   }, [fetchProductSymptoms]);
 
   useEffect(() => {
+    fetchProducts();
     fetchSymptoms();
-  }, [fetchSymptoms]);
+  }, [fetchProducts, fetchSymptoms]);
 
   // Make sure to refetch data when pagination changes
   useEffect(() => {
@@ -216,8 +221,8 @@ const ProductSymptoms = () => {
             onClick={() => updateState({ isAddModalVisible: true })}
             className="h-9 rounded"
             icon={<PlusOutlined />}
-            loading={loading || symptomsLoading}
-            disabled={loading || symptomsLoading}
+            loading={productsLoading || symptomsLoading}
+            disabled={productsLoading || symptomsLoading}
           >
             Thêm liên kết mới
           </Button>
@@ -239,7 +244,7 @@ const ProductSymptoms = () => {
         onAddProductSymptom={handleAddProductSymptom}
         products={products}
         symptoms={symptoms}
-        productsLoading={loading}
+        productsLoading={productsLoading}
         symptomsLoading={symptomsLoading}
       />
 
@@ -250,7 +255,7 @@ const ProductSymptoms = () => {
         productSymptom={currentProductSymptom}
         products={products}
         symptoms={symptoms}
-        productsLoading={loading}
+        productsLoading={productsLoading}
         symptomsLoading={symptomsLoading}
       />
     </div>
