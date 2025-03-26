@@ -1,38 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Upload, Button, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Modal, Form, Input, message } from "antd";
 import BrandAPI from "../../../service/api/brandAPI";
+import ImageUploadBrand from "../../../components/ImageUploadBrand/ImageUploadBrand";
 
 const { TextArea } = Input;
 
 const BrandEdit = ({ isOpen, onClose, onSuccess, brand }) => {
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
-  const [imageUrl, setImageUrl] = useState("");
+  const [brandImage, setBrandImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [currentBrandId, setCurrentBrandId] = useState(null);
 
+  // Reset form and state when a different brand is opened
   useEffect(() => {
     if (isOpen && brand) {
       form.setFieldsValue({
         brandName: brand.brandName,
         description: brand.description,
+        image: brand.image ? 'has-image' : undefined,
       });
 
-      // Set image preview if available
-      if (brand.image) {
-        setImageUrl(brand.image);
-        setFileList([
-          {
-            uid: "-1",
-            name: "image.png",
-            status: "done",
-            url: brand.image,
-          },
-        ]);
-      } else {
-        setFileList([]);
-        setImageUrl("");
-      }
+      setBrandImage(null);
+      setCurrentBrandId(brand.id);
     }
   }, [isOpen, brand, form]);
 
@@ -43,8 +32,8 @@ const BrandEdit = ({ isOpen, onClose, onSuccess, brand }) => {
 
       // Upload image to Firebase if a new file is selected
       let finalImageUrl = brand.image;
-      if (fileList.length > 0 && fileList[0].originFileObj) {
-        const response = await BrandAPI.uploadToFirebase(fileList[0].originFileObj);
+      if (brandImage) {
+        const response = await BrandAPI.uploadToFirebase(brandImage);
         finalImageUrl = response.data.data;
       }
 
@@ -74,33 +63,8 @@ const BrandEdit = ({ isOpen, onClose, onSuccess, brand }) => {
     }
   };
 
-  const uploadProps = {
-    onRemove: () => {
-      setFileList([]);
-      setImageUrl("");
-    },
-    beforeUpload: (file) => {
-      // Only allow image upload
-      const isImage = file.type.startsWith('image/');
-      if (!isImage) {
-        message.error('Bạn chỉ có thể tải lên file hình ảnh!');
-        return Upload.LIST_IGNORE;
-      }
-
-      // Create temporary URL for preview
-      const url = URL.createObjectURL(file);
-      setImageUrl(url);
-      setFileList([{
-        uid: "-1",
-        name: file.name,
-        status: "done",
-        originFileObj: file,
-      }]);
-      return false;
-    },
-    fileList,
-    listType: "picture",
-    maxCount: 1,
+  const handleImageChange = (file) => {
+    setBrandImage(file);
   };
 
   return (
@@ -135,9 +99,12 @@ const BrandEdit = ({ isOpen, onClose, onSuccess, brand }) => {
           name="image"
           label="Hình ảnh thương hiệu"
         >
-          <Upload {...uploadProps}>
-            <Button icon={<UploadOutlined />}>Thay đổi hình ảnh</Button>
-          </Upload>
+          {/* Add key prop to force remounting when brand changes */}
+          <ImageUploadBrand
+            key={`brand-image-${currentBrandId}`}
+            initialImage={brand?.image}
+            onImageChange={handleImageChange}
+          />
         </Form.Item>
       </Form>
     </Modal>

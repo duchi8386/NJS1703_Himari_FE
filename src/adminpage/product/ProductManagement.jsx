@@ -17,7 +17,7 @@ const ProductManagement = () => {
   // Pagination states
   const [productPagination, setProductPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 50,
     total: 0
   });
 
