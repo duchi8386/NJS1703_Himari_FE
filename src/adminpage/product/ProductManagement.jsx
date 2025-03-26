@@ -17,7 +17,7 @@ const ProductManagement = () => {
   // Pagination states
   const [productPagination, setProductPagination] = useState({
     current: 1,
-    pageSize: 50,
+    pageSize: 10,
     total: 0
   });
 
@@ -58,11 +58,14 @@ const ProductManagement = () => {
         productPagination.current,
         productPagination.pageSize
       );
+      console.log(response);
       if (response?.data?.data) {
         setProducts(response.data.data.data);
         setProductPagination({
           ...productPagination,
-          total: response.data.data.totalRecord || 0
+          current: response.data.data.metaData.currentPage,
+          pageSize: response.data.data.metaData.pageSize,
+          total: response.data.data.metaData.totalCount
         });
       }
     } catch (error) {
@@ -222,19 +225,21 @@ const ProductManagement = () => {
           setIsEditModalOpen(true);
         }}
         onDelete={handleDeleteProduct}
+        pagination={false}
       />
 
       {/* Add pagination control for products */}
-      {/* <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-4">
         <Pagination
           current={productPagination.current}
           pageSize={productPagination.pageSize}
           total={productPagination.total}
           onChange={handleProductPageChange}
           showSizeChanger
+          pageSizeOptions={['5', '10', '20', '50']}
           showTotal={(total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`}
         />
-      </div> */}
+      </div>
 
       <AddProduct
         isOpen={isAddModalOpen}

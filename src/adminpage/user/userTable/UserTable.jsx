@@ -40,7 +40,7 @@ const UserTable = ({ users, loading, pagination, onTableChange, onDelete, onEdit
       dataIndex: 'role',
       key: 'role',
       render: (role) => (
-        <Tag color={role === 'ADMIN' ? 'red' : 'blue'}>
+        <Tag color={role === 'STAFF' ? 'yellow' : 'blue'}>
           {role || 'USER'}
         </Tag>
       ),

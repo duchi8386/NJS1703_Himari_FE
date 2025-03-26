@@ -6,7 +6,13 @@ import EditProduct from '../editProduct/EditProduct';
 import { formatCurrency } from '../../../utils/moneyFormatter';
 // import { mockProducts } from './mockData';
 
-const ProductTable = ({ products, loading, onEdit, onDelete }) => {
+const ProductTable = ({
+  products,
+  loading,
+  onEdit,
+  onDelete,
+  pagination = false, // Add pagination prop with default value
+}) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -86,11 +92,8 @@ const ProductTable = ({ products, loading, onEdit, onDelete }) => {
         dataSource={products}
         loading={loading}
         className="bg-white rounded-lg shadow"
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `Tổng ${total} sản phẩm`,
-        }}
+        pagination={pagination}
+        rowKey="id"
       />
 
       <EditProduct
