@@ -57,13 +57,6 @@ const ProductSympTable = ({ productSymptoms, loading, onEdit, onDelete, paginati
       width: 150,
     },
     {
-      title: "Ngày cập nhật",
-      dataIndex: "updatedDate",
-      key: "updatedDate",
-      render: (date) => <Text>{formatDate(date)}</Text>,
-      width: 150,
-    },
-    {
       title: "Hành động",
       key: "actions",
       render: (_, record) => (
