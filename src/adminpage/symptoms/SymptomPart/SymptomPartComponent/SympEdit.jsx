@@ -20,7 +20,7 @@ const SympEdit = ({ isOpen, onClose, onUpdateSymptom, symptom, bodyParts }) => {
     form.validateFields()
       .then(values => {
         setLoading(true);
-        
+
         // Create updated symptom object
         const updatedSymptom = {
           ...symptom,
@@ -72,7 +72,7 @@ const SympEdit = ({ isOpen, onClose, onUpdateSymptom, symptom, bodyParts }) => {
         >
           <Select placeholder="Chọn bộ phận cơ thể">
             {bodyParts.map(part => (
-              <Option key={part.id} value={part.id}>{part.name}</Option>
+              <Option key={part.id} value={part.id}>{part.bodyPartName}</Option>
             ))}
           </Select>
         </Form.Item>

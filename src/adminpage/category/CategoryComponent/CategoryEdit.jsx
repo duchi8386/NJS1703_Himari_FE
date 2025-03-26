@@ -34,29 +34,10 @@ const CategoryEdit = ({ isOpen, onClose, onUpdateCategory, category, parentCateg
       });
   };
 
-  // Lọc ra các danh mục có thể là parent (không bao gồm chính nó và các con của nó)
+  // Lọc ra các danh mục có thể là parent (không bao gồm chính nó)
   const getValidParentCategories = () => {
     if (!category) return parentCategories;
-
-    // Tìm tất cả các ID danh mục con (trực tiếp và gián tiếp)
-    const findAllChildrenIds = (categoryId) => {
-      const directChildren = parentCategories
-        .filter(cat => cat.parentCategoryId === categoryId)
-        .map(cat => cat.id);
-
-      let allChildren = [...directChildren];
-      directChildren.forEach(childId => {
-        const nestedChildren = findAllChildrenIds(childId);
-        allChildren = [...allChildren, ...nestedChildren];
-      });
-
-      return allChildren;
-    };
-
-    const childrenIds = findAllChildrenIds(category.id);
-    return parentCategories.filter(cat =>
-      cat.id !== category.id && !childrenIds.includes(cat.id)
-    );
+    return parentCategories.filter(cat => cat.id !== category.id);
   };
 
   return (

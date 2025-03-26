@@ -10,10 +10,9 @@ const { Search } = Input;
 
 const CategoryPage = () => {
   const [categories, setCategories] = useState([]);
+  const [parentCategories, setParentCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Lấy danh sách các danh mục gốc (parent categories)
-  const parentCategories = categories.filter(cat => cat.parentCategoryId === null);
+  const [loadingParents, setLoadingParents] = useState(false);
 
   // States for modal visibility
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -42,7 +41,7 @@ const CategoryPage = () => {
         searchText,
         newestFirst
       });
-      
+
       if (response.data && response.data.data) {
         setCategories(response.data.data.data || []);
         setPagination({
@@ -56,6 +55,23 @@ const CategoryPage = () => {
       message.error("Không thể tải danh sách danh mục");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to fetch parent categories
+  const fetchParentCategories = async () => {
+    try {
+      setLoadingParents(true);
+      const response = await CategoryAPI.getParentCategory(1, 20);
+      console.log(response)
+      if (response.data && response.data.data) {
+        setParentCategories(response.data.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching parent categories:", error);
+      message.error("Không thể tải danh sách danh mục gốc");
+    } finally {
+      setLoadingParents(false);
     }
   };
 
@@ -76,8 +92,15 @@ const CategoryPage = () => {
 
   // Function to show edit modal
   const showEditModal = (category) => {
+    fetchParentCategories();
     setCurrentCategory(category);
     setIsEditModalVisible(true);
+  };
+
+  // Function to handle add category modal
+  const showAddModal = () => {
+    fetchParentCategories();
+    setIsAddModalVisible(true);
   };
 
   // Function to handle add category
@@ -158,7 +181,7 @@ const CategoryPage = () => {
         <div>
           <Button
             type="primary"
-            onClick={() => setIsAddModalVisible(true)}
+            onClick={showAddModal}
             className="h-9 rounded"
             icon={<PlusOutlined />}
           >
@@ -179,8 +202,8 @@ const CategoryPage = () => {
           style={{ width: 300 }}
         />
 
-        <Button 
-          icon={<ReloadOutlined />} 
+        <Button
+          icon={<ReloadOutlined />}
           onClick={handleResetFilters}
           title="Làm mới"
         >

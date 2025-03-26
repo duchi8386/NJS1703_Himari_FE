@@ -5,22 +5,13 @@ import SympTable from "./SymptomPartComponent/SympTable";
 import SympAdd from "./SymptomPartComponent/SympAdd";
 import SympEdit from "./SymptomPartComponent/SympEdit";
 import partSymptomAPI from "../../../service/api/partSymptom";
+import BodyPartAPI from "../../../service/api/bodyPart";
 
 const { Search } = Input;
 
 const SymptomPart = () => {
   const [symptoms, setSymptoms] = useState([]);
-  const [bodyParts, setBodyParts] = useState([
-    { id: 8, name: "Mặt" },
-    { id: 9, name: "Mắt" },
-    { id: 10, name: "Môi" },
-    { id: 11, name: "Lông mày" },
-    { id: 12, name: "Cổ" },
-    { id: 13, name: "Tay" },
-    { id: 14, name: "Chân" },
-    { id: 15, name: "Toàn thân" }
-  ]);
-
+  const [bodyParts, setBodyParts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -66,9 +57,21 @@ const SymptomPart = () => {
       setLoading(false);
     }
   };
+  const fetchBodyParts = async () => {
+    try {
+      const response = await BodyPartAPI.getBodyParts(1, 20);
+      console.log(response);
+      if (response && response.data) {
+        setBodyParts(response.data.data);
+      }
+    } catch (error) {
+      message.error("Không thể tải dữ liệu bộ phận cơ thể: " + error.message);
+    }
+  }
 
   useEffect(() => {
     fetchSymptoms();
+    fetchBodyParts();
   }, []);
 
   // Function to show edit modal
@@ -185,8 +188,8 @@ const SymptomPart = () => {
           style={{ width: 300 }}
         />
 
-        <Button 
-          icon={<ReloadOutlined />} 
+        <Button
+          icon={<ReloadOutlined />}
           onClick={handleResetFilters}
           title="Làm mới"
         >
