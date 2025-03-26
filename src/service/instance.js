@@ -17,6 +17,7 @@ axiosInstance.interceptors.request.use(
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
+      await Promise.resolve(); // Ensure async completion
       return config;
     } catch (error) {
       console.error("❌ Lỗi thêm token vào header:", error);
@@ -36,49 +37,50 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        console.log("🔄 Đang refresh token với:", refreshToken);
+        const refreshToken = await Promise.resolve(
+          localStorage.getItem("refreshToken")
+        );
 
-        if (!refreshToken) {
-          throw new Error("Không tìm thấy refresh token");
-        }
-
-        // Gọi API refresh token với refresh token dưới dạng string
         const response = await axios.post(
           `${API_BASE_URL}auth/refresh-token`,
           JSON.stringify(refreshToken),
           {
             headers: {
               "Content-Type": "application/json",
+              Accept: "*/*",
             },
           }
         );
 
-        // Lấy tokens mới từ response
+        if (!response.data?.data) {
+          throw new Error("Invalid refresh token response");
+        }
+
         const { accessToken, refreshToken: newRefreshToken } =
           response.data.data;
-        console.log("✅ Refresh token thành công");
 
-        // Lưu tokens mới vào localStorage
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", newRefreshToken);
+        // Lưu tokens mới
+        await Promise.all([
+          localStorage.setItem("accessToken", accessToken),
+          localStorage.setItem("refreshToken", newRefreshToken),
+        ]);
 
-        // Cập nhật header cho request tiếp theo
-        axiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        // Quan trọng: Cập nhật lại config cho request gốc
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${accessToken}`,
+        };
 
-        // Thử lại request ban đầu
+        // Thử lại request ban đầu với config đã cập nhật
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         console.error("❌ Refresh token thất bại:", refreshError);
-
-        // Xóa tokens và chuyển về trang login
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("userRole");
-
-        window.location.href = "/admin/login";
+        // Xóa tokens
+        await Promise.all([
+          localStorage.removeItem("accessToken"),
+          localStorage.removeItem("refreshToken"),
+        ]);
+        // window.location.href = "/admin/login";
         return Promise.reject(refreshError);
       }
     }
