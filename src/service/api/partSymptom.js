@@ -7,7 +7,7 @@ const partSymptomAPI = {
         params: {
           "page-index": pageIndex,
           "page-size": pageSize,
-          "searchTerm": filters?.searchText || '',
+          searchTerm: filters?.searchText || "",
           "newest-first": filters?.newestFirst ?? true,
         },
       });

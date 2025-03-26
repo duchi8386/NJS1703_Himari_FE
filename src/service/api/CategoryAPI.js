@@ -6,7 +6,7 @@ const CategoryAPI = {
       params: {
         "page-index": page,
         "page-size": pageSize,
-        "searchTerm": filters?.searchText || '',
+        searchTerm: filters?.searchText || "",
         "newest-first": filters?.newestFirst ?? true,
       },
     });

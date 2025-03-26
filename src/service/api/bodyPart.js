@@ -9,7 +9,6 @@ const BodyPartAPI = {
           "page-size": pageSize,
         },
       });
-      // The actual response contains data nested in data property
       return response.data;
     } catch (error) {
       console.error("Error fetching body part:", error);
