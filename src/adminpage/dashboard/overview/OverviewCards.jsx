@@ -1,6 +1,6 @@
 import React from 'react'
 
-const OverviewCards = ({ data }) => {
+const OverviewCards = ({ data, overviewData }) => {
     return (
         <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -8,13 +8,14 @@ const OverviewCards = ({ data }) => {
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="text-sm opacity-80">Tổng doanh thu</p>
-                            <p className="text-2xl font-bold mt-1">18.5M ₫</p>
+                            <p className="text-2xl font-bold mt-1">{overviewData?.revenue?.revenue || "0.0M"}</p>
                             <div className="flex items-center mt-2">
-                                <span className="flex items-center text-emerald-300 text-sm">
+                                <span className={`flex items-center ${overviewData?.revenue?.isIncrease ? 'text-emerald-300' : 'text-red-300'} text-sm`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                            d={overviewData?.revenue?.isIncrease ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
                                     </svg>
-                                    12%
+                                    {overviewData?.revenue?.percent || "0"}%
                                 </span>
                                 <span className="text-xs opacity-70 ml-2">so với tháng trước</span>
                             </div>
@@ -30,13 +31,14 @@ const OverviewCards = ({ data }) => {
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="text-sm opacity-80">Đơn hàng mới</p>
-                            <p className="text-2xl font-bold mt-1">124</p>
+                            <p className="text-2xl font-bold mt-1">{overviewData?.newOrder?.quantityOrder || 0}</p>
                             <div className="flex items-center mt-2">
-                                <span className="flex items-center text-emerald-300 text-sm">
+                                <span className={`flex items-center ${overviewData?.newOrder?.isIncrease ? 'text-emerald-300' : 'text-red-300'} text-sm`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                            d={overviewData?.newOrder?.isIncrease ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
                                     </svg>
-                                    8%
+                                    {overviewData?.newOrder?.percent || 0}%
                                 </span>
                                 <span className="text-xs opacity-70 ml-2">so với tháng trước</span>
                             </div>
@@ -53,13 +55,14 @@ const OverviewCards = ({ data }) => {
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="text-sm opacity-80">Khách hàng mới</p>
-                            <p className="text-2xl font-bold mt-1">56</p>
+                            <p className="text-2xl font-bold mt-1">{overviewData?.newUser?.quantityUser || 0}</p>
                             <div className="flex items-center mt-2">
-                                <span className="flex items-center text-amber-300 text-sm">
+                                <span className={`flex items-center ${overviewData?.newUser?.isIncrease ? 'text-amber-300' : 'text-red-300'} text-sm`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                            d={overviewData?.newUser?.isIncrease ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
                                     </svg>
-                                    5%
+                                    {overviewData?.newUser?.percent || 0}%
                                 </span>
                                 <span className="text-xs opacity-70 ml-2">so với tháng trước</span>
                             </div>
@@ -76,13 +79,14 @@ const OverviewCards = ({ data }) => {
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="text-sm opacity-80">Sản phẩm sắp hết</p>
-                            <p className="text-2xl font-bold mt-1">{data.length}</p>
+                            <p className="text-2xl font-bold mt-1">{overviewData?.lowStockProducts?.quantity || 0}</p>
                             <div className="flex items-center mt-2">
-                                <span className="flex items-center text-rose-300 text-sm">
+                                <span className={`flex items-center ${overviewData?.lowStockProducts?.isIncrease ? 'text-rose-300' : 'text-red-300'} text-sm`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                            d={overviewData?.lowStockProducts?.isIncrease ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
                                     </svg>
-                                    3%
+                                    {overviewData?.lowStockProducts?.percent || 0}%
                                 </span>
                                 <span className="text-xs opacity-70 ml-2">so với tháng trước</span>
                             </div>

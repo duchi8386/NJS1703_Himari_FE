@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Nhập dữ liệu từ file riêng
 import {
@@ -16,6 +16,7 @@ import LowStockChart from './chart/LowStockChart';
 import LowStockTable from './chart/LowStockTable';
 import OrderStatusChart from './chart/OrderStatusChart';
 import OverviewCards from './overview/OverviewCards';
+import DashboardAPI from '../../service/api/dashboardAPI';
 
 const Dashboard = () => {
   const [data, setData] = useState({
@@ -25,6 +26,74 @@ const Dashboard = () => {
     topProducts: topProductsData,
     lowStockProducts: lowStockProductsData
   });
+
+  const [overviewData, setOverviewData] = useState({
+    revenue: {
+      revenue: "0.0M",
+      percent: "0",
+      isIncrease: true
+    },
+    newOrder: {
+      quantityOrder: 0,
+      percent: 0,
+      isIncrease: true
+    },
+    newUser: {
+      quantityUser: 0,
+      percent: 0,
+      isIncrease: true
+    },
+    lowStockProducts: {
+      quantity: 0,
+      percent: 3,
+      isIncrease: false
+    }
+  });
+
+  const fetchOverviewData = async () => {
+    try {
+      // Using Promise.all to fetch all data in parallel
+      const [revenueResponse, newOrderResponse, newUserResponse] = await Promise.all([
+        DashboardAPI.getRevenue(),
+        DashboardAPI.getNewOrder(),
+        DashboardAPI.getNewUser()
+      ]);
+
+      // Update state with all fetched data
+      setOverviewData({
+        revenue: revenueResponse.data || {
+          revenue: "0.0M",
+          percent: "0",
+          isIncrease: true
+        },
+        newOrder: newOrderResponse.data || {
+          quantityOrder: 0,
+          percent: 0,
+          isIncrease: true
+        },
+        newUser: newUserResponse.data || {
+          quantityUser: 0,
+          percent: 0,
+          isIncrease: true
+        },
+        lowStockProducts: {
+          quantity: data.lowStockProducts.length,
+          percent: 3,
+          isIncrease: false
+        }
+      });
+
+      console.log("Revenue data:", revenueResponse);
+      console.log("New Order data:", newOrderResponse);
+      console.log("New User data:", newUserResponse);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchOverviewData();
+  }, []);
 
   return (
     <div className="p-6 bg-gray-50">
@@ -36,7 +105,7 @@ const Dashboard = () => {
       </div>
 
       {/* Overview Cards */}
-      <OverviewCards data={data.lowStockProducts} />
+      <OverviewCards data={data.lowStockProducts} overviewData={overviewData} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Biểu đồ cột - Doanh thu theo thời gian */}

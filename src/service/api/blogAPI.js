@@ -8,6 +8,9 @@ const BlogAPI = {
           "page-index": pageIndex,
           "page-size": pageSize,
         },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
       return response.data;
     } catch (error) {
@@ -17,7 +20,11 @@ const BlogAPI = {
   },
   AddBlog: async (blogData) => {
     try {
-      const response = await axiosInstance.post("/blogs", blogData);
+      const response = await axiosInstance.post("/blogs", blogData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error adding blog:", error);
@@ -27,7 +34,11 @@ const BlogAPI = {
   UpdateBlog: async (blogData) => {
     try {
       // Ensure the API endpoint matches what the backend expects
-      const response = await axiosInstance.put("/blogs", blogData);
+      const response = await axiosInstance.put("/blogs", blogData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error updating blog:", error);
@@ -36,7 +47,11 @@ const BlogAPI = {
   },
   DeleteBlog: async (blogId) => {
     try {
-      const response = await axiosInstance.delete(`/blogs/${blogId}`);
+      const response = await axiosInstance.delete(`/blogs/${blogId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error deleting blog:", error);
@@ -49,6 +64,9 @@ const BlogAPI = {
           "page-index": pageIndex,
           "page-size": pageSize,
         },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
       return response.data;
     } catch (error) {
@@ -59,7 +77,12 @@ const BlogAPI = {
     try {
       const response = await axiosInstance.post(
         "/blog-categories",
-        blogCategoryData
+        blogCategoryData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -70,7 +93,12 @@ const BlogAPI = {
     try {
       const response = await axiosInstance.put(
         "/blog-categories",
-        blogCategoryData
+        blogCategoryData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -80,7 +108,12 @@ const BlogAPI = {
   GetBlogCategoriesById: async (blogCategoryId) => {
     try {
       const response = await axiosInstance.get(
-        `/blog-categories/${blogCategoryId}`
+        `/blog-categories/${blogCategoryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -90,7 +123,12 @@ const BlogAPI = {
   DeleteBlogCategory: async (blogCategoryId) => {
     try {
       const response = await axiosInstance.delete(
-        `/blog-categories/${blogCategoryId}`
+        `/blog-categories/${blogCategoryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -103,6 +141,7 @@ const BlogAPI = {
     return axiosInstance.post("/firebase/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
   },
@@ -113,6 +152,9 @@ const BlogAPI = {
           searchTerm: searchQuery,
           "page-index": pageIndex,
           "page-size": pageSize,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
       return response.data;
@@ -128,6 +170,9 @@ const BlogAPI = {
           searchTerm: searchQuery,
           "page-index": pageIndex,
           "page-size": pageSize,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
       return response.data;

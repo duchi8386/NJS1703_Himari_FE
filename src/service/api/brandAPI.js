@@ -8,6 +8,9 @@ const BrandAPI = {
           "page-index": pageIndex,
           "page-size": pageSize,
         },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
       return response.data;
     } catch (error) {
@@ -18,7 +21,11 @@ const BrandAPI = {
 
   getBrand: async (brandId) => {
     try {
-      const response = await axiosInstance.get(`/brands/${brandId}`);
+      const response = await axiosInstance.get(`/brands/${brandId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error fetching brand detail:", error);
@@ -28,7 +35,11 @@ const BrandAPI = {
 
   createBrand: async (brandData) => {
     try {
-      const response = await axiosInstance.post("/brands", brandData);
+      const response = await axiosInstance.post("/brands", brandData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error creating brand:", error);
@@ -38,7 +49,11 @@ const BrandAPI = {
 
   updateBrand: async (brandData) => {
     try {
-      const response = await axiosInstance.put("/brands", brandData);
+      const response = await axiosInstance.put("/brands", brandData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error updating brand:", error);
@@ -48,7 +63,11 @@ const BrandAPI = {
 
   deleteBrand: async (brandId) => {
     try {
-      const response = await axiosInstance.delete(`/brands/${brandId}`);
+      const response = await axiosInstance.delete(`/brands/${brandId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error deleting brand:", error);
@@ -62,6 +81,7 @@ const BrandAPI = {
     return axiosInstance.post("/firebase/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
   },
@@ -72,6 +92,9 @@ const BrandAPI = {
           searchTerm: searchQuery,
           "page-index": pageIndex,
           "page-size": pageSize,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
       return response.data;
