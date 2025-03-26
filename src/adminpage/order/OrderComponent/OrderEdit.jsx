@@ -297,14 +297,37 @@ const OrderEdit = ({ isOpen, onClose, onSuccess, order }) => {
             
             <Col span={6}>
               <Form.Item label=" " colon={false}>
-                <Button 
-                  danger 
-                  icon={<CloseCircleOutlined />} 
-                  onClick={handleCancel}
-                  style={{ width: '100%', height: '40px' }}
-                >
-                  Hủy đơn hàng
-                </Button>
+                {/* Chỉ hiển thị nút hủy khi đơn hàng chưa giao thành công và chưa bị hủy */}
+                {orderStatus !== 3 && !canceled && (
+                  <Button 
+                    danger 
+                    icon={<CloseCircleOutlined />} 
+                    onClick={handleCancel}
+                    style={{ width: '100%', height: '40px' }}
+                  >
+                    Hủy đơn hàng
+                  </Button>
+                )}
+                {/* Hiển thị thông báo khi đơn hàng đã bị hủy */}
+                {canceled && (
+                  <Tag 
+                    color="red" 
+                    icon={<CloseCircleOutlined />} 
+                    style={{ width: '100%', textAlign: 'center', padding: '8px 0', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    Đơn hàng đã bị hủy
+                  </Tag>
+                )}
+                {/* Hiển thị thông báo khi đơn hàng đã giao thành công */}
+                {orderStatus === 3 && !canceled && (
+                  <Tag 
+                    color="green" 
+                    icon={<CheckCircleOutlined />} 
+                    style={{ width: '100%', textAlign: 'center', padding: '8px 0', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    Đơn hàng thành công
+                  </Tag>
+                )}
               </Form.Item>
             </Col>
           </Row>
