@@ -7,34 +7,19 @@ const userAPI = {
         "page-index": pageIndex,
         "page-size": pageSize,
       },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
     });
   },
 
   updateUser: async (userData) => {
-    return axiosInstance.put(`/users`, userData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.put(`/users`, userData);
   },
 
   deleteUser: async (userId) => {
-    return axiosInstance.delete(`/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.delete(`/users/${userId}`);
   },
 
   getUserById: async (userId) => {
-    return axiosInstance.get(`/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.get(`/users/${userId}`);
   },
 };
 

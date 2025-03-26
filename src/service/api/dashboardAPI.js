@@ -3,11 +3,7 @@ import axiosInstance from "../instance";
 const DashboardAPI = {
   getRevenue: async () => {
     try {
-      const response = await axiosInstance.get("/dashboard/revenue", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.get("/dashboard/revenue");
       return response.data;
     } catch (error) {
       console.log(error);
@@ -16,11 +12,7 @@ const DashboardAPI = {
   },
   getNewOrder: async () => {
     try {
-      const response = await axiosInstance.get("/dashboard/new-order", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.get("/dashboard/new-order");
       return response.data;
     } catch (error) {
       console.log(error);
@@ -29,11 +21,7 @@ const DashboardAPI = {
   },
   getNewUser: async () => {
     try {
-      const response = await axiosInstance.get("/dashboard/new-user", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.get("/dashboard/new-user");
       return response.data;
     } catch (error) {
       console.log(error);

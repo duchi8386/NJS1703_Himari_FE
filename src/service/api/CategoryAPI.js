@@ -9,26 +9,16 @@ const CategoryAPI = {
         searchTerm: filters?.searchText || "",
         "newest-first": filters?.newestFirst ?? true,
       },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
     });
   },
   getCategory: async (categoryId) => {
-    return axiosInstance.get(`/categories/${categoryId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.get(`/categories/${categoryId}`);
   },
   getParentCategory: async (pageIndex, pageSize) => {
     return axiosInstance.get("/categories/parent", {
       params: {
         "page-index": pageIndex,
         "page-size": pageSize,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
   },
@@ -39,39 +29,20 @@ const CategoryAPI = {
         "page-index": pageIndex,
         "page-size": pageSize,
       },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
     });
   },
   createCatrgory: async (categoryData) => {
-    return axiosInstance.post("/categories", categoryData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.post("/categories", categoryData);
   },
   updateCategory: async (categoryData) => {
-    return axiosInstance.put(`/categories`, categoryData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.put(`/categories`, categoryData);
   },
   deleteCategory: async (categoryId) => {
-    return axiosInstance.delete(`/categories/${categoryId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.delete(`/categories/${categoryId}`);
   },
   getCategoryById: async (categoryId) => {
     try {
-      const response = await axiosInstance.get(`/categories/${categoryId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.get(`/categories/${categoryId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching category details:", error);

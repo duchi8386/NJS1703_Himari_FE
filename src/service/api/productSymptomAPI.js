@@ -8,9 +8,6 @@ const ProductSymptomAPI = {
           "page-index": pageIndex,
           "page-size": pageSize,
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
       return response.data;
     } catch (error) {
@@ -21,12 +18,7 @@ const ProductSymptomAPI = {
     try {
       const response = await axiosInstance.post(
         "/product-symptoms",
-        productSymptom,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+        productSymptom
       );
       return response.data;
     } catch (error) {
@@ -38,12 +30,7 @@ const ProductSymptomAPI = {
     try {
       const response = await axiosInstance.put(
         "/product-symptoms",
-        productSymptom,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+        productSymptom
       );
       return response.data;
     } catch (error) {
@@ -53,11 +40,7 @@ const ProductSymptomAPI = {
   },
   deleteProductSymptom: async (id) => {
     try {
-      const response = await axiosInstance.delete(`/product-symptoms/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.delete(`/product-symptoms/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting product symptom:", error);

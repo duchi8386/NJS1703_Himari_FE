@@ -10,9 +10,6 @@ const partSymptomAPI = {
           searchTerm: filters?.searchText || "",
           "newest-first": filters?.newestFirst ?? true,
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
       return response.data;
     } catch (error) {
@@ -23,12 +20,7 @@ const partSymptomAPI = {
   getPartSymptomById: async (partSymptomId) => {
     try {
       const response = await axiosInstance.get(
-        `/part-symptoms/${partSymptomId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+        `/part-symptoms/${partSymptomId}`
       );
       return response.data;
     } catch (error) {
@@ -38,11 +30,7 @@ const partSymptomAPI = {
   },
   addPartSymptom: async (partSymptom) => {
     try {
-      const response = await axiosInstance.post("/part-symptoms", partSymptom, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.post("/part-symptoms", partSymptom);
       return response.data;
     } catch (error) {
       console.error("Error adding part symptom:", error);
@@ -51,11 +39,7 @@ const partSymptomAPI = {
   },
   updatePartSymptom: async (partSymptom) => {
     try {
-      const response = await axiosInstance.put("/part-symptoms", partSymptom, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.put("/part-symptoms", partSymptom);
       return response.data;
     } catch (error) {
       console.error("Error updating part symptom:", error);
@@ -64,11 +48,7 @@ const partSymptomAPI = {
   },
   deletePartSymptom: async (id) => {
     try {
-      const response = await axiosInstance.delete(`/part-symptoms/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.delete(`/part-symptoms/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting part symptom:", error);

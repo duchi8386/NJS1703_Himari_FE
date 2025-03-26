@@ -7,38 +7,19 @@ const ProductAPI = {
         "page-index": pageIndex,
         "page-size": pageSize,
       },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
     });
   },
   getProductById: async (productId) => {
-    return axiosInstance.get(`/products/${productId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.get(`/products/${productId}`);
   },
   AddProducts: async (productData) => {
-    return axiosInstance.post("/products", productData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.post("/products", productData);
   },
   UpdateProducts: async (productData) => {
-    return axiosInstance.put("/products", productData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.put("/products", productData);
   },
   DeleteProduct: async (productId) => {
-    return axiosInstance.delete(`/products/${productId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    return axiosInstance.delete(`/products/${productId}`);
   },
   uploadToFirebase: async (file) => {
     const formData = new FormData();
@@ -46,7 +27,6 @@ const ProductAPI = {
     return axiosInstance.post("/firebase/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
   },

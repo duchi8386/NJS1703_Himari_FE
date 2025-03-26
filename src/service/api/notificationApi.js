@@ -11,9 +11,6 @@ const NotificationAPI = {
           searchTerm: filters?.searchText || "",
           "newest-first": filters?.newestFirst ?? true,
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
       return response.data;
     } catch (error) {
@@ -27,18 +24,10 @@ const NotificationAPI = {
     try {
       // Gửi thông báo cho từng user
       const promises = data.userIds.map((userId) =>
-        axiosInstance.post(
-          `/notifications/push/${userId}`,
-          {
-            title: data.title,
-            message: data.message,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        )
+        axiosInstance.post(`/notifications/push/${userId}`, {
+          title: data.title,
+          message: data.message,
+        })
       );
 
       // Đợi tất cả các request hoàn thành
@@ -63,18 +52,10 @@ const NotificationAPI = {
   // Gửi thông báo cho tất cả người dùng
   sendToAllUsers: async (data) => {
     try {
-      const response = await axiosInstance.post(
-        "/notifications/push",
-        {
-          title: data.title,
-          message: data.message,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const response = await axiosInstance.post("/notifications/push", {
+        title: data.title,
+        message: data.message,
+      });
       return response.data;
     } catch (error) {
       console.error("Error sending notification to all users:", error);
@@ -89,9 +70,6 @@ const NotificationAPI = {
         params: {
           "page-index": pageIndex,
           "page-size": pageSize,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
       return response.data;

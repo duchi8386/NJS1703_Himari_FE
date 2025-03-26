@@ -12,9 +12,6 @@ const OrderAPI = {
           paymentStatus: filters?.paymentStatus || "",
           newestFirst: filters?.newestFirst ?? true,
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
       return response.data;
     } catch (error) {
@@ -24,11 +21,7 @@ const OrderAPI = {
   },
   getOrderById: async (orderId) => {
     try {
-      const response = await axiosInstance.get(`/orders/id/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.get(`/orders/id/${orderId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching order by ID:", error);
@@ -42,9 +35,6 @@ const OrderAPI = {
           month,
           year,
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
       return response.data;
     } catch (error) {
@@ -54,20 +44,12 @@ const OrderAPI = {
   },
   updateOrder: async (orderId, updateData) => {
     try {
-      const response = await axiosInstance.put(
-        "/orders",
-        {
-          orderId: orderId,
-          address: updateData.address,
-          deliveryStatus: updateData.deliveryStatus,
-          phoneNumber: updateData.phoneNumber,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      const response = await axiosInstance.put("/orders", {
+        orderId: orderId,
+        address: updateData.address,
+        deliveryStatus: updateData.deliveryStatus,
+        phoneNumber: updateData.phoneNumber,
+      });
       return response.data;
     } catch (error) {
       console.error("Error updating order:", error);

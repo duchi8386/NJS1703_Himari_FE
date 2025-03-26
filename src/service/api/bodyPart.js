@@ -8,9 +8,6 @@ const BodyPartAPI = {
           "page-index": pageIndex,
           "page-size": pageSize,
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
       return response.data;
     } catch (error) {
@@ -20,11 +17,7 @@ const BodyPartAPI = {
   },
   getBodyPart: async (id) => {
     try {
-      const response = await axiosInstance.get(`/body-parts/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.get(`/body-parts/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching body part:", error);
@@ -32,11 +25,7 @@ const BodyPartAPI = {
   },
   AddBodyPart: async (bodyPart) => {
     try {
-      const response = await axiosInstance.post("/body-parts", bodyPart, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.post("/body-parts", bodyPart);
       return response.data;
     } catch (error) {
       console.error("Error adding body part:", error);
@@ -45,11 +34,7 @@ const BodyPartAPI = {
   },
   UpdateBodyPart: async (bodyPart) => {
     try {
-      const response = await axiosInstance.put("/body-parts", bodyPart, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.put("/body-parts", bodyPart);
       return response.data;
     } catch (error) {
       console.error("Error updating body part:", error);
@@ -58,11 +43,7 @@ const BodyPartAPI = {
   },
   DeleteBodyPart: async (id) => {
     try {
-      const response = await axiosInstance.delete(`/body-parts/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.delete(`/body-parts/${id}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting body part:", error);
@@ -76,9 +57,6 @@ const BodyPartAPI = {
           searchTerm: searchQuery,
           "page-index": pageIndex,
           "page-size": pageSize,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
       return response.data;
