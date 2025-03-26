@@ -8,9 +8,6 @@ const BlogAPI = {
           "page-index": pageIndex,
           "page-size": pageSize,
         },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
       });
       return response.data;
     } catch (error) {
@@ -20,11 +17,7 @@ const BlogAPI = {
   },
   AddBlog: async (blogData) => {
     try {
-      const response = await axiosInstance.post("/blogs", blogData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.post("/blogs", blogData);
       return response.data;
     } catch (error) {
       console.error("Error adding blog:", error);
@@ -34,11 +27,7 @@ const BlogAPI = {
   UpdateBlog: async (blogData) => {
     try {
       // Ensure the API endpoint matches what the backend expects
-      const response = await axiosInstance.put("/blogs", blogData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.put("/blogs", blogData);
       return response.data;
     } catch (error) {
       console.error("Error updating blog:", error);
@@ -47,11 +36,7 @@ const BlogAPI = {
   },
   DeleteBlog: async (blogId) => {
     try {
-      const response = await axiosInstance.delete(`/blogs/${blogId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await axiosInstance.delete(`/blogs/${blogId}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting blog:", error);
@@ -63,9 +48,6 @@ const BlogAPI = {
         params: {
           "page-index": pageIndex,
           "page-size": pageSize,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
       return response.data;

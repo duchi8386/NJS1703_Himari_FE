@@ -83,9 +83,9 @@ const Dashboard = () => {
         }
       });
 
-      console.log("Revenue data:", revenueResponse);
-      console.log("New Order data:", newOrderResponse);
-      console.log("New User data:", newUserResponse);
+      // console.log("Revenue data:", revenueResponse);
+      // console.log("New Order data:", newOrderResponse);
+      // console.log("New User data:", newUserResponse);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     }

@@ -107,11 +107,20 @@ const AddProduct = ({
             <Form.Item
               name="price"
               label={<span className="text-sm">Giá <span className="text-red-500">*</span></span>}
-              rules={[{ required: true, message: 'Vui lòng nhập giá!' }]}
+              rules={[
+                { required: true, message: 'Vui lòng nhập giá!' },
+                {
+                  pattern: /^\d+(\.\d+)?$/,
+                  message: 'Giá phải là số!'
+                }
+              ]}
             >
               <Input
                 className="h-10 rounded"
                 placeholder="Nhập giá sản phẩm"
+                type="number"
+                min="0"
+                step="0.01"
               />
             </Form.Item>
 
@@ -176,9 +185,19 @@ const AddProduct = ({
             <Form.Item
               name="quantity"
               label={<span className="text-sm">Số lượng</span>}
+              rules={[
+                {
+                  pattern: /^\d+$/,
+                  message: 'Số lượng phải là số nguyên!'
+                }
+              ]}
             >
               <Input
                 className="h-10 rounded"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="Nhập số lượng"
               />
             </Form.Item>
 

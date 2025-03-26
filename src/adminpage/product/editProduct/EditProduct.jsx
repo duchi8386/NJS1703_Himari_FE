@@ -107,7 +107,7 @@ const EditProduct = ({
       };
 
       await onEditProduct(updatedValues, productData.id);
-      
+
       // Clear the thumbnail field after successful update
       form.setFieldValue('thumbnail', null);
     } catch (error) {
@@ -157,11 +157,20 @@ const EditProduct = ({
             <Form.Item
               name="price"
               label={<span className="text-sm">Giá <span className="text-red-500">*</span></span>}
-              rules={[{ required: true, message: 'Vui lòng nhập giá!' }]}
+              rules={[
+                { required: true, message: 'Vui lòng nhập giá!' },
+                {
+                  pattern: /^\d+(\.\d+)?$/,
+                  message: 'Giá phải là số!'
+                }
+              ]}
             >
               <Input
                 className="h-10 rounded"
                 placeholder="Nhập giá sản phẩm"
+                type="number"
+                min="0"
+                step="0.01"
               />
             </Form.Item>
 
@@ -239,9 +248,19 @@ const EditProduct = ({
             <Form.Item
               name="quantity"
               label={<span className="text-sm">Số lượng</span>}
+              rules={[
+                {
+                  pattern: /^\d+$/,
+                  message: 'Số lượng phải là số nguyên!'
+                }
+              ]}
             >
               <Input
                 className="h-10 rounded"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="Nhập số lượng"
               />
             </Form.Item>
           </div>
@@ -277,9 +296,9 @@ const EditProduct = ({
                 label={<span className="text-sm">Cập nhật hình ảnh</span>}
               >
                 {/* Pass key prop to force re-render when imageUrl changes */}
-                <ImageUpload 
+                <ImageUpload
                   onChange={handleImageChange}
-                  key={imageUrl} 
+                  key={imageUrl}
                 />
               </Form.Item>
             </div>

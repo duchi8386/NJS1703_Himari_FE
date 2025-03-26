@@ -58,7 +58,6 @@ const ProductManagement = () => {
         productPagination.current,
         productPagination.pageSize
       );
-
       if (response?.data?.data) {
         setProducts(response.data.data.data);
         setProductPagination({
