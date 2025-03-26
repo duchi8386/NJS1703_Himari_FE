@@ -179,7 +179,6 @@ const Sidebar = ({ handleLogout, collapsed, toggleCollapsed }) => {
         theme="light"
         mode="inline"
         selectedKeys={[location.pathname]}
-        defaultOpenKeys={["blog"]}
         items={menuItems}
         style={{
           borderRight: 0,

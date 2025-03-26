@@ -6,7 +6,7 @@ const SympTable = ({ symptoms, loading, onEdit, onDelete, pagination, onChange, 
   // Function to get body part name by id
   const getBodyPartName = (bodyPartId) => {
     const bodyPart = bodyParts.find(part => part.id === bodyPartId);
-    return bodyPart ? bodyPart.name : "Không xác định";
+    return bodyPart ? bodyPart.bodyPartName : "Không xác định";
   };
 
   const columns = [
@@ -30,7 +30,7 @@ const SympTable = ({ symptoms, loading, onEdit, onDelete, pagination, onChange, 
       dataIndex: "bodyPartId",
       key: "bodyPartId",
       render: (bodyPartId) => getBodyPartName(bodyPartId),
-      filters: bodyParts.map(part => ({ text: part.name, value: part.id })),
+      filters: bodyParts.map(part => ({ text: part.bodyPartName, value: part.id })),
       onFilter: (value, record) => record.bodyPartId === value,
     },
     {
@@ -68,7 +68,7 @@ const SympTable = ({ symptoms, loading, onEdit, onDelete, pagination, onChange, 
         className="bg-white rounded-lg shadow"
         pagination={{
           ...pagination,
-          showTotal: (total, range) => 
+          showTotal: (total, range) =>
             `Hiển thị ${range[0]}-${range[1]} trên tổng số ${total} triệu chứng`,
           position: ['bottomRight'],
 

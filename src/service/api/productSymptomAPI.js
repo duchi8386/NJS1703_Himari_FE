@@ -47,5 +47,16 @@ const ProductSymptomAPI = {
       throw error;
     }
   },
+  getProductSymptomsByProductId: async (productId) => {
+    try {
+      const response = await axiosInstance.get(
+        `/product-symptoms/product/${productId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product symptoms by product ID:", error);
+      throw error;
+    }
+  },
 };
 export default ProductSymptomAPI;

@@ -38,7 +38,7 @@ const SymptomPart = () => {
         searchText,
         newestFirst
       });
-
+      // console.log(response)
       if (response?.data?.data) {
         const { data, metaData } = response.data;
         setSymptoms(data);
@@ -59,9 +59,9 @@ const SymptomPart = () => {
   };
   const fetchBodyParts = async () => {
     try {
-      const response = await BodyPartAPI.getBodyParts(1, 20);
-      console.log(response);
-      if (response && response.data) {
+      const response = await BodyPartAPI.getBodyParts(1, 10);
+      // console.log("bo phan co the:", response);
+      if (response && response.data && response.data.data) {
         setBodyParts(response.data.data);
       }
     } catch (error) {
