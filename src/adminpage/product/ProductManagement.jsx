@@ -26,13 +26,13 @@ const ProductManagement = () => {
 
   const [categoryPagination, setCategoryPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 35,
     total: 0
   });
 
   const [brandPagination, setBrandPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 30,
     total: 0
   });
 
@@ -61,7 +61,7 @@ const ProductManagement = () => {
     try {
       setLoading(true);
       let response;
-      
+
       if (searchQuery) {
         // Sử dụng API tìm kiếm nếu có từ khóa
         response = await ProductAPI.searchProducts(
@@ -76,7 +76,7 @@ const ProductManagement = () => {
           productPagination.pageSize
         );
       }
-      
+
       if (response?.data?.data) {
         setProducts(response.data.data.data);
         setProductPagination({
@@ -223,7 +223,7 @@ const ProductManagement = () => {
   const handleSearch = async (value) => {
     setSearchQuery(value);
     setLoading(true);
-    
+
     // Reset về trang đầu tiên khi tìm kiếm
     setProductPagination(prev => ({
       ...prev,
@@ -238,10 +238,10 @@ const ProductManagement = () => {
       }
 
       const response = await ProductAPI.searchProducts(1, productPagination.pageSize, value);
-      
+
       if (response?.data?.data) {
         setProducts(response.data.data.data);
-        
+
         // Cập nhật thông tin phân trang từ kết quả tìm kiếm
         if (response.data.data.metaData) {
           setProductPagination({
