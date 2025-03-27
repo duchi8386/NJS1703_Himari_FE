@@ -21,18 +21,16 @@ const ProductSympAdd = ({
       const values = await form.validateFields();
       setLoading(true);
 
-      // Process each selected symptom
-      for (const symptomId of values.partSymptomIds) {
-        const newProductSymptom = {
-          partSymptomId: symptomId,
-          productId: values.productId,
-        };
+      // Now we send a single request with all symptoms at once
+      const productId = values.productId;
+      const listPartSymptomId = values.partSymptomIds;
 
-        try {
-          await onAddProductSymptom(newProductSymptom);
-        } catch (error) {
-          console.error("Failed to add product-symptom:", error);
-        }
+      try {
+        await onAddProductSymptom(productId, listPartSymptomId);
+        // message.success("Thêm liên kết sản phẩm-triệu chứng thành công");
+      } catch (error) {
+        console.error("Failed to add product-symptom:", error);
+        message.error("Lỗi khi thêm liên kết: " + (error.message || "Không xác định"));
       }
 
       handleCancel();

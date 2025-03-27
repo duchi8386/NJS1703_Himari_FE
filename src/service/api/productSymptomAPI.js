@@ -14,12 +14,12 @@ const ProductSymptomAPI = {
       console.error("Error fetching product symptom:", error);
     }
   },
-  addProductSymptom: async (productSymptom) => {
+  addProductSymptom: async (productId, listPartSymptomId) => {
     try {
-      const response = await axiosInstance.post(
-        "/product-symptoms",
-        productSymptom
-      );
+      const response = await axiosInstance.post("/product-symptoms/bulk", {
+        productId,
+        listPartSymptomId,
+      });
       return response.data;
     } catch (error) {
       console.error("Error adding product symptom:", error);
