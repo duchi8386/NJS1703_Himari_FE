@@ -238,6 +238,7 @@ const EditProduct = ({
               label={<span className="text-sm">Giới tính</span>}
               valuePropName="checked"
               initialValue={true}
+              hidden
             >
               <Switch
                 checkedChildren="Nam"
