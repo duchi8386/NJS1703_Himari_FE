@@ -30,6 +30,15 @@ const ProductAPI = {
       },
     });
   },
+  searchProducts: async (pageIndex, pageSize, keyword) => {
+    return axiosInstance.get(`/products/search`, {
+      params: {
+        "page-index": pageIndex,
+        "page-size": pageSize,
+        "keyword": keyword
+      },
+    });
+  },
 };
 
 export default ProductAPI;

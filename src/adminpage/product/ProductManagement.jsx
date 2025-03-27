@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import ProductTable from './productTable/ProductTable'
-import { Button, message, Pagination } from 'antd'
+import { Button, message, Pagination, Input, Space } from 'antd'
+import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import AddProduct from './addProduct/AddProduct'
 import ProductAPI from '../../service/api/productAPI'
 import CategoryAPI from '../../service/api/CategoryAPI'
 import BrandAPI from '../../service/api/brandAPI'
 import EditProduct from './editProduct/EditProduct'
+
+const { Search } = Input;
 
 const ProductManagement = () => {
   // States for data
@@ -43,22 +46,37 @@ const ProductManagement = () => {
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingBrands, setLoadingBrands] = useState(false);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Fetch all necessary data when component mounts
   useEffect(() => {
     fetchProducts();
     fetchParentCategories();
     fetchBrands();
-  }, [productPagination.current, categoryPagination.current, brandPagination.current]);
+  }, [productPagination.current, productPagination.pageSize]);
 
   // Fetch products
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await ProductAPI.getProducts(
-        productPagination.current,
-        productPagination.pageSize
-      );
-      console.log(response);
+      let response;
+      
+      if (searchQuery) {
+        // Sử dụng API tìm kiếm nếu có từ khóa
+        response = await ProductAPI.searchProducts(
+          productPagination.current,
+          productPagination.pageSize,
+          searchQuery
+        );
+      } else {
+        // Sử dụng API lấy tất cả sản phẩm nếu không có từ khóa
+        response = await ProductAPI.getProducts(
+          productPagination.current,
+          productPagination.pageSize
+        );
+      }
+      
       if (response?.data?.data) {
         setProducts(response.data.data.data);
         setProductPagination({
@@ -202,6 +220,58 @@ const ProductManagement = () => {
     });
   };
 
+  const handleSearch = async (value) => {
+    setSearchQuery(value);
+    setLoading(true);
+    
+    // Reset về trang đầu tiên khi tìm kiếm
+    setProductPagination(prev => ({
+      ...prev,
+      current: 1
+    }));
+
+    try {
+      if (value.trim() === '') {
+        // Nếu từ khóa trống, lấy tất cả sản phẩm
+        await fetchProducts();
+        return;
+      }
+
+      const response = await ProductAPI.searchProducts(1, productPagination.pageSize, value);
+      
+      if (response?.data?.data) {
+        setProducts(response.data.data.data);
+        
+        // Cập nhật thông tin phân trang từ kết quả tìm kiếm
+        if (response.data.data.metaData) {
+          setProductPagination({
+            ...productPagination,
+            current: response.data.data.metaData.currentPage,
+            total: response.data.data.metaData.totalCount
+          });
+        }
+      } else {
+        setProducts([]);
+        setProductPagination(prev => ({ ...prev, total: 0 }));
+      }
+    } catch (error) {
+      console.error('Error searching products:', error);
+      message.error('Không thể tìm kiếm sản phẩm');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Hàm xử lý reset tìm kiếm
+  const handleResetSearch = () => {
+    setSearchQuery('');
+    setProductPagination({
+      ...productPagination,
+      current: 1
+    });
+    fetchProducts();
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -215,6 +285,28 @@ const ProductManagement = () => {
             + Thêm sản phẩm mới
           </Button>
         </div>
+      </div>
+
+      {/* Phần tìm kiếm được cải thiện */}
+      <div className="bg-white p-4 mb-6 rounded-lg shadow flex items-center space-x-4 flex-wrap">
+        <Search
+          placeholder="Tìm kiếm theo tên sản phẩm"
+          allowClear
+          enterButton
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onSearch={handleSearch}
+          style={{ width: 300 }}
+          loading={loading}
+        />
+
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={handleResetSearch}
+          title="Làm mới"
+        >
+          Làm mới
+        </Button>
       </div>
 
       <ProductTable
