@@ -63,13 +63,12 @@ const TopProductsChart = ({ data, isLoading }) => {
                             tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
                         />
                         <Tooltip
-                            formatter={(value) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)}
                             contentStyle={{ borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', border: 'none' }}
                             labelFormatter={(name) => name} // Show full name in tooltip
                         />
                         <Bar
                             dataKey="revenue"
-                            name="Doanh thu"
+                            name="Đã bán"
                             fill="#f43f5e"
                             radius={[0, 4, 4, 0]}
                             barSize={25}
