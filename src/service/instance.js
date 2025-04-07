@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://wizlab.io.vn:9999/api/v1/";
+const API_BASE_URL = "https://himari-api.wizlab.io.vn/api/v1/";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
