@@ -132,10 +132,10 @@ const ProductSymptoms = () => {
   };
 
   // CRUD Operations
-  const handleAddProductSymptom = async (newProductSymptom) => {
+  const handleAddProductSymptom = async (productId, listPartSymptomId) => {
     updateState({ loading: true });
     try {
-      const response = await ProductSymptomAPI.addProductSymptom(newProductSymptom);
+      const response = await ProductSymptomAPI.addProductSymptom(productId, listPartSymptomId);
       if (response) {
         message.success("Thêm liên kết sản phẩm-triệu chứng thành công");
         updateState({ isAddModalVisible: false });

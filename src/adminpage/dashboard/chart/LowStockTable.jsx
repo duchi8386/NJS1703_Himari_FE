@@ -52,15 +52,15 @@ const LowStockTable = ({ data, isLoading }) => {
             <div className="overflow-x-auto">
                 <div className="max-h-[400px] overflow-y-auto">
                     <table className="w-full border-collapse table-auto">
-                        <thead>
+                        <thead className="sticky top-0 z-20">
                             <tr className="bg-gradient-to-r from-gray-50 to-gray-100 text-gray-600">
-                                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider sticky top-0 z-10 border-b border-gray-200">
+                                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                                     Tên sản phẩm
                                 </th>
-                                <th className="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider sticky top-0 z-10 border-b border-gray-200">
+                                <th className="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                                     Số lượng
                                 </th>
-                                <th className="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider sticky top-0 z-10 border-b border-gray-200">
+                                <th className="px-6 py-3.5 text-center text-xs font-semibold uppercase tracking-wider bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                                     Trạng thái
                                 </th>
                             </tr>

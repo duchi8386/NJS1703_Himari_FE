@@ -188,7 +188,7 @@ const Dashboard = () => {
             .map(item => ({
               id: item.id,
               name: item.productName,
-              revenue: item.price * (item.sold || 0)
+              revenue: item.sold || 0
             }))
             .sort((a, b) => b.revenue - a.revenue);
 
